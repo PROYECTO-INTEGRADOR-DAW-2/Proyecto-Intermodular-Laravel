@@ -21,19 +21,19 @@ class ProductFactory extends Factory
     {
         return [
             'sku' => fake()->unique()->randomNumber(8),
-            'marca' => fake()->word(),
-            'categoria' => fake()->word(),
+            'marca' => fake()->randomElement(["Adidas", "Nike", "Asics","Puma"]),
+            'categoria' => fake()->randomElement(["Camisetas", "Pantalones", "Zapatillas"]),
             'nombre' => fake()->word(),
             'precio' => fake()->randomFloat(2, 1, 100),
             'talla' => fake()->word(),
             'color' => fake()->word(),
             'stock' => fake()->randomNumber(2),
-            'ajuste' => fake()->randomNumber(2),
-            'sexo' => fake()->word(),
+            'ajuste' => fake()->randomElement(["Ajustado", "Holgado", "Normal"]),
+            'sexo' => fake()->randomElement(["Hombre", "Mujer", "Niño"]),
             'descripcion' => fake()->sentence(),
-            'altura' => fake()->randomNumber(2),
-            'deporte' => fake()->word(),
-            'oferta' => fake()->randomNumber(2),
+            'altura' => fake()->randomElement(["Bajo", "Alto", "Normal"]),
+            'deporte' => fake()->randomElement(["Trail"]),
+            'oferta' => fake()->boolean(),
             'img' => fake()->imageUrl(),
         ];
     }
