@@ -45,3 +45,15 @@ artisan:
 composer:
 	@docker compose run --rm app composer $(CMD)
 	@true
+
+npm:
+	@docker compose run --rm app npm $(CMD)
+	@true
+
+build:
+	@docker compose run --rm app npm install && npm run build
+	@true
+
+dev:
+	@docker compose run --rm app npm run dev
+	@true
