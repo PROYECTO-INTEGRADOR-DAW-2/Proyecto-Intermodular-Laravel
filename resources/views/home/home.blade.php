@@ -4,7 +4,7 @@
 
 @section('content')
     <main>
-        <header class="d-flex align-items-center justify-content-center text-center" style="background-image: url('{{ asset('img/fondopagina.jpg') }}');">
+        <header id="header-home" class="d-flex align-items-center justify-content-center text-center" style="background-image: url('{{ asset('img/fondopagina.jpg') }}');">
             <div class="container-fluid">
                 <h1>J&A Sports</h1>
                 <p>Compra a montones y viste a tu propio estilo</p>
