@@ -1,4 +1,4 @@
-<nav id="nav-section" class="navbar navbar-expand-lg fixed-top" style="background-color: #1F1F1F;">
+<nav id="nav-section" class="navbar navbar-dark navbar-expand-lg fixed-top" style="background-color: #1F1F1F;">
     <div class="container-fluid">
 
         <!-- Mobile Logo and Toggler -->
@@ -25,28 +25,26 @@
                     </a>
                 </div>
 
-
                 <!-- Navigation Links -->
                 <div class="col-lg-4 col-md-12 mt-3 mt-lg-0">
-                    <ul id="main-nav"
-                        class="d-flex flex-column flex-lg-row justify-content-around list-unstyled m-0 gx-0 gap-2 gap-lg-0">
-                        <li><a href="#" class="text-white text-decoration-none">Hombre</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Mujer</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Niños</a></li>
-                        <li><a href="#" class="text-white text-decoration-none">Productos</a></li>
-                    </ul>
+                    <div class="row align-items-center justify-content-around">
+                        <ul id="main-nav" class="col d-flex flex-column flex-lg-row justify-content-around list-unstyled m-0 gx-0 gap-2 gap-lg-0">
+                            <li><a href="#" class="text-white text-decoration-none">Hombre</a></li>
+                            <li><a href="#" class="text-white text-decoration-none">Mujer</a></li>
+                            <li><a href="#" class="text-white text-decoration-none">Niños</a></li>
+                            <li><a href="#" class="text-white text-decoration-none">Productos</a></li>
+                        </ul>
 
-                  
-
-                    @auth
-                        <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white text-decoration-none">
-                            {{ __('Dashboard') }}
-                        </x-nav-link>
-                    @endauth
+                        @auth
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="col text-white text-decoration-none">
+                                {{ __('Dashboard') }}
+                            </x-nav-link>
+                        @endauth
+                    </div>
                 </div>
 
                 <!-- Search Bar -->
-                <div class="col-lg-5 col-md-12 my-3 my-lg-0 px-lg-3">
+                <div class="col-lg-4 col-md-12 my-3 my-lg-0 px-lg-3">
                     <input type="text" placeholder="Buscar" aria-label="Buscar productos" class="form-control w-100 bg-dark text-white border-secondary">
                 </div>
 
@@ -57,7 +55,7 @@
                             <!-- User Dropdown -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-white p-0 d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="{{ asset('img/user.png') }}" alt="Icono de usuario" style="height: 24px;">
+                                    <img src="{{ asset('img/user.png') }}" alt="Icono de usuario">
                                     <span class="ms-2 d-none d-lg-inline">{{ Auth::user()->name }}</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userDropdown">
@@ -76,14 +74,14 @@
                         @else
                             <li>
                                 <a href="{{ route('login') }}" aria-label="Iniciar sesión">
-                                    <img src="{{ asset('img/user.png') }}" alt="Icono de usuario" style="height: 24px;">
+                                    <img src="{{ asset('img/user.png') }}" alt="Icono de usuario">
                                 </a>
                             </li>
                         @endauth
                         
                         <li>
                             <a href="#" aria-label="Ver carrito">
-                                <img src="{{ asset('img/carrito.png') }}" alt="Icono del carrito" style="height: 24px;">
+                                <img src="{{ asset('img/carrito.png') }}" alt="Icono del carrito">
                             </a>
                         </li>
                     </ul>
