@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests\StoreImportProductsRequest;
+use App\Http\Requests\ImportProductsRequest;
 use App\Services\ProductImportService;
 
 class ProductImportController extends Controller
@@ -24,7 +24,7 @@ class ProductImportController extends Controller
         // Pasamos el objeto al servicio y que él se pelee con la lógica
         $this->service->import($file);
 
-        return response()->json(['message' => 'Importación lanzada']);
+        return redirect()->route('import.index')->with('success', 'Importación realizada correctamente');
     }
 
 }

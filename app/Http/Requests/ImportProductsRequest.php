@@ -26,7 +26,7 @@ class ImportProductsRequest extends FormRequest
             $fileKey => [
                 'required',
                 'file',
-                'mimes:csv,xlsx,xls',
+                'extensions:csv,xlsx,xls',
                 'max:2048',
             ],
         ];

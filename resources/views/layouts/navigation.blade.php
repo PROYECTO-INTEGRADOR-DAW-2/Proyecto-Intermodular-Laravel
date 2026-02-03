@@ -27,20 +27,19 @@
 
                 <!-- Navigation Links -->
                 <div class="col-lg-4 col-md-12 mt-3 mt-lg-0">
-                    <div class="row align-items-center justify-content-around">
                         <ul id="main-nav" class="col d-flex flex-column flex-lg-row justify-content-around list-unstyled m-0 gx-0 gap-2 gap-lg-0">
                             <li><a href="#" class="text-white text-decoration-none">Hombre</a></li>
                             <li><a href="#" class="text-white text-decoration-none">Mujer</a></li>
                             <li><a href="#" class="text-white text-decoration-none">Niños</a></li>
                             <li><a href="#" class="text-white text-decoration-none">Productos</a></li>
+                            @auth
+                                <li class="{{ request()->routeIs('dashboard') ? 'active-nav' : '' }}">
+                                    <a href="{{ route('dashboard') }}" class="text-white text-decoration-none">
+                                        {{ __('Dashboard') }}
+                                    </a>
+                                </li>
+                            @endauth
                         </ul>
-
-                        @auth
-                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="col text-white text-decoration-none">
-                                {{ __('Dashboard') }}
-                            </x-nav-link>
-                        @endauth
-                    </div>
                 </div>
 
                 <!-- Search Bar -->
@@ -54,9 +53,9 @@
                         @auth
                             <!-- User Dropdown -->
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-white p-0 d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="{{ asset('img/user.png') }}" alt="Icono de usuario">
-                                    <span class="ms-2 d-none d-lg-inline">{{ Auth::user()->name }}</span>
+                                <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <img src="{{ asset('img/user.png') }}" alt="Icono de usuario" style="pointer-events: none;">
+                                    <span class="ms-2 d-none d-lg-inline-block">{{ Auth::user()->name }}</span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userDropdown">
                                     <li><a class="dropdown-item" href="{{ route('profile.edit') }}">{{ __('Profile') }}</a></li>

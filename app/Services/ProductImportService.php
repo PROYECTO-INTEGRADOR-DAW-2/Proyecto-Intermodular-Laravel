@@ -4,7 +4,8 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use App\Repositories\ProductRepository;
+use App\Repositories\ProductsRepository;
+use Illuminate\Support\Facades\Log;
 
 
 class ProductImportService {
@@ -12,6 +13,7 @@ class ProductImportService {
 
     private $configValidation = [
         'ajustes'    => ["ajustado", "holgado","normal"],
+        'marcas'     => ["nike", "adidas", "puma", "asics"],
         'alturas'    => ["alto", "bajo", "normal", ""],
         'tallas'     => ["s", "m", "l", "xl"],
         'deportes'   => ["trail", "futbol", "tenis", "padel", "baloncesto"],
@@ -19,14 +21,19 @@ class ProductImportService {
         'sexos'      => ["h", "m", "hombre", "mujer", "niño", "niña"]
     ];
 
+    public function __construct(private ProductsRepository $repo) {}
 
 
-    public function __construct(private ProductRepository $repo) {}
-
-
+    
 
     public function import(UploadedFile $file) {
-        Storage::cleanDirectory('imports');
+        // Limpiar el log de importaciones anteriores
+        $logPath = storage_path('logs/imports.log');
+        if (file_exists($logPath)) {
+            unlink($logPath);
+        }
+
+        Storage::deleteDirectory('imports');
 
         $path = $file->store('imports');
     
@@ -52,19 +59,20 @@ class ProductImportService {
 
             $cellIterator->setIterateOnlyExistingCells(false); 
 
+            $newProd = [
+                    "sku" => "", "marca" => "", "categoria" => "", "nombre" => "", "precio" => 0.0,
+                    "talla" => "", "color" => "", "stock" => 0, "ajuste" => "",
+                    "sexo" => "", "descripcion" => "", "altura" => "", "deporte" => "", "oferta" => "", "img" => ""
+                ];
+
             //Iterar cada celda de una fila            
             foreach ($cellIterator as $cell) {
                 $value = $cell->getValue();
                 $col = $cell->getColumn();
                 
-                $newProd = [
-                    "id" => 0,"sku" => "", "Categoria" => "", "Nombre" => "", "Precio" => 0.0,
-                    "Talla" => "", "Color" => "", "Stock" => 0, "Ajuste" => "",
-                    "Sexo" => "", "Descripcion" => "", "Altura" => "", "Deporte" => "", "Oferta" => "", "Img" => ""
-                ];
-
+            
                 switch ($col) {
-                    case "A": // ID
+                    /*case "A": // ID
                         if (is_numeric($value)) $newProd["id"] = (int)$value;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
@@ -73,14 +81,24 @@ class ProductImportService {
                             ]);
                             continue 3;
                         }
-                        break;
+                        break;*/
                     
-                    case "B": //sku
+                    case "A": //sku
                         $newProd["sku"] = $value;
+                        break;
+                    case "B": //marca
+                        if (in_array(strtolower($value), $this->configValidation['marcas'])) $newProd["marca"] = $value;
+                        else {
+                            $this->newLog("bad-value", "Error en la fila", [
+                                "Fila" => $index,
+                                "Descripcion" => "No existe la marca"
+                            ]);
+                            continue 3;
+                        }
                         break;
 
                     case "C": // Categoría
-                        if (in_array(strtolower($value), $this->configValidation['categorias'])) $newProd["Categoria"] = $value;
+                        if (in_array(strtolower($value), $this->configValidation['categorias'])) $newProd["categoria"] = $value;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -91,12 +109,12 @@ class ProductImportService {
                         break;
 
                     case "D": // Nombre
-                        $newProd["Nombre"] = $value;
+                        $newProd["nombre"] = $value;
                         break;
 
                     case "E": // Precio
-                        $precio = limpiarPrecio($value);
-                        if (is_numeric($precio)) $newProd["Precio"] = (float)$precio;
+                        $precio = $this->cleanPrice($value);
+                        if (is_numeric($precio)) $newProd["precio"] = (float)$precio;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -107,7 +125,7 @@ class ProductImportService {
                         break;
 
                     case "F": // Talla
-                        if (is_numeric($value) || in_array(strtolower($value), $this->configValidation['tallas'])) $newProd["Talla"] = $value;
+                        if (is_numeric($value) || in_array(strtolower($value), $this->configValidation['tallas'])) $newProd["talla"] = $value;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -118,11 +136,11 @@ class ProductImportService {
                         break;
 
                     case "G": // Color
-                        $newProd["Color"] = $value;
+                        $newProd["color"] = $value;
                         break;
 
                     case "H": // Stock
-                        if (is_numeric($value)) $newProd["Stock"] = (int)$value;
+                        if (is_numeric($value)) $newProd["stock"] = (int)$value;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -133,7 +151,7 @@ class ProductImportService {
                         break;
 
                     case "I": // Ajuste
-                        if (in_array(strtolower($vavaluel), $this->configValidation['ajustes'])) $newProd["Ajuste"] = $value;
+                        if (in_array(strtolower($value), $this->configValidation['ajustes'])) $newProd["ajuste"] = $value;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -144,7 +162,7 @@ class ProductImportService {
                         break;
 
                     case "J": // Altura
-                        if (in_array(strtolower($value), $this->configValidation['alturas'])) $newProd["Altura"] = $value;
+                        if (in_array(strtolower($value), $this->configValidation['alturas'])) $newProd["altura"] = $value;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -155,7 +173,7 @@ class ProductImportService {
                         break;
 
                     case "K": // Deporte
-                        if (in_array(strtolower($value), $this->configValidation['deportes'])) $newProd["Deporte"] = $value;
+                        if (in_array(strtolower($value), $this->configValidation['deportes'])) $newProd["deporte"] = $value;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -166,7 +184,10 @@ class ProductImportService {
                         break;
 
                     case "L": // Oferta
-                        if (in_array(strtolower($value), ["no", "yes"])) $newProd["Oferta"] = $value;
+                        $valLower = strtolower($value);
+                        if (in_array($valLower, ["no", "yes", "si", "sí"])) {
+                            $newProd["oferta"] = ($valLower === 'yes' || $valLower === 'si' || $valLower === 'sí');
+                        }
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -177,7 +198,7 @@ class ProductImportService {
                         break;
 
                     case "M": // Sexo
-                        if (in_array(strtolower($value), $this->configValidation['sexos'])) $newProd["Sexo"] = $value;
+                        if (in_array(strtolower($value), $this->configValidation['sexos'])) $newProd["sexo"] = $value;
                         else {
                             $this->newLog("bad-value", "Error en la fila", [
                                 "Fila" => $index,
@@ -188,11 +209,29 @@ class ProductImportService {
                         break;
 
                     case "N": // Descripción
-                        $newProd["Descripcion"] = $value;
+                        $newProd["descripcion"] = $value;
                         break;
                     case "O";
-                        $newProd["Img"] = $value;
+                        $newProd["img"] = $value;
                         break; 
+                }
+            }
+
+            // Validar campos obligatorios
+            $camposObligatorios = [
+                'sku' => 'SKU',
+                'nombre' => 'Nombre',
+                'precio' => 'Precio',
+                'stock' => 'Stock'
+            ];
+
+            foreach ($camposObligatorios as $campo => $label) {
+                if (empty($newProd[$campo]) && $newProd[$campo] !== 0 && $newProd[$campo] !== 0.0) {
+                    $this->newLog("bad-value", "Error en la fila $index", [
+                        "Fila" => $index,
+                        "Descripcion" => "El campo obligatorio '$label' está vacío"
+                    ]);
+                    continue 2; // Salta a la siguiente fila
                 }
             }
 
@@ -208,6 +247,10 @@ class ProductImportService {
 
     }
 
+    function cleanPrice($value) {
+        $clean = preg_replace('/[^\d,.]/', '', $value);
+        return str_replace(',', '.', $clean);
+    }
 
     public function newLog(string $type, string $message, array $context = []) {
         $logger = Log::channel('imports');

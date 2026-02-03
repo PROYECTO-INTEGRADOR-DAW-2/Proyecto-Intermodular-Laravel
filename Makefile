@@ -51,7 +51,7 @@ npm:
 	@true
 
 build:
-	@docker compose run --rm app npm install && npm run build
+	@docker compose run --rm app bash -c "npm install && npm run build"
 	@true
 
 dev:

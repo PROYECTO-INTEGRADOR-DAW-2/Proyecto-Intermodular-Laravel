@@ -12,21 +12,10 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Bootstrap & Styles -->
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> --}}
         <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ time() }}">
         <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
         
-        <!-- Scripts -->
-        @vite(['resources/js/app.js'])
-        
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-        <script type="module">
-            import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
-            createChat({
-                webhookUrl: 'http://localhost:5678/webhook/e851bdf3-87dd-4b31-b1b7-3748dcea8cbe/chat'
-            });
-        </script>
-
         @yield('extra_head')
         {{ $extra_head ?? '' }}
     </head>
@@ -66,5 +55,15 @@
             </main>
         </div>
         @include('layouts.footer')
+
+        <!-- Scripts -->
+        @vite(['resources/js/app.js', 'resources/css/app.css'])
+        
+        <script type="module">
+            import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+            createChat({
+                webhookUrl: 'http://localhost:5678/webhook/e851bdf3-87dd-4b31-b1b7-3748dcea8cbe/chat'
+            });
+        </script>
     </body>
 </html>
