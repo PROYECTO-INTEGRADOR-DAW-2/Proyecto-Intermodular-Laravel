@@ -28,10 +28,10 @@
                 <!-- Navigation Links -->
                 <div class="col-lg-4 col-md-12 mt-3 mt-lg-0">
                         <ul id="main-nav" class="col d-flex flex-column flex-lg-row justify-content-around list-unstyled m-0 gx-0 gap-2 gap-lg-0">
-                            <li><a href="#" class="text-white text-decoration-none">Hombre</a></li>
-                            <li><a href="#" class="text-white text-decoration-none">Mujer</a></li>
-                            <li><a href="#" class="text-white text-decoration-none">Niños</a></li>
-                            <li><a href="#" class="text-white text-decoration-none">Productos</a></li>
+                            <li><a href="{{ route('products.index', ['sexo[]' => 'Hombre']) }}" class="text-white text-decoration-none">Hombre</a></li>
+                            <li><a href="{{ route('products.index', ['sexo[]' => 'Mujer']) }}" class="text-white text-decoration-none">Mujer</a></li>
+                            <li><a href="{{ route('products.index', ['sexo[]' => 'Unisex']) }}" class="text-white text-decoration-none">Niños</a></li>
+                            <li><a href="{{ route('products.index') }}" class="text-white text-decoration-none">Productos</a></li>
                             @auth
                                 <li class="{{ request()->routeIs('dashboard') ? 'active-nav' : '' }}">
                                     <a href="{{ route('dashboard') }}" class="text-white text-decoration-none">
@@ -79,8 +79,11 @@
                         @endauth
                         
                         <li>
-                            <a href="#" aria-label="Ver carrito">
+                            <a href="{{ route('cart.index') }}" aria-label="Ver carrito">
                                 <img src="{{ asset('img/carrito.png') }}" alt="Icono del carrito">
+                                @if(session('cart') && count(session('cart')) > 0)
+                                    <span class="badge rounded-pill bg-danger position-absolute translate-middle-y" style="font-size: 0.7em;">{{ count(session('cart')) }}</span>
+                                @endif
                             </a>
                         </li>
                     </ul>

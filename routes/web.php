@@ -2,11 +2,23 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProductImportController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/chat', [ChatController::class, 'chat'])->name('chat');
 
 Route::get('/', function () {
     return view('home.home');
 })->name('home');
+
+Route::get('/products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{id}', [App\Http\Controllers\ProductController::class, 'show'])->name('products.show');
+
+Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+Route::match(['get', 'post'], '/add-to-cart/{id}', [App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
+Route::patch('/update-cart/{id}', [App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
+Route::delete('/remove-from-cart/{id}', [App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
+Route::get('/clear-cart', [App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
 
 
 
