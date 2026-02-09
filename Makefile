@@ -23,37 +23,37 @@ logs:
 install:
 	# Crea Laravel solo si no existe (no pisa nada)
 	if [ ! -f artisan ]; then \
-		docker compose run --rm app bash -lc 'set -e; \
+		docker compose run --rm -u www-data app bash -lc 'set -e; \
 		  composer create-project laravel/laravel /tmp/laravel; \
 		  shopt -s dotglob; \
 		  cp -an /tmp/laravel/* /var/www/html/'; \
 	fi
 	cp -n .env.example .env || true
-	docker compose run --rm app php artisan key:generate
-	docker compose run --rm app php artisan storage:link
+	docker compose run --rm -u www-data app php artisan key:generate
+	docker compose run --rm -u www-data app php artisan storage:link
 
 migrate:
-	docker compose run --rm app php artisan migrate
+	docker compose run --rm -u www-data app php artisan migrate
 
 test:
-	docker compose run --rm app php artisan test -q
+	docker compose run --rm -u www-data app php artisan test -q
 
 artisan:
-	@docker compose run --rm app php artisan $(CMD)
+	@docker compose run --rm -u www-data app php artisan $(CMD)
 	@true
 	
 composer:
-	@docker compose run --rm app composer $(CMD)
+	@docker compose run --rm -u www-data app composer $(CMD)
 	@true
 
 npm:
-	@docker compose run --rm app npm $(CMD)
+	@docker compose run --rm -u www-data app npm $(CMD)
 	@true
 
 build:
-	@docker compose run --rm app bash -c "npm install && npm run build"
+	@docker compose run --rm -u www-data app bash -c "npm install && npm run build"
 	@true
 
 dev:
-	@docker compose run --rm app npm run dev
+	@docker compose run --rm -u www-data app npm run dev
 	@true

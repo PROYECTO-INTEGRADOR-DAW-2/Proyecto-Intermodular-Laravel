@@ -7,8 +7,12 @@ services:
       dockerfile: Dockerfile
       args:
         WWWGROUP: "${WWWGROUP:-1000}"
+        WWWUSER: "${WWWUSER:-1000}"
     image: classroom-laravel-app
     container_name: app
+    ports:
+      - "8000:80"
+      - "443:443"
     volumes:
       - ./:/var/www/html
     environment:
@@ -23,17 +27,6 @@ services:
     depends_on:
       - db
       - redis
-
-  web:
-    image: nginx:1.27-alpine
-    container_name: web
-    ports:
-      - "8000:80"
-    volumes:
-      - ./:/var/www/html
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - app
 
   db:
     image: mysql:8.4
