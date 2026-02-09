@@ -58,7 +58,7 @@ class ChatController extends Controller
                 'response' => $result->choices[0]->message->content
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('OpenAI Error: ' . $e->getMessage());
             return response()->json(['response' => 'Error: No puedo responder en este momento. (' . $e->getMessage() . ')'], 200);
         }
