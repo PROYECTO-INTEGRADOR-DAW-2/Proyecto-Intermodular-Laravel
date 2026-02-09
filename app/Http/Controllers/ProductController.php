@@ -78,4 +78,12 @@ class ProductController extends Controller
 
         return view('products.show', compact('product', 'relatedProducts'));
     }
+
+    public function home()
+    {
+        // Obtener 4 productos aleatorios para la sección "Más comprados"
+        $masComprados = Product::inRandomOrder()->take(4)->get();
+        
+        return view('home.home', compact('masComprados'));
+    }
 }

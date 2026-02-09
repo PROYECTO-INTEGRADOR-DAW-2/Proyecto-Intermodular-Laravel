@@ -7,9 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/chat', [ChatController::class, 'chat'])->name('chat');
 
-Route::get('/', function () {
-    return view('home.home');
-})->name('home');
+Route::get('/', [App\Http\Controllers\ProductController::class, 'home'])->name('home');
 
 Route::get('/products', [App\Http\Controllers\ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{id}', [App\Http\Controllers\ProductController::class, 'show'])->name('products.show');

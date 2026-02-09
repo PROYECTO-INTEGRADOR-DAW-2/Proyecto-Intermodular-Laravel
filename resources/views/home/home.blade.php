@@ -15,7 +15,7 @@
             <h2 class="text-center mb-5">Novedades</h2>
             <div id="brands" class="row justify-content-md-around g-0 g-sm-4">
                 <article class="col-6 col-md-6 col-lg-2 text-center">
-                    <a href="#" aria-label="Ver novedades de Nike">
+                    <a href="{{ route('products.index', ['marca' => ['Nike']]) }}" aria-label="Ver novedades de Nike">
                         <img src="{{ asset('img/logoNike.jpg') }}" alt="Logotipo de Nike" class="fotoMasNovedades">
                         <img src="{{ asset('img/simboloNike.png') }}" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
@@ -23,7 +23,7 @@
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
-                    <a href="#" aria-label="Ver novedades de Adidas">
+                    <a href="{{ route('products.index', ['marca' => ['Adidas']]) }}" aria-label="Ver novedades de Adidas">
                         <img src="{{ asset('img/logoAdidass.jpg') }}" alt="Logotipo de Adidas" class="fotoMasNovedades">
                         <img src="{{ asset('img/AdidasSimbolo.png') }}" alt="" class="fotoSimboloAdidas d-none d-sm-inline"
                             aria-hidden="true">
@@ -31,7 +31,7 @@
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
-                    <a href="#" aria-label="Ver novedades de Puma">
+                    <a href="{{ route('products.index', ['marca' => ['Puma']]) }}" aria-label="Ver novedades de Puma">
                         <img src="{{ asset('img/logospuma.jpg') }}" alt="Logotipo de Puma" class="fotoMasNovedades">
                         <img src="{{ asset('img/SimboloPuma.png') }}" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
@@ -39,7 +39,7 @@
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
-                    <a href="#" aria-label="Ver novedades de Asics">
+                    <a href="{{ route('products.index', ['marca' => ['Asics']]) }}" aria-label="Ver novedades de Asics">
                         <img src="{{ asset('img/asicslogo.jpg') }}" alt="Logotipo de Asics" class="fotoMasNovedades">
                         <img src="{{ asset('img/SimboloAsics.png') }}" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
@@ -63,68 +63,39 @@
             <h2 class="text-center mb-5">Más comprados</h2>
 
             <div class="row flex-nowrap overflow-auto gx-3 products-carousel">
-
-                <!-- Producto 1 -->
-                <div class="col-12 col-sm-6 col-lg-3 flex-shrink-0">
-                    <div class="h-100 d-flex flex-column justify-content-between">
-                        <a href="#" class="d-block text-center"
-                            aria-label="Ver detalles de Nike Mercurial Superfly 10 Academy">
-                            <img src="{{ asset('img/zapatillasNikeKM.png') }}" alt="Zapatillas Nike Mercurial Superfly 10 Academy"
-                                class="fotoMasComprados">
-                        </a>
-                        <div class="prod-desc p-2 text-center">
-                            <strong>Nike Mercurial Superfly 10 Academy</strong>
-                            <p>69,99 € <span>99,99 €</span></p>
+                @forelse($masComprados as $product)
+                    <div class="col-12 col-sm-6 col-lg-3 flex-shrink-0">
+                        <div class="h-100 d-flex flex-column justify-content-between">
+                            <a href="{{ route('products.show', $product->id) }}" class="d-block text-center"
+                                aria-label="Ver detalles de {{ $product->nombre }}">
+                                @if($product->img)
+                                    <img src="{{ Str::startsWith($product->img, 'http') ? $product->img : (Str::startsWith($product->img, 'img/') ? asset($product->img) : asset('img/' . $product->img)) }}"
+                                        alt="{{ $product->nombre }}"
+                                        class="fotoMasComprados"
+                                        style="object-fit: contain; max-height: 200px; width: auto;">
+                                @else
+                                    <div class="d-flex align-items-center justify-content-center bg-light text-muted" style="height: 200px;">
+                                        <i class="bi bi-image fs-1"></i>
+                                    </div>
+                                @endif
+                            </a>
+                            <div class="prod-desc p-2 text-center">
+                                <strong class="d-block text-truncate" title="{{ $product->nombre }}">{{ $product->nombre }}</strong>
+                                <p class="mb-0">
+                                    {{ number_format($product->precio, 2) }} €
+                                    @if($product->oferta)
+                                        <span class="text-decoration-line-through text-muted small ms-1">{{ number_format($product->precio * 1.2, 2) }} €</span>
+                                    @endif
+                                </p>
+                            </div>
+                            <a href="{{ route('cart.add', $product->id) }}" class="button mt-auto w-100 text-center">Añadir al carrito</a>
                         </div>
-                        <a href="#" class="button mt-auto w-100 text-center">Añadir al carrito</a>
                     </div>
-                </div>
-
-                <!-- Producto 2 -->
-                <div class="col-12 col-sm-6 col-lg-3 flex-shrink-0">
-                    <div class="h-100 d-flex flex-column justify-content-between">
-                        <a href="#" class="d-block text-center" aria-label="Ver detalles de Nike Zoomx 2060">
-                            <img src="{{ asset('img/ZapasNikeMasComprado.png') }}" alt="Zapatillas Nike Zoomx 2060"
-                                class="fotoMasComprados">
-                        </a>
-                        <div class="prod-desc p-2 text-center">
-                            <strong>Nike Zoomx 2060</strong>
-                            <p>120,00 €</p>
-                        </div>
-                        <a href="#" class="button mt-auto w-100 text-center">Añadir al carrito</a>
+                @empty
+                    <div class="col-12 text-center">
+                        <p>No hay productos destacados en este momento.</p>
                     </div>
-                </div>
-
-                <!-- Producto 3 -->
-                <div class="col-12 col-sm-6 col-lg-3 flex-shrink-0">
-                    <div class="h-100 d-flex flex-column justify-content-between">
-                        <a href="#" class="d-block text-center" aria-label="Ver detalles de Nike Impossibly Light">
-                            <img src="{{ asset('img/nikeropa-removebg-preview.png') }}" alt="Chaqueta Nike Impossibly Light"
-                                class="fotoMasComprados">
-                        </a>
-                        <div class="prod-desc p-2 text-center">
-                            <strong>Nike Impossibly Light</strong>
-                            <p>76,99 € <span>109,99 €</span></p>
-                        </div>
-                        <a href="#" class="button mt-auto w-100 text-center">Añadir al carrito</a>
-                    </div>
-                </div>
-
-                <!-- Producto 4 -->
-                <div class="col-12 col-sm-6 col-lg-3 flex-shrink-0">
-                    <div class="h-100 d-flex flex-column justify-content-between">
-                        <a href="#" class="d-block text-center" aria-label="Ver detalles de Calcetines Nike">
-                            <img src="{{ asset('img/CalcetinesMasCmprado.png') }}" alt="Par de calcetines Nike"
-                                class="fotoMasComprados">
-                        </a>
-                        <div class="prod-desc p-2 text-center">
-                            <strong>Calcetines Nike</strong>
-                            <p>19,99 €</p>
-                        </div>
-                        <a href="#" class="button mt-auto w-100 text-center">Añadir al carrito</a>
-                    </div>
-                </div>
-
+                @endforelse
             </div>
         </section>
     </main>
