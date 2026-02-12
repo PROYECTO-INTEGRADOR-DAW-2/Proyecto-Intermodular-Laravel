@@ -39,16 +39,18 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 RUN pecl install redis && docker-php-ext-enable redis
 
 # Habilitar módulos de Apache
-RUN a2enmod rewrite ssl headers
+RUN a2enmod rewrite ssl headers vhost_alias
 
-# Generar certificado auto-firmado para pruebas
+# Generar certificado auto-firmado para pruebas (incluyendo subdominios)
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/ssl/private/apache-selfsigned.key \
     -out /etc/ssl/certs/apache-selfsigned.crt \
-    -subj "/C=ES/ST=Alicante/L=Alcoi/O=Batoi/OU=DAW/CN=projecteGrupX.es"
+    -subj "/C=ES/ST=Alicante/L=Alcoi/O=Batoi/OU=DAW/CN=projecteGrupX.es" \
+    -addext "subjectAltName = DNS:projecteGrupX.es, DNS:*.projecteGrupX.es, DNS:*.test.projecteGrupX.es"
 
-# Crear directorio de logs y ajustar permisos
-RUN mkdir -p /home/app/logs && chown -R www-data:www-data /home/app/logs
+# Crear directorio de logs y de tests, y ajustar permisos
+RUN mkdir -p /home/app/logs /home/tests/logs /home/tests/ftp && \
+    chown -R www-data:www-data /home/app/logs /home/tests/logs /home/tests/ftp
 
 # Crear un archivo de contraseñas para el backup (usuario: admin, pass: admin123)
 RUN htpasswd -bc /etc/apache2/.htpasswd admin admin123
