@@ -1,5 +1,7 @@
 services:
   app:
+    networks:
+      - laravel-network
     build:
       context: .
       dockerfile: Dockerfile
@@ -27,10 +29,14 @@ services:
       DB_PASSWORD: laravel
       REDIS_HOST: redis
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   ftp:
+    networks:
+      - laravel-network
     image: delfer/alpine-ftp-server:latest
     container_name: ftp
     ports:
@@ -50,8 +56,14 @@ services:
     restart: always
 
   db:
+    networks:
+      - laravel-network
     image: mysql:8.4
     container_name: db
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
+      retries: 3
+      timeout: 5s
     #command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: laravel
@@ -64,12 +76,16 @@ services:
       - db_data:/var/lib/mysql
 
   redis:
+    networks:
+      - laravel-network
     image: redis:7-alpine
     container_name: redis
     ports:
       - "6379:6379"
 
   phpmyadmin:
+    networks:
+      - laravel-network
     image: phpmyadmin:latest
     container_name: phpmyadmin
     environment:
@@ -79,7 +95,12 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
+
+networks:
+  laravel-network:
+    driver: bridge
