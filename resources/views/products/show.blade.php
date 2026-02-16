@@ -20,8 +20,8 @@
                     <span class="badge bg-danger position-absolute top-0 start-0 m-3 fs-5 px-3 py-2" style="z-index: 10;">Oferta</span>
                  @endif
                  
-                 @if($product->img)
-                    <img src="{{ Str::startsWith($product->img, 'http') ? $product->img : (Str::startsWith($product->img, 'img/') ? asset($product->img) : asset('img/' . $product->img)) }}" 
+                 @if($product->image_url)
+                    <img src="{{ $product->image_url }}" 
                          alt="{{ $product->nombre }}" 
                          class="img-fluid" 
                          style="max-height: 400px; object-fit: contain;">
@@ -89,6 +89,9 @@
                     <button type="submit" class="btn btn-dark btn-lg px-4 flex-grow-1" {{ $product->stock <= 0 ? 'disabled' : '' }}>
                        <i class="bi bi-cart-plus me-2"></i> Añadir al carrito
                     </button>
+                    <a href="{{ route('wishlist.add', $product->id) }}" class="btn btn-outline-danger btn-lg px-4" title="Añadir a lista de deseos">
+                        <i class="bi bi-heart"></i>
+                    </a>
                 </div>
             </form>
 
@@ -101,6 +104,104 @@
             </div>
         </div>
     </div>
+    <hr class="my-5">
+
+    <!-- Sección de Valoraciones y Comentarios -->
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <h3 class="mb-4 fw-bold">Opiniones de clientes</h3>
+            
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
+            <div class="mb-5">
+                @forelse($product->reviews as $review)
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0 fw-bold">{{ $review->user->nombre }} {{ $review->user->apellidos }}</h6>
+                                <div class="text-warning">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <i class="bi {{ $i <= $review->rating ? 'bi-star-fill' : 'bi-star' }}"></i>
+                                    @endfor
+                                </div>
+                            </div>
+                            <p class="card-text">{{ $review->comment }}</p>
+                            <small class="text-muted">{{ $review->created_at->diffForHumans() }}</small>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center py-4 bg-light rounded">
+                        <p class="text-muted mb-0">Aún no hay valoraciones para este producto.</p>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="card border-0 shadow-sm p-4 bg-light">
+                <h4 class="mb-3 fw-bold">Danos tu opinión</h4>
+                
+                @auth
+                    <form action="{{ route('reviews.store', $product->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tu valoración</label>
+                            <div class="rating-selector d-flex gap-3 fs-3 text-warning">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <div class="form-check form-check-inline p-0 m-0">
+                                        <input class="btn-check" type="radio" name="rating" id="rating_{{ $i }}" value="{{ $i }}" required>
+                                        <label class="cursor-pointer" for="rating_{{ $i }}">
+                                            <i class="bi bi-star rating-star" data-value="{{ $i }}"></i>
+                                        </label>
+                                    </div>
+                                @endfor
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label fw-bold">Comentario</label>
+                            <textarea class="form-control" name="comment" id="comment" rows="3" placeholder="Cuéntanos qué te ha parecido el producto..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-dark px-4">Publicar reseña</button>
+                    </form>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const stars = document.querySelectorAll('.rating-star');
+                            const radios = document.querySelectorAll('input[name="rating"]');
+
+                            radios.forEach(radio => {
+                                radio.addEventListener('change', function() {
+                                    const val = parseInt(this.value);
+                                    stars.forEach(star => {
+                                        const starVal = parseInt(star.dataset.value);
+                                        if (starVal <= val) {
+                                            star.classList.replace('bi-star', 'bi-star-fill');
+                                        } else {
+                                            star.classList.replace('bi-star-fill', 'bi-star');
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    </script>
+                    <style>
+                        .cursor-pointer { cursor: pointer; }
+                    </style>
+                @else
+                    <div class="text-center py-3">
+                        <p class="mb-3">Debes estar registrado para poder comentar y valorar este producto.</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{{ route('login') }}" class="btn btn-outline-dark px-4">Iniciar sesión</a>
+                            <a href="{{ route('register') }}" class="btn btn-dark px-4">Registrarse</a>
+                        </div>
+                    </div>
+                @endauth
+            </div>
+        </div>
+    </div>
 
     @if($relatedProducts->count() > 0)
         <hr class="my-5">
@@ -110,8 +211,8 @@
                 <div class="col">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="bg-white p-3 rounded-top d-flex align-items-center justify-content-center" style="height: 200px;">
-                            @if($related->img)
-                                <img src="{{ Str::startsWith($related->img, 'http') ? $related->img : (Str::startsWith($related->img, 'img/') ? asset($related->img) : asset('img/' . $related->img)) }}" 
+                            @if($related->image_url)
+                                <img src="{{ $related->image_url }}" 
                                      class="img-fluid" 
                                      style="max-height: 100%; object-fit: contain;">
                             @endif

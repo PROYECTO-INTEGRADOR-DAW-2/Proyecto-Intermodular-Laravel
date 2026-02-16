@@ -83,7 +83,10 @@ class ProductController extends Controller
     {
         // Obtener 4 productos aleatorios para la sección "Más comprados"
         $masComprados = Product::inRandomOrder()->take(4)->get();
+
+        // Obtener el producto promocionado para el banner (Nike Gato)
+        $promotedProduct = Product::where('nombre', 'like', '%nike gato%')->first();
         
-        return view('home.home', compact('masComprados'));
+        return view('home.home', compact('masComprados', 'promotedProduct'));
     }
 }

@@ -5,89 +5,36 @@
 @section('content')
 <div class="container-fluid px-4 px-lg-5 my-5">
     <div class="row">
-        <!-- Sidebar de Filtros -->
-        <aside class="col-lg-3 col-xl-2 mb-4">
+        <!-- Sidebar de Filtros (Desktop) -->
+        <aside class="col-lg-3 col-xl-2 mb-4 d-none d-lg-block">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
                     <h5 class="fw-bold mb-0">Filtros</h5>
                 </div>
-                <div class="card-body px-3"> <!-- Reducido padding horizontal para aprovechar espacio pero sin pegar -->
-                    <form action="{{ route('products.index') }}" method="GET" id="filterForm">
-                        
-                        <!-- Buscador -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted">Buscar</label>
-                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Nombre o SKU..." value="{{ request('search') }}">
-                        </div>
-
-                        <!-- Filtro por Sexo -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted">Género</label>
-                            <div class="ms-1"> <!-- Añadido un pequeño margen interno en lugar de estar pegado -->
-                                @foreach($sexos as $sexo)
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" name="sexo[]" value="{{ $sexo }}" id="sexo_{{ $loop->index }}"
-                                            {{ in_array($sexo, request('sexo', [])) ? 'checked' : '' }}>
-                                        <label class="form-check-label text-capitalize" for="sexo_{{ $loop->index }}">
-                                            {{ $sexo }}
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <!-- Filtro por Marca -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted">Marca</label>
-                            @foreach($marcas as $marca)
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="marca[]" value="{{ $marca }}" id="marca_{{ $loop->index }}"
-                                        {{ in_array($marca, request('marca', [])) ? 'checked' : '' }}>
-                                    <label class="form-check-label text-capitalize" for="marca_{{ $loop->index }}">
-                                        {{ $marca }}
-                                    </label>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <!-- Filtro por Categoría -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted">Categoría</label>
-                            @foreach($categorias as $cat)
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="categoria[]" value="{{ $cat }}" id="cat_{{ $loop->index }}"
-                                        {{ in_array($cat, request('categoria', [])) ? 'checked' : '' }}>
-                                    <label class="form-check-label text-capitalize" for="cat_{{ $loop->index }}">
-                                        {{ $cat }}
-                                    </label>
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <!-- Filtro de Precio -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold small text-muted">Precio Máximo: <span id="priceVal">{{ request('max_price', $maxPrice) }}</span> €</label>
-                            <input type="range" class="form-range" name="max_price" min="0" max="{{ $maxPrice }}" step="5" 
-                                value="{{ request('max_price', $maxPrice) }}" 
-                                oninput="document.getElementById('priceVal').innerText = this.value">
-                        </div>
-                        
-                        <!-- Solo Ofertas -->
-                        <div class="mb-4 form-check form-switch">
-                             <input class="form-check-input" type="checkbox" name="oferta" value="1" id="ofertaCheck" {{ request('oferta') ? 'checked' : '' }}>
-                             <label class="form-check-label fw-semibold" for="ofertaCheck">Solo Ofertas</label>
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="button" style="background-color: #000; color: white;">Aplicar Filtros</button>
-                            @if(request()->keys())
-                                <a href="{{ route('products.index') }}" class="btn btn-outline-secondary btn-sm">Limpiar todo</a>
-                            @endif
-                        </div>
-                    </form>
+                <div class="card-body px-3">
+                    @include('products.partials.filter-form')
                 </div>
             </div>
         </aside>
+
+        <!-- Botón Filtros (Móvil) -->
+        <div class="col-12 d-lg-none mb-3">
+            <button class="btn btn-dark w-100 d-flex align-items-center justify-content-center py-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFilters" aria-controls="offcanvasFilters">
+                <i class="bi bi-filter-left fs-4 me-2"></i>
+                <span class="fw-bold">Filtrar Productos</span>
+            </button>
+        </div>
+
+        <!-- Offcanvas Filtros (Móvil) -->
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasFilters" aria-labelledby="offcanvasFiltersLabel">
+            <div class="offcanvas-header border-bottom">
+                <h5 class="offcanvas-title fw-bold" id="offcanvasFiltersLabel">Filtros</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                @include('products.partials.filter-form', ['idSuffix' => '_mobile'])
+            </div>
+        </div>
 
         <!-- Listado de Productos -->
         <div class="col-lg-9 col-xl-10">
@@ -106,8 +53,8 @@
                                  @endif
                                  
                                  <a href="{{ route('products.show', $product->id) }}" class="d-flex align-items-center justify-content-center h-100 w-100 text-decoration-none">
-                                     @if($product->img)
-                                        <img src="{{ Str::startsWith($product->img, 'http') ? $product->img : (Str::startsWith($product->img, 'img/') ? asset($product->img) : asset('img/' . $product->img)) }}" 
+                                     @if($product->image_url)
+                                        <img src="{{ $product->image_url }}" 
                                              alt="{{ $product->nombre }}" 
                                              class="img-fluid" 
                                              style="max-height: 100%; object-fit: contain; transition: transform 0.3s ease;">
@@ -136,7 +83,12 @@
                                             <small class="text-danger text-decoration-line-through">Antes: {{ number_format($product->precio * 1.2, 2) }} €</small>
                                         @endif
                                     </div>
-                                    <a href="{{ route('cart.add', $product->id) }}" class="button w-100 d-block text-center text-decoration-none py-2 rounded-pill" style="background-color: #000; color: #fff;">Añadir al carrito</a>
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ route('products.show', $product->id) }}" class="button flex-grow-1 text-center text-decoration-none py-2 rounded-pill" style="background-color: #000; color: #fff;">Ver producto</a>
+                                        <a href="{{ route('wishlist.add', $product->id) }}" class="btn btn-outline-danger rounded-circle d-flex align-items-center justify-content-center p-2" style="width: 40px; height: 40px;" title="Añadir a lista de deseos">
+                                            <i class="bi bi-heart"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

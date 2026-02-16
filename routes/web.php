@@ -30,6 +30,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/import', [ProductImportController::class, 'index'])->name('import.index');
     Route::post('/import', [ProductImportController::class, 'store'])->name('import.store');
+    Route::post('/products/{product}/reviews', [App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
+});
+
+// Checkout Routes (Guest & Auth)
+Route::get('/checkout', [App\Http\Controllers\CartController::class, 'checkout'])->name('cart.checkout');
+Route::post('/checkout', [App\Http\Controllers\CartController::class, 'processCheckout'])->name('cart.process');
+
+Route::middleware('auth')->group(function () {
+
+    // Wishlist Routes
+    Route::get('/wishlist/add/{id}', [App\Http\Controllers\WishlistController::class, 'add'])->name('wishlist.add');
+    Route::post('/wishlist/remove/{id}', [App\Http\Controllers\WishlistController::class, 'remove'])->name('wishlist.remove');
+    Route::post('/wishlist/move-to-cart/{id}', [App\Http\Controllers\WishlistController::class, 'moveToCart'])->name('wishlist.move');
 });
 
 require __DIR__.'/auth.php';

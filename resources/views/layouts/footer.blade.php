@@ -22,8 +22,10 @@
                 </section>
                 <section id="suscripcion-pedidos" class="col-12 col-md-4 mb-4">
                     <h3>Mis pedidos</h3>
-                    <a href="#">Inicia sesión para ver tus pedidos</a>
-                    <a href="#" class="button mt-2 d-inline-block">VER PEDIDOS</a>
+                    @guest
+                        <a href="{{ route('login') }}">Inicia sesión para ver tus pedidos</a>
+                    @endguest
+                    <a href="{{ route('dashboard') }}" class="button mt-2 d-inline-block">VER PEDIDOS</a>
 
                     <h3 class="mt-4">Suscribirse</h3>
                     <p>Suscríbete para recibir notificaciones como ofertas, descuentos, novedades</p>
