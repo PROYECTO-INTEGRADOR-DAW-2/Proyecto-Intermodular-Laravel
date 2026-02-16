@@ -16,33 +16,33 @@
             <div id="brands" class="row justify-content-md-around g-0 g-sm-4">
                 <article class="col-6 col-md-6 col-lg-2 text-center">
                     <a href="{{ route('products.index', ['marca' => ['Nike']]) }}" aria-label="Ver novedades de Nike">
+                        <img src="{{ asset('imgNike/logoNike.jpg') }}" alt="Logotipo de Nike" class="fotoMasNovedades">
                         <img src="{{ asset('imgNike/simboloNike.png') }}" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
-                        <img src="{{ asset('imgNike/logoNike.jpg') }}" alt="Logotipo de Nike" class="fotoMasNovedades">
                     </a>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
                     <a href="{{ route('products.index', ['marca' => ['Adidas']]) }}" aria-label="Ver novedades de Adidas">
+                        <img src="{{ asset('imgAdidas/logoAdidass.jpg') }}" alt="Logotipo de Adidas" class="fotoMasNovedades">
                         <img src="{{ asset('imgAdidas/AdidasSimbolo.png') }}" alt="" class="fotoSimboloAdidas d-none d-sm-inline"
                             aria-hidden="true">
-                        <img src="{{ asset('imgAdidas/logoAdidass.jpg') }}" alt="Logotipo de Adidas" class="fotoMasNovedades">
                     </a>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
                     <a href="{{ route('products.index', ['marca' => ['Puma']]) }}" aria-label="Ver novedades de Puma">
+                        <img src="{{ asset('imgPuma/logospuma.jpg') }}" alt="Logotipo de Puma" class="fotoMasNovedades">
                         <img src="{{ asset('imgPuma/SimboloPuma.png') }}" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
-                        <img src="{{ asset('imgPuma/logospuma.jpg') }}" alt="Logotipo de Puma" class="fotoMasNovedades">
                     </a>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
                     <a href="{{ route('products.index', ['marca' => ['Asics']]) }}" aria-label="Ver novedades de Asics">
+                        <img src="{{ asset('imgAsics/asicslogo.jpg') }}" alt="Logotipo de Asics" class="fotoMasNovedades">
                         <img src="{{ asset('imgAsics/SimboloAsics.png') }}" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
-                        <img src="{{ asset('imgAsics/asicslogo.jpg') }}" alt="Logotipo de Asics" class="fotoMasNovedades">
                     </a>
                 </article>
             </div>
@@ -68,8 +68,17 @@
                         <div class="h-100 d-flex flex-column justify-content-between">
                             <a href="{{ route('products.show', $product->id) }}" class="d-block text-center"
                                 aria-label="Ver detalles de {{ $product->nombre }}">
-                                @if($product->image_url)
-                                    <img src="{{ $product->image_url }}"
+                                @if($product->img)
+
+                                    @php
+                                        $productImageName = $product->img;
+                                        $productBrandFolder = "img" . ucfirst(mb_strtolower($product->marca, "UTF-8"));
+                                        $productType = mb_strtolower($product->categoria, "UTF-8");
+                                        
+                                        $finalUrl = $productBrandFolder . '/' . $productType . '/' . $productImageName;
+                                    @endphp
+
+                                    <img src="{{ asset($finalUrl) }}"
                                         alt="{{ $product->nombre }}"
                                         class="fotoMasComprados"
                                         style="object-fit: contain; max-height: 200px; width: auto;">
