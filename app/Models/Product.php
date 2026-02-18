@@ -10,8 +10,10 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['sku', 'marca', 'categoria', 'nombre', 'precio', 'talla', 'color', 'stock', 'ajuste', 'sexo', 'descripcion', 'altura', 'deporte', 'oferta', 'img' ];
+    protected $fillable = ['sku', 'marca', 'categoria', 'nombre', 'precio', 'talla', 'color', 'stock', 'ajuste', 'sexo', 'descripcion', 'altura', 'deporte', 'oferta', 'img'];
 
-    
+    protected $casts = [
+        'oferta' => 'boolean',
+    ];
 
 }

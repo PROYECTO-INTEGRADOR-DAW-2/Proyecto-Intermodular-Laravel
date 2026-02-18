@@ -20,10 +20,10 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'sku' => fake()->unique()->randomNumber(8),
-            'marca' => fake()->randomElement(["Adidas", "Nike", "Asics","Puma"]),
+            'sku' => (string)fake()->unique()->randomNumber(8, true),
+            'marca' => fake()->randomElement(["Adidas", "Nike", "Asics", "Puma"]),
             'categoria' => fake()->randomElement(["Camisetas", "Pantalones", "Zapatillas"]),
-            'nombre' => fake()->word(),
+            'nombre' => fake()->unique()->words(3, true),
             'precio' => fake()->randomFloat(2, 1, 100),
             'talla' => fake()->word(),
             'color' => fake()->word(),

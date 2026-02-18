@@ -45,6 +45,13 @@
                 </div>
             @endif
 
+            <div id="header_actions">
+                <div class="d-flex">
+                    @yield('header_actions')
+                </div>
+                
+            </div>
+
             <!-- Page Content -->
             <main class="w-full">
                 @if(isset($slot))
