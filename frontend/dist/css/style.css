@@ -1,0 +1,404 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap");
+
+* {
+  font-family: "Oswald", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #F5F5F5;
+  padding-top: 100px;
+}
+
+
+#nav-section {
+  box-shadow: 0 0 19px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  min-height: 100px;
+  height: auto;
+  overflow: visible !important;
+}
+
+.navbar-collapse {
+  overflow: visible !important;
+}
+
+#nav-section .logoPagina {
+  height: 80px;
+  width: auto;
+}
+
+#nav-section .nav-link {
+  color: #FFFFFF;
+  transition: color 0.3s ease;
+  padding: 10px 15px;
+  font-size: 1.1rem;
+}
+
+#nav-section .nav-link:hover,
+#nav-section .nav-link:focus {
+  color: #D72631;
+}
+
+#nav-section #main-nav li {
+  align-content: center;
+  text-align: center;
+  padding: 10px 20px;
+  border: 1px solid #D72631;
+  border-radius: 10px;
+  transition: background-color 0.5s ease;
+  line-height: normal;
+}
+
+#nav-section #main-nav li:hover,
+#nav-section #main-nav li:focus-within,
+#nav-section #main-nav li.active-nav {
+  background-color: #D72631;
+}
+
+#nav-section #main-nav li:hover a,
+#nav-section #main-nav li:focus-within a {
+  color: #FFFFFF;
+}
+
+#nav-section #main-nav a {
+  color: #FFFFFF;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.5s ease;
+  font-size: 1.2rem;
+}
+
+#nav-section input[type=text] {
+  height: 40px;
+  padding: 10px;
+  border: 2px solid transparent;
+  background-color: #FFFFFF;
+  border-radius: 50px;
+  transition: width 0.5s ease, border-color 0.5s ease;
+}
+
+#nav-section input[type=text]:focus {
+  outline: 2px solid #D72631;
+  outline-offset: 2px;
+  border-color: #D72631;
+}
+
+#icon-nav img {
+  width: 40px;
+  height: 40px;
+}
+
+.dropdown-menu {
+  z-index: 1100 !important;
+}
+
+/* Header */
+#header-home {
+  height: 100vh;
+  width: 100%;
+  background-image: url("../img/fondopagina.jpg");
+  background-size: cover;
+  background-position: center;
+  color: #FFFFFF;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+
+#header-home h1 {
+  font-size: 100px;
+  margin: 10px;
+  font-weight: 500;
+  text-shadow: 5px 2px 2px #1F1F1F;
+  color: #FFFFFF;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+#header-home p {
+  color: #FFFFFF;
+  text-shadow: 2px 2px 2px #1F1F1F;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-in-out 0.2s forwards;
+  font-size: 1.5rem;
+}
+
+#novedades>h2,
+#mas-comprados>h2 {
+  color: #1F1F1F;
+  font-size: 75px;
+  margin-top: 50px;
+  margin-bottom: 30px;
+}
+
+
+
+
+#products>article>div {
+  background-color: #FFFFFF;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  transition: transform 0.3s ease;
+}
+
+#products>article:hover>div {
+  transform: translateY(-5px);
+}
+
+.fotoMasNovedades {
+  object-fit: cover;
+  border-radius: 20px;
+  width: 100%;
+  height: 375px;
+  margin-bottom: 10px;
+}
+
+.fotoSimbolo,
+.fotoSimboloAdidas {
+  object-fit: cover;
+  border-radius: 20px;
+  width: 125px;
+  height: 125px;
+}
+
+.fotoMasComprados {
+  object-fit: cover;
+  border-radius: 0;
+  width: 260px;
+  max-width: 100%;
+  height: 375px;
+  transition: transform 0.4s ease;
+}
+
+#products .hover-scale img {
+  transition: transform 0.5s ease;
+}
+
+#products .hover-scale:hover img {
+  transform: scale(1.1);
+}
+
+.video-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.video-container .video-desc {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(39, 38, 38, 0.25);
+  color: white;
+  text-align: center;
+  opacity: 1;
+}
+
+.video-container .video-desc .button {
+  width: auto;
+  padding: 15px 50px;
+  display: inline-block;
+}
+
+.video-container .video-desc h2 {
+  font-size: 75px;
+  margin: 0;
+  color: #FFFFFF;
+}
+
+
+
+.prod-desc {
+  color: #1F1F1F;
+  margin-top: 10px;
+  transition: height 0.5s ease;
+}
+
+.prod-desc p {
+  font-size: 20px;
+}
+
+.prod-desc p span {
+  font-size: 15px;
+  color: grey;
+  text-decoration: line-through;
+}
+
+.prod-desc strong {
+  font-size: 20px;
+  color: #1F1F1F;
+}
+
+
+.products-carousel {
+  scroll-snap-type: x mandatory;
+}
+
+.products-carousel .col-12 {
+  scroll-snap-align: start;
+}
+
+
+
+
+.button {
+  display: block;
+  text-decoration: none;
+  text-align: center;
+  color: #FFFFFF;
+  background-color: #D72631;
+  border: 1px solid #D72631;
+  padding: 20px 0;
+  transition: background-color 0.5s ease, color 0.5s ease;
+  width: 100%;
+  cursor: pointer;
+}
+
+.button:hover,
+.button:focus {
+  background-color: #1F1F1F;
+  color: #FFFFFF;
+}
+
+footer p,
+footer h3 {
+  color: #FFFFFF;
+}
+
+footer a {
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+footer a:hover,
+footer a:focus {
+  color: #D72631;
+}
+
+footer ul {
+  list-style: none;
+  padding: 0;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+
+
+@media (max-width: 992px) {
+  #header-home h1 {
+    font-size: 70px;
+  }
+
+  #novedades>h2,
+  #mas-comprados>h2 {
+    font-size: 50px;
+  }
+
+  .video-container .video-desc h2 {
+    font-size: 3rem;
+  }
+
+  #nav-section {
+    height: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  #nav-section .logoPagina {
+    height: 50px;
+  }
+
+  #main-nav li {
+    padding: 10px 20px;
+    border: 1px solid #D72631;
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 576px) {
+
+  #header-home h1 {
+    font-size: 40px;
+  }
+
+  .fotoMasNovedades {
+    height: 300px;
+    border-radius: 0px;
+    margin: 0;
+  }
+
+  #header-home p {
+    font-size: 1rem;
+  }
+
+  #novedades>h2,
+  #mas-comprados>h2 {
+    font-size: 40px;
+  }
+
+  .video-container .video-desc h2 {
+    font-size: 2rem;
+  }
+}
+
+/* Accessibility Focus Styles */
+:focus-visible {
+  outline: 2px solid #D72631;
+  outline-offset: 2px;
+}
+
+
+
+/* Icon Navigation Accessibility */
+#icon-nav a {
+  display: inline-block;
+  padding: 5px;
+  transition: background-color 0.3s ease;
+}
+
+#icon-nav a:focus {
+  outline: 2px solid #D72631;
+  outline-offset: 2px;
+}
+
+
+
+
+
+/*Globales*/
+
+.input {
+  outline: 2px solid transparent;
+  border: 1px solid #d1d5db;
+  /* Añadí un borde sutil para que el input sea visible */
+  border-radius: 5px;
+  width: 100%;
+  padding: 0.5rem;
+  /* Un poco de padding interior */
+  transition: outline-color 0.5s ease-in-out, border-color 0.5s ease-in-out;
+}
+
+.input:focus {
+  outline: 2px solid #D72631;
+  outline-offset: 0;
+  border-color: #D72631;
+}
