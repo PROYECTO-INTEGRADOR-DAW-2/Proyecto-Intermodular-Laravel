@@ -1,0 +1,579 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "J&A Sports API",
+        "description": "API REST del projecte intermodular J&A Sports. Autenticació via Bearer Token (Laravel Sanctum).",
+        "contact": {
+            "email": "admin@jasports.local"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Servidor local Docker"
+        },
+        {
+            "url": "/api"
+        }
+    ],
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Iniciar sessió",
+                "description": "Retorna un Bearer token de Sanctum per autenticar les peticions.",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "admin@jasports.local"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login correcte",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string",
+                                                    "example": "1|abc123..."
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Admin"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "admin@jasports.local"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "admin"
+                                                },
+                                                "roles": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credencials incorrectes"
+                    },
+                    "422": {
+                        "description": "Validació fallida"
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registrar nou usuari",
+                "operationId": "8e4e3cb7b46126f4696379d3c7eeb4ad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Joan Garcia"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "joan@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "secret123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuari creat correctament"
+                    },
+                    "422": {
+                        "description": "Validació fallida"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Tancar sessió",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "Sessió tancada correctament"
+                    },
+                    "401": {
+                        "description": "No autenticat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/orders": {
+            "get": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Llistar comandes de l'usuari autenticat",
+                "operationId": "955bb77a45ae173a485fadb8befed93f",
+                "responses": {
+                    "200": {
+                        "description": "Llista de comandes"
+                    },
+                    "401": {
+                        "description": "No autenticat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Crear nova comanda",
+                "operationId": "2123ba58dadb22bd6f2c8081af562230",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "items",
+                                    "total",
+                                    "address",
+                                    "city",
+                                    "postal_code",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "product_id": {
+                                                    "type": "integer"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer"
+                                                },
+                                                "size": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "total": {
+                                        "type": "number",
+                                        "example": 149.99
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Carrer Major 1"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Alcoi"
+                                    },
+                                    "postal_code": {
+                                        "type": "string",
+                                        "example": "03801"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "666123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Comanda creada"
+                    },
+                    "422": {
+                        "description": "Validació fallida"
+                    },
+                    "500": {
+                        "description": "Error intern"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Llistar productes (amb filtres i paginació)",
+                "operationId": "d97d1c3727cbac49708b85f7d11f7d58",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Cerca per nom o SKU",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sexo",
+                        "in": "query",
+                        "description": "Filtrar per gènere",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Hombre",
+                                "Mujer",
+                                "Niños",
+                                "Unisex"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "marca",
+                        "in": "query",
+                        "description": "Filtrar per marca",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "categoria",
+                        "in": "query",
+                        "description": "Filtrar per categoria",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "min_price",
+                        "in": "query",
+                        "description": "Preu mínim",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "max_price",
+                        "in": "query",
+                        "description": "Preu màxim",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "oferta",
+                        "in": "query",
+                        "description": "Només ofertes",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Pàgina",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Llista paginada de productes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Product"
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/admin/products": {
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Crear producte (admin)",
+                "operationId": "c8507ffd7fe8f285b4ef798ce152e6de",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Producte creat"
+                    },
+                    "401": {
+                        "description": "No autenticat"
+                    },
+                    "403": {
+                        "description": "Sense permisos"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/oauth/google/redirect": {
+            "get": {
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Obtenir URL de redirecció a Google",
+                "description": "Retorna la URL de Google per iniciar el flux OAuth2. El frontend ha de redirigir el navegador a aquesta URL.",
+                "operationId": "387ae299f54957b33ae82f9ef19d796e",
+                "responses": {
+                    "200": {
+                        "description": "URL de Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "url": {
+                                            "type": "string",
+                                            "example": "https://accounts.google.com/o/oauth2/auth?..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/oauth/google/callback": {
+            "get": {
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Callback de Google OAuth2",
+                "description": "Rep el codi d'autorització de Google, crea/actualitza l'usuari local i retorna un token Sanctum.",
+                "operationId": "006013d05f9040910c46ad6f021305e7",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "description": "Codi d'autorització de Google",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "description": "Paràmetre state per CSRF",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login correcte, retorna token Sanctum"
+                    },
+                    "422": {
+                        "description": "Error d'autenticació amb Google"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Product": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "sku": {
+                        "type": "string",
+                        "example": "SKU001"
+                    },
+                    "marca": {
+                        "type": "string",
+                        "example": "Nike"
+                    },
+                    "categoria": {
+                        "type": "string",
+                        "example": "Zapatillas"
+                    },
+                    "nombre": {
+                        "type": "string",
+                        "example": "Nike Air Zoom"
+                    },
+                    "precio": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 99.99
+                    },
+                    "talla": {
+                        "type": "string",
+                        "example": "42"
+                    },
+                    "color": {
+                        "type": "string",
+                        "example": "Rojo"
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 50
+                    },
+                    "sexo": {
+                        "type": "string",
+                        "enum": [
+                            "Hombre",
+                            "Mujer",
+                            "Niños",
+                            "Unisex"
+                        ]
+                    },
+                    "oferta": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "example": "http://localhost:8000/imgNike/foto.png"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Introdueix el token obtingut en /api/login. Format: Bearer {token}",
+                "bearerFormat": "Sanctum",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Autenticació d'usuaris"
+        },
+        {
+            "name": "Products",
+            "description": "Gestió de productes"
+        },
+        {
+            "name": "Orders",
+            "description": "Gestió de comandes"
+        },
+        {
+            "name": "OAuth",
+            "description": "Login social amb Google (OAuth2)"
+        }
+    ]
+}

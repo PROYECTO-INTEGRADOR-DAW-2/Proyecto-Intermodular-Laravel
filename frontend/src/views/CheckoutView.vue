@@ -3,9 +3,11 @@ import { ref } from 'vue';
 import { useCartStore } from '@/stores/cart';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
+import { useToastStore } from '@/stores/toast';
 
 const cartStore = useCartStore();
 const router = useRouter();
+const toastStore = useToastStore();
 
 const formData = ref({
     address: '',
@@ -27,6 +29,7 @@ const errorMessage = ref('');
 const handleSubmit = async () => {
     if (cartStore.items.length === 0) {
         errorMessage.value = 'El carrito está vacío.';
+        toastStore.addToast('El carrito está vacío.', 'error');
         return;
     }
 
@@ -47,7 +50,7 @@ const handleSubmit = async () => {
         await api.post('/orders', orderData);
         
         cartStore.clearCart();
-        alert('¡Pedido realizado con éxito!');
+        toastStore.addToast('¡Pedido realizado con éxito!', 'success');
         router.push({ name: 'orders' });
 
     } catch (error) {
@@ -56,6 +59,7 @@ const handleSubmit = async () => {
         if (error.response && error.response.data && error.response.data.message) {
              errorMessage.value += ' ' + error.response.data.message;
         }
+        toastStore.addToast('Error al procesar el pedido.', 'error');
     } finally {
         isSubmitting.value = false;
     }

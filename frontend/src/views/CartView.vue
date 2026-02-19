@@ -4,10 +4,12 @@ import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
+import { useToastStore } from '@/stores/toast';
 
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const toastStore = useToastStore();
 
 const wishlistItems = ref([]);
 const isLoadingWishlist = ref(false);
@@ -29,8 +31,10 @@ const removeFromWishlist = async (id) => {
     try {
         await api.post(`/wishlist/${id}`);
         await fetchWishlist(); // Refresh list
+        toastStore.addToast('Producto eliminado de la lista de deseos', 'info');
     } catch (error) {
         console.error('Error removing from wishlist:', error);
+        toastStore.addToast('Error al eliminar de la lista de deseos', 'error');
     }
 };
 
@@ -47,7 +51,7 @@ const moveToCart = (product) => {
     }
     
     cartStore.addToCart(product, size, 1);
-    alert('Producto añadido al carrito (Talla: ' + size + ')');
+    toastStore.addToast('Producto añadido al carrito (Talla: ' + size + ')', 'success');
 };
 
 onMounted(() => {

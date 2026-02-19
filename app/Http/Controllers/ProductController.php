@@ -87,6 +87,6 @@ class ProductController extends Controller
         // Obtener el producto promocionado para el banner (Nike Gato)
         $promotedProduct = Product::where('nombre', 'like', '%nike gato%')->first();
         
-        return view('home.home', compact('masComprados', 'promotedProduct'));
+        return view('welcome', compact('masComprados', 'promotedProduct'));
     }
 }

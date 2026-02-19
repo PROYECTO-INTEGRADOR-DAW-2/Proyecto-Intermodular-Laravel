@@ -49,8 +49,8 @@ services:
       - ./docker/vsftpd.conf:/etc/vsftpd/vsftpd.conf:ro
     environment:
       # format: name|password|home|uid|gid
-      - USERS=app|passapp|/home/app/ftp/www|1000|1000 backupuser|passbackup|/home/backupuser/ftp/fitxers|1001|1001 tests|passtests|/home/tests/ftp|1002|1000 alumne1|pass1|/home/tests/ftp/alumne1/www|1003|1000 alumne2|pass2|/home/tests/ftp/alumne2/www|1004|1000 alumne3|pass3|/home/tests/ftp/alumne3/www|1005|1000
-      - ADDRESS=localhost
+      - USERS=app|passapp|/home/app/ftp/www|1000|1000 backupuser|passbackup|/home/backupuser/ftp/fitxers|1001|1001 tests|passtests|/home/tests/ftp|1002|1000
+      - ADDRESS=54.208.6.38
       - MIN_PORT=30000
       - MAX_PORT=30050
     restart: always
@@ -61,7 +61,7 @@ services:
     image: mysql:8.4
     container_name: db
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: [ "CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}" ]
       retries: 3
       timeout: 5s
     #command: --default-authentication-plugin=mysql_native_password
@@ -100,6 +100,7 @@ services:
 
 volumes:
   db_data:
+
 
 networks:
   laravel-network:

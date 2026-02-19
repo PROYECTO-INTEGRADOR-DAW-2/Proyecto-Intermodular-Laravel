@@ -1,33 +1,57 @@
 <script setup>
-import { ref } from 'vue';
-import { useAuthStore } from '../stores/auth';
-import { useRouter } from 'vue-router';
+import { useForm, useField } from 'vee-validate'
+import { object, string, ref as yupRef } from 'yup'
+import { useAuthStore } from '../stores/auth'
+import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 
-const name = ref('');
-const email = ref('');
-const password = ref('');
-const password_confirmation = ref('');
-const authStore = useAuthStore();
-const router = useRouter();
-const errorMessage = ref('');
+const authStore = useAuthStore()
+const router = useRouter()
+const serverError = ref('')
 
-const handleRegister = async () => {
+// ── Yup schema ────────────────────────────────────────────────────────────────
+const schema = object({
+    name: string()
+        .required('El nom és obligatori')
+        .min(2, 'Mínim 2 caràcters'),
+    email: string()
+        .required('El email és obligatori')
+        .email('Format d\'email invàlid'),
+    password: string()
+        .required('La contrasenya és obligatòria')
+        .min(6, 'Mínim 6 caràcters'),
+    password_confirmation: string()
+        .required('Confirma la contrasenya')
+        .oneOf([yupRef('password')], 'Les contrasenyes no coincideixen'),
+})
+
+// ── Vee-Validate form ─────────────────────────────────────────────────────────
+const { handleSubmit, isSubmitting } = useForm({ validationSchema: schema })
+
+const { value: name, errorMessage: nameError, meta: nameMeta } = useField('name')
+const { value: email, errorMessage: emailError, meta: emailMeta } = useField('email')
+const { value: password, errorMessage: passwordError, meta: passwordMeta } = useField('password')
+const { value: passwordConfirmation, errorMessage: passwordConfirmationError, meta: passwordConfirmationMeta } = useField('password_confirmation')
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+const handleRegister = handleSubmit(async (values) => {
+    serverError.value = ''
     try {
         await authStore.register({
-            name: name.value,
-            email: email.value,
-            password: password.value,
-            password_confirmation: password_confirmation.value
-        });
-        router.push('/');
+            name: values.name,
+            email: values.email,
+            password: values.password,
+            password_confirmation: values.password_confirmation,
+        })
+        router.push('/')
     } catch (error) {
-        if (error.response && error.response.data && error.response.data.errors) {
-             errorMessage.value = Object.values(error.response.data.errors).flat().join('\n');
+        if (error.response?.data?.errors) {
+            serverError.value = Object.values(error.response.data.errors).flat().join(' ')
         } else {
-             errorMessage.value = 'Registration failed. Please try again.';
+            serverError.value = 'Error al registrarse. Inténtalo de nuevo.'
         }
     }
-};
+})
 </script>
 
 <template>
@@ -40,43 +64,82 @@ const handleRegister = async () => {
                     <p class="text-muted">Únete a J&A Sports hoy mismo</p>
                 </div>
 
-                <div v-if="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+                <div v-if="serverError" class="alert alert-danger">{{ serverError }}</div>
 
-                <form @submit.prevent="handleRegister">
+                <form @submit.prevent="handleRegister" novalidate>
+                    <!-- Nombre -->
                     <div class="mb-3">
                         <label for="name" class="form-label fw-bold">Nombre</label>
                         <div class="input-group">
-                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
-                             <input type="text" class="form-control border-start-0 ps-0 bg-light" id="name" v-model="name" placeholder="Tu nombre" required>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="email" class="form-label fw-bold">Email</label>
-                        <div class="input-group">
-                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
-                             <input type="email" class="form-control border-start-0 ps-0 bg-light" id="email" v-model="email" placeholder="name@example.com" required>
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
+                            <input
+                                type="text"
+                                id="name"
+                                v-model="name"
+                                placeholder="Tu nombre"
+                                class="form-control border-start-0 ps-0 bg-light"
+                                :class="{ 'is-invalid': nameMeta.touched && nameError, 'is-valid': nameMeta.touched && !nameError }"
+                            >
+                            <div class="invalid-feedback">{{ nameError }}</div>
                         </div>
                     </div>
 
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope"></i></span>
+                            <input
+                                type="email"
+                                id="email"
+                                v-model="email"
+                                placeholder="name@example.com"
+                                class="form-control border-start-0 ps-0 bg-light"
+                                :class="{ 'is-invalid': emailMeta.touched && emailError, 'is-valid': emailMeta.touched && !emailError }"
+                            >
+                            <div class="invalid-feedback">{{ emailError }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
                     <div class="mb-3">
                         <label for="password" class="form-label fw-bold">Contraseña</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
-                            <input type="password" class="form-control border-start-0 ps-0 bg-light" id="password" v-model="password" placeholder="********" required>
+                            <input
+                                type="password"
+                                id="password"
+                                v-model="password"
+                                placeholder="********"
+                                class="form-control border-start-0 ps-0 bg-light"
+                                :class="{ 'is-invalid': passwordMeta.touched && passwordError, 'is-valid': passwordMeta.touched && !passwordError }"
+                            >
+                            <div class="invalid-feedback">{{ passwordError }}</div>
                         </div>
                     </div>
 
+                    <!-- Confirm Password -->
                     <div class="mb-4">
                         <label for="password_confirmation" class="form-label fw-bold">Confirmar Contraseña</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock-fill"></i></span>
-                            <input type="password" class="form-control border-start-0 ps-0 bg-light" id="password_confirmation" v-model="password_confirmation" placeholder="********" required>
+                            <input
+                                type="password"
+                                id="password_confirmation"
+                                v-model="passwordConfirmation"
+                                placeholder="********"
+                                class="form-control border-start-0 ps-0 bg-light"
+                                :class="{ 'is-invalid': passwordConfirmationMeta.touched && passwordConfirmationError, 'is-valid': passwordConfirmationMeta.touched && !passwordConfirmationError }"
+                            >
+                            <div class="invalid-feedback">{{ passwordConfirmationError }}</div>
                         </div>
                     </div>
 
                     <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-danger btn-lg fw-bold">Registrarse</button>
+                        <button type="submit" class="btn btn-danger btn-lg fw-bold" :disabled="isSubmitting">
+                            <span v-if="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                            Registrarse
+                        </button>
                     </div>
 
                     <div class="text-center">
@@ -89,19 +152,12 @@ const handleRegister = async () => {
 </template>
 
 <style scoped>
-.input-group-text {
-    border-color: #dee2e6;
-}
-.form-control:focus {
-    box-shadow: none;
-    border-color: #dee2e6;
-}
+.input-group-text { border-color: #dee2e6; }
+.form-control:focus { box-shadow: none; border-color: #dee2e6; }
 .input-group:focus-within {
     box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
     border-radius: 0.375rem;
 }
 .input-group:focus-within .input-group-text,
-.input-group:focus-within .form-control {
-    border-color: #dc3545;
-}
+.input-group:focus-within .form-control { border-color: #dc3545; }
 </style>

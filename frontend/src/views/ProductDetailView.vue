@@ -5,10 +5,12 @@ import axios from 'axios';
 import api from '@/services/api';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
 
 const route = useRoute();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const toastStore = useToastStore();
 
 const product = ref(null);
 const relatedProducts = ref([]);
@@ -65,11 +67,11 @@ const availableSizes = computed(() => {
 
 const addToCart = () => {
     if (!selectedSize.value) {
-        alert('Por favor selecciona una talla.');
+        toastStore.addToast('Por favor selecciona una talla.', 'error');
         return;
     }
     cartStore.addToCart(product.value, selectedSize.value, quantity.value);
-    alert('Producto añadido al carrito');
+    toastStore.addToast('Producto añadido al carrito', 'success');
 };
 
 const isInWishlist = ref(false);
@@ -87,15 +89,21 @@ const checkWishlist = async () => {
 
 const handleWishlist = async () => {
     if (!authStore.isAuthenticated) {
-        alert('Debes iniciar sesión para añadir productos a la lista de deseos.');
+        toastStore.addToast('Debes iniciar sesión para añadir a la lista de deseos.', 'error');
         return;
     }
     try {
         const response = await api.post(`/wishlist/${product.value.id}`);
         isInWishlist.value = response.data.status === 'added';
-        alert(response.data.message);
+        
+        if (response.data.status === 'added') {
+             toastStore.addToast('Producto añadido a la lista de deseos', 'success');
+        } else {
+             toastStore.addToast('Producto eliminado de la lista de deseos', 'info');
+        }
     } catch (error) {
         console.error('Error toggling wishlist:', error);
+        toastStore.addToast('Error al actualizar la lista de deseos', 'error');
     }
 };
 
@@ -112,7 +120,7 @@ const newReview = ref({
 
 const submitReview = async () => {
     if (!newReview.value.comment.trim()) {
-        alert('Por favor escribe un comentario.');
+        toastStore.addToast('Por favor escribe un comentario.', 'error');
         return;
     }
 
@@ -122,16 +130,15 @@ const submitReview = async () => {
         await fetchProduct(product.value.id);
         newReview.value.comment = '';
         newReview.value.rating = 5;
-        alert('¡Gracias por tu valoración!');
+        toastStore.addToast('¡Gracias por tu valoración!', 'success');
     } catch (error) {
         console.error('Error submitting review:', error);
         const errorMsg = error.response && error.response.data && error.response.data.error 
             ? error.response.data.error 
-            : 'Error al enviar la valoración. Inténtalo de nuevo.';
-        alert(errorMsg);
+            : 'Error al enviar la valoración.';
+        toastStore.addToast(errorMsg, 'error');
     }
 };
-
 </script>
 
 <template>

@@ -48,6 +48,24 @@ const router = createRouter({
             meta: { requiresAuth: true }
         },
         {
+            path: '/profile/edit',
+            name: 'profile-edit',
+            component: () => import('../views/EditProfileView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/profile/reviews',
+            name: 'reviews',
+            component: () => import('../views/ReviewsView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/settings',
+            name: 'settings',
+            component: () => import('../views/SettingsView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
             path: '/orders',
             name: 'orders',
             component: () => import('../views/OrdersView.vue'),
@@ -69,6 +87,11 @@ const router = createRouter({
             path: '/forbidden',
             name: 'forbidden',
             component: ForbiddenView
+        },
+        {
+            path: '/oauth/callback',
+            name: 'oauth-callback',
+            component: () => import('../views/OAuthCallbackView.vue'),
         }
     ]
 })

@@ -17,10 +17,20 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'wishlists')->withTimestamps();
+    }
+
     public function getImageUrlAttribute()
     {
         if (!$this->img) return null;
         if (\Illuminate\Support\Str::startsWith($this->img, ['http://', 'https://'])) return $this->img;
+
+        // Si el nombre de la imagen ya incluye la ruta (ej: 'imgNike/foto.png' o 'imgAdidas/zapatillas/foto.png'), la respetamos
+        if (\Illuminate\Support\Str::startsWith($this->img, ['img', 'imgNike', 'imgAdidas', 'imgPuma', 'imgAsics'])) {
+            return asset($this->img);
+        }
 
         $marca = strtolower($this->marca);
         $folder = 'img'; // Default folder
@@ -35,11 +45,18 @@ class Product extends Model
             $folder = 'imgAsics';
         }
 
-        // Si el nombre de la imagen ya incluye la ruta (ej: 'imgNike/foto.png'), la respetamos
-        if (\Illuminate\Support\Str::startsWith($this->img, ['img', 'imgNike', 'imgAdidas', 'imgPuma', 'imgAsics'])) {
-            return asset($this->img);
+        // Check if image exists in category subfolder
+        if ($this->categoria) {
+            $categoryFolder = strtolower($this->categoria);
+            $pathWithCategory = $folder . '/' . $categoryFolder . '/' . $this->img;
+            
+            // Check existence in public folder
+            if (file_exists(public_path($pathWithCategory))) {
+                return asset($pathWithCategory);
+            }
         }
 
+        // Fallback to brand folder
         return asset($folder . '/' . $this->img);
     }
 }
