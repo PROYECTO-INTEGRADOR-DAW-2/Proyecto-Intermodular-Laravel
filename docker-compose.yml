@@ -1,10 +1,11 @@
 services:
   app:
+    profiles: ["app"]
     networks:
       - laravel-network
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: docker/app/Dockerfile
       args:
         WWWGROUP: "${WWWGROUP:-1000}"
         WWWUSER: "${WWWUSER:-1000}"
@@ -17,22 +18,48 @@ services:
       - ./:/home/app/ftp
       - ./public:/home/app/ftp/www
       - ./backups:/home/backupuser/ftp/fitxers
-      - ./test_envs:/home/tests/ftp
       - ./logs/apache:/home/app/logs
     environment:
       APP_ENV: local
       APP_DEBUG: "true"
-      APP_URL: http://localhost
+      APP_URL: https://app.projectegrupb.es
       DB_HOST: db
-      DB_DATABASE: laravel
-      DB_USERNAME: laravel
-      DB_PASSWORD: laravel
+      DB_DATABASE: ${DB_DATABASE:-laravel}
+      DB_USERNAME: ${DB_USERNAME:-laravel}
+      DB_PASSWORD: ${DB_PASSWORD:-laravel}
       REDIS_HOST: redis
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+
+  test:
+    profiles: ["test"]
+    networks:
+      - laravel-network
+    build:
+      context: .
+      dockerfile: docker/test/Dockerfile
+      args:
+        WWWGROUP: "${WWWGROUP:-1000}"
+        WWWUSER: "${WWWUSER:-1000}"
+    image: classroom-laravel-test
+    container_name: test_app
+    ports:
+      - "8001:80"
+      - "444:443"
+    volumes:
+      - ./test_envs:/home/tests/ftp
+    environment:
+      APP_ENV: testing
+      DB_HOST: db
+      DB_DATABASE: ${DB_DATABASE:-laravel}
+      DB_USERNAME: ${DB_USERNAME:-laravel}
+      DB_PASSWORD: ${DB_PASSWORD:-laravel}
+    depends_on:
+      db:
+        condition: service_healthy
 
   ftp:
     networks:
@@ -48,7 +75,6 @@ services:
       - ./test_envs:/home/tests/ftp
       - ./docker/vsftpd.conf:/etc/vsftpd/vsftpd.conf:ro
     environment:
-      # format: name|password|home|uid|gid
       - USERS=app|passapp|/home/app/ftp/www|1000|1000 backupuser|passbackup|/home/backupuser/ftp/fitxers|1001|1001 tests|passtests|/home/tests/ftp|1002|1000
       - ADDRESS=54.208.6.38
       - MIN_PORT=30000
@@ -64,12 +90,11 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
       retries: 3
       timeout: 5s
-    #command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laravel
-      MYSQL_PASSWORD: laravel
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-laravel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
     ports:
       - "3306:3306"
     volumes:
@@ -90,8 +115,8 @@ services:
     container_name: phpmyadmin
     environment:
       PMA_HOST: db
-      PMA_USER: laravel
-      PMA_PASSWORD: laravel
+      PMA_USER: ${DB_USERNAME:-laravel}
+      PMA_PASSWORD: ${DB_PASSWORD:-laravel}
     ports:
       - "8080:80"
     depends_on:

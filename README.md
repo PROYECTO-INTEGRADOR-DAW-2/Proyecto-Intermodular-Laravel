@@ -50,9 +50,52 @@ Thank you for considering contributing to the Laravel framework! The contributio
 
 In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+## Docker Setup
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Este proyecto utiliza Docker Compose con perfiles para gestionar dos entornos independientes: la aplicación principal y el entorno de pruebas (tests).
+
+### Requisitos previos
+
+- Docker y Docker Compose instalados.
+- Configurar las variables de entorno en el archivo `.env`.
+
+### Cómo arrancar la aplicación principal
+
+Para arrancar el entorno de desarrollo de la aplicación:
+
+```bash
+docker compose --profile app up -d
+```
+
+La aplicación estará disponible en `http://localhost:8000` (o `https://app.projectegrupb.es` si has configurado el archivo hosts).
+
+### Cómo arrancar el entorno de pruebas
+
+Para arrancar el entorno de pruebas para alumnos:
+
+```bash
+docker compose --profile test up -d
+```
+
+Este entorno permite el acceso a subdominios dinámicos mapeados a carpetas en `test_envs/`.
+
+### Servicios comunes
+
+Los servicios de base de datos (`db`), FTP (`ftp`) y Redis (`redis`) arrancan automáticamente con cualquiera de los perfiles.
+
+- **FTP**: Disponible en el puerto 21. Permite subir archivos a ambos entornos.
+- **Base de Datos**: MySQL persistente en el volumen `db_data`.
+- **phpMyAdmin**: Disponible en `http://localhost:8080`.
+
+### Detener los servicios
+
+Para detener todos los servicios:
+
+```bash
+docker compose down
+```
+
+---
 
 ## License
 
