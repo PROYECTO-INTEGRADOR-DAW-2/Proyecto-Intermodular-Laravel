@@ -1,0 +1,49 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'frontend/**'
+      - 'README.md'
+      - '.gitignore'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, mysql, bcmath, gd
+
+      - name: Install Dependencies
+        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Run Tests
+        run: php artisan test
+
+  deploy:
+    needs: tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script: |
+            cd ${{ secrets.PROD_PATH }}
+            git pull origin main
+            docker compose --profile app up -d --build app
+            docker exec app php artisan migrate --force
+            docker exec app php artisan config:cache
+            docker exec app php artisan route:cache
+            docker exec app php artisan view:cache
