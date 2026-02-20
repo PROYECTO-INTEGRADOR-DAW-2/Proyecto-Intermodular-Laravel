@@ -32,6 +32,7 @@ class ProductResource extends JsonResource
             'oferta' => $this->oferta,
             'img' => $this->img,
             'image_url' => $this->image_url, // Also adding image_url accessor
+            'images' => ProductImageResource::collection($this->whenLoaded('images')),
             'reviews' => $this->whenLoaded('reviews'),
         ];
     }

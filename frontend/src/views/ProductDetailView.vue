@@ -17,12 +17,14 @@ const relatedProducts = ref([]);
 const selectedSize = ref(null);
 const quantity = ref(1);
 const isLoading = ref(true);
+const currentImage = ref(null);
 
 const fetchProduct = async (id) => {
     isLoading.value = true;
     try {
         const response = await axios.get(`/api/products/${id}`);
         product.value = response.data.data;
+        currentImage.value = product.value.image_url;
         if (response.data.additional) {
              relatedProducts.value = response.data.additional.related;
         }
@@ -158,12 +160,37 @@ const submitReview = async () => {
         <div class="row g-5">
             <!-- Image -->
             <div class="col-md-6">
-                <div class="p-4 bg-white rounded shadow-sm d-flex align-items-center justify-content-center border position-relative" style="min-height: 400px;">
-                     <span v-if="product.oferta" class="badge bg-danger position-absolute top-0 start-0 m-3 fs-5 px-3 py-2">Oferta</span>
-                     <img v-if="product.image_url" :src="product.image_url" :alt="product.nombre" class="img-fluid" style="max-height: 400px; object-fit: contain;">
+                <!-- Image Container -->
+                <div class="mb-4 d-flex justify-content-center align-items-center position-relative overflow-hidden bg-white rounded-3 shadow-sm" style="height: 500px; width: 100%;">
+                     <span v-if="product.oferta" class="badge bg-danger position-absolute top-0 start-0 m-3 fs-5 px-3 py-2" style="z-index: 10;">Oferta</span>
+                     
+                     <img v-if="currentImage" :src="currentImage" :alt="product.nombre" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
                      <div v-else class="text-center text-muted">
                         <i class="bi bi-image" style="font-size: 5rem;"></i>
                         <p>Sin imagen</p>
+                    </div>
+                </div>
+
+                <!-- Thumbnails -->
+                <div v-if="product.images && product.images.length > 0" class="d-flex justify-content-center gap-3 overflow-auto py-2">
+                    <div 
+                        @click="currentImage = product.image_url"
+                        class="ratio ratio-1x1 rounded-3 border overflow-hidden position-relative"
+                        :class="currentImage === product.image_url ? 'border-dark ring-2' : 'border-light opacity-75'"
+                        style="width: 80px; cursor: pointer; transition: all 0.2s;"
+                    >
+                         <img :src="product.image_url" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                    </div>
+
+                    <div 
+                        v-for="img in product.images" 
+                        :key="img.id" 
+                        @click="currentImage = img.image_url"
+                        class="ratio ratio-1x1 rounded-3 border overflow-hidden position-relative"
+                        :class="currentImage === img.image_url ? 'border-dark ring-2' : 'border-light opacity-75'"
+                        style="width: 80px; cursor: pointer; transition: all 0.2s;"
+                    >
+                         <img :src="img.image_url" class="img-fluid w-100 h-100" style="object-fit: cover;">
                     </div>
                 </div>
             </div>

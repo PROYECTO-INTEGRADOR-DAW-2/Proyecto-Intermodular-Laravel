@@ -28,6 +28,8 @@ class ProductRequest extends FormRequest
             'precio'      => ['required', 'numeric', 'min:0'],
             'stock'       => ['nullable', 'integer', 'min:0'],
             'img'         => ['nullable', 'string'],
+            'secondary_images' => ['nullable', 'array'],
+            'secondary_images.*' => ['string'], // URLs or filenames
             'ajuste'      => ['nullable', 'string', 'max:255'],
         ];
     }

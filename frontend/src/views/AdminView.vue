@@ -16,7 +16,8 @@ const editingProduct = ref(null)
 const productForm = reactive({
     sku: '', marca: '', categoria: '', nombre: '', precio: '',
     talla: '', color: '', stock: '', ajuste: '', sexo: '',
-    descripcion: '', altura: '', deporte: '', oferta: false, img: ''
+    descripcion: '', altura: '', deporte: '', oferta: false, img: '',
+    secondary_images: []
 })
 
 // Orders
@@ -61,20 +62,35 @@ const openCreateProduct = () => {
     Object.assign(productForm, {
         sku: '', marca: '', categoria: '', nombre: '', precio: '',
         talla: '', color: '', stock: '', ajuste: '', sexo: '',
-        descripcion: '', altura: '', deporte: '', oferta: false, img: ''
+        descripcion: '', altura: '', deporte: '', oferta: false, img: '',
+        secondary_images: []
     })
     showProductModal.value = true
 }
 
-const openEditProduct = (product) => {
-    editingProduct.value = product
-    Object.assign(productForm, { ...product })
-    showProductModal.value = true
+const openEditProduct = async (product) => {
+    try {
+        const res = await api.get(`/products/${product.id}`)
+        const fullProduct = res.data.data
+        editingProduct.value = fullProduct
+        Object.assign(productForm, { 
+            ...fullProduct,
+            secondary_images: fullProduct.images ? fullProduct.images.map(img => img.image_url) : []
+        })
+        showProductModal.value = true
+    } catch (e) {
+        showToast('Error cargando detalles del producto', 'danger')
+    }
 }
 
 const saveProduct = async () => {
     try {
         const payload = { ...productForm }
+        // Filter empty secondary images
+        if (payload.secondary_images) {
+            payload.secondary_images = payload.secondary_images.filter(img => img && img.trim() !== '')
+        }
+
         if (editingProduct.value) {
             await api.put(`/admin/products/${editingProduct.value.id}`, payload)
             showToast('Producto actualizado correctamente')
@@ -522,6 +538,20 @@ onMounted(async () => {
                             <div class="col-12">
                                 <label class="form-label fw-bold">URL Imagen</label>
                                 <input v-model="productForm.img" type="text" class="form-control" placeholder="https://...">
+                            </div>
+
+                            <!-- Secondary Images -->
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Imágenes Secundarias</label>
+                                <div v-for="(img, index) in productForm.secondary_images" :key="index" class="d-flex mb-2 gap-2">
+                                    <input v-model="productForm.secondary_images[index]" type="text" class="form-control" placeholder="URL o nombre de archivo (ej: foto.png)">
+                                    <button @click="productForm.secondary_images.splice(index, 1)" class="btn btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                <button @click="productForm.secondary_images.push('')" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-plus text-lg"></i> Añadir imagen
+                                </button>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-bold">Descripción</label>

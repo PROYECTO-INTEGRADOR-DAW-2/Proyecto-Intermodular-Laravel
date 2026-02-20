@@ -131,7 +131,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load('reviews.user');
+        $product->load(['reviews.user', 'images']);
         
         $relatedProducts = Product::where('categoria', $product->categoria)
             ->where('id', '!=', $product->id)
@@ -145,7 +145,7 @@ class ProductController extends Controller
     {
         $masComprados = Product::inRandomOrder()->take(4)->get();
         // Promoted product (Nike Gato)
-        $promotedProduct = Product::where('nombre', 'like', '%nike gato%')->first();
+        $promotedProduct = Product::where('nombre', 'like', '%gato%')->first();
 
         return response()->json([
             'masComprados' => ProductResource::collection($masComprados),
@@ -167,15 +167,32 @@ class ProductController extends Controller
     )]
     public function store(ProductRequest $request)
     {
-        $data = $request->validate(); // ProductRequest handles validation
+        $data = $request->validated();
         $product = Product::create($data);
-        return response()->json($product, 201);
+
+        if ($request->has('secondary_images')) {
+            foreach ($request->secondary_images as $imageUrl) {
+                $product->images()->create(['image_url' => $imageUrl]);
+            }
+        }
+
+        return response()->json(new ProductResource($product->load('images')), 201);
     }
 
     public function update(ProductRequest $request, Product $product)
     {
         $product->update($request->validated());
-        return new ProductResource($product);
+
+        if ($request->has('secondary_images')) {
+            // Delete existing images to replace with new set
+            $product->images()->delete();
+            
+            foreach ($request->secondary_images as $imageUrl) {
+                $product->images()->create(['image_url' => $imageUrl]);
+            }
+        }
+
+        return new ProductResource($product->load('images'));
     }
 
     public function destroy(Product $product)
