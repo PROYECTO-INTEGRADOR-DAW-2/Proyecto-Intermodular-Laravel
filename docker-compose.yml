@@ -20,9 +20,9 @@ services:
       - ./backups:/home/backupuser/ftp/fitxers
       - ./logs/apache:/home/app/logs
     environment:
-      APP_ENV: local
-      APP_DEBUG: "true"
-      APP_URL: https://app.projectegrupb.es
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: "${APP_DEBUG:-true}"
+      APP_URL: ${APP_URL:-https://app.projectegrupb.es}
       DB_HOST: db
       DB_DATABASE: ${DB_DATABASE:-laravel}
       DB_USERNAME: ${DB_USERNAME:-laravel}
