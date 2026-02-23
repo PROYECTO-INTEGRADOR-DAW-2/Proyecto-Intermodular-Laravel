@@ -13,7 +13,7 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        Product::firstOrCreate(
+        Product::updateOrCreate(
             ['nombre' => 'Zapatillas nike gato'],
             [
                 'sku' => '99000',
@@ -32,6 +32,8 @@ class ProductSeeder extends Seeder
                 'img' => ""
             ]
         );
+
+        Product::factory()->count(100)->create();
 
     }
 }
