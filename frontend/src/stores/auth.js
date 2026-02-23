@@ -80,6 +80,15 @@ export const useAuthStore = defineStore('auth', {
                 localStorage.removeItem('token')
                 localStorage.removeItem('user')
             }
+        },
+
+        // Used by OAuth callback to store session data directly
+        setSession({ token, name, email, role, roles }) {
+            this.token = token
+            this.isAuthenticated = true
+            this.user = { name, email, role, roles }
+            localStorage.setItem('token', token)
+            localStorage.setItem('user', JSON.stringify(this.user))
         }
     }
 })

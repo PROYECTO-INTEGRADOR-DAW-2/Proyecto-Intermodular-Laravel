@@ -5,6 +5,7 @@ import { useCartStore } from '@/stores/cart';
 import Navbar from '@/components/Navbar.vue';
 import Footer from '@/components/Footer.vue';
 import ChatWidget from '@/components/ChatWidget.vue';
+import ToastNotification from '@/components/ToastNotification.vue';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
@@ -22,6 +23,8 @@ onMounted(async () => {
 <template>
   <div class="d-flex flex-column min-vh-100">
     <Navbar />
+    
+    <ToastNotification />
 
     <main class="flex-grow-1">
       <router-view />

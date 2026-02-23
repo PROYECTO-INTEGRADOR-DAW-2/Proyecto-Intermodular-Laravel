@@ -24,6 +24,10 @@ class ProductImportController extends Controller
         // Pasamos el objeto al servicio y que él se pelee con la lógica
         $this->service->import($file);
 
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json(['message' => 'Importación realizada correctamente']);
+        }
+
         return redirect()->route('import.index')->with('success', 'Importación realizada correctamente');
     }
 

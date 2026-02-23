@@ -27,15 +27,20 @@ const buildFilters = (f, maxPrice) => ({
 
 const filters = ref(buildFilters(props.initialFilters, props.metadata.maxPrice));
 
-// Sync filters when the route query changes (e.g. clicking Hombre/Mujer in navbar)
+// ── Watcher 1: Sync filters when the route query changes (e.g. clicking Hombre/Mujer in navbar)
 watch(() => props.initialFilters, (newFilters) => {
     filters.value = buildFilters(newFilters, props.metadata.maxPrice);
 }, { deep: true });
 
-// Removed watch to prevent auto-filtering on every change
-// watch(filters, (newFilters) => {
-//     emit('filter-change', { ...newFilters });
-// }, { deep: true });
+// ── Watcher 2 (C3 - RA3.g): Debounce watcher on search field
+// Auto-applies the search filter 300ms after the user stops typing
+let searchDebounceTimer = null;
+watch(() => filters.value.search, (newSearch) => {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => {
+        emit('filter-change', { ...filters.value });
+    }, 300);
+});
 
 const applyFilters = () => {
     emit('filter-change', { ...filters.value });
@@ -52,7 +57,7 @@ const resetFilters = () => {
         max_price: props.metadata.maxPrice,
         oferta: false
     };
-    applyFilters(); // Apply reset immediately
+    applyFilters();
 };
 </script>
 

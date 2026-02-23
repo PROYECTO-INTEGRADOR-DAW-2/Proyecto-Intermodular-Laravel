@@ -1,26 +1,31 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import api from '@/services/api';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
+import { useToastStore } from '@/stores/toast';
 
 const route = useRoute();
+const router = useRouter();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const toastStore = useToastStore();
 
 const product = ref(null);
 const relatedProducts = ref([]);
 const selectedSize = ref(null);
 const quantity = ref(1);
 const isLoading = ref(true);
+const currentImage = ref(null);
 
 const fetchProduct = async (id) => {
     isLoading.value = true;
     try {
         const response = await axios.get(`/api/products/${id}`);
         product.value = response.data.data;
+        currentImage.value = product.value.image_url;
         if (response.data.additional) {
              relatedProducts.value = response.data.additional.related;
         }
@@ -65,11 +70,20 @@ const availableSizes = computed(() => {
 
 const addToCart = () => {
     if (!selectedSize.value) {
-        alert('Por favor selecciona una talla.');
+        toastStore.addToast('Por favor selecciona una talla.', 'error');
         return;
     }
     cartStore.addToCart(product.value, selectedSize.value, quantity.value);
-    alert('Producto añadido al carrito');
+    toastStore.addToast('Producto añadido al carrito', 'success');
+};
+
+const buyNow = () => {
+    if (!selectedSize.value) {
+        toastStore.addToast('Por favor selecciona una talla.', 'error');
+        return;
+    }
+    cartStore.setBuyNowItem(product.value, selectedSize.value, quantity.value);
+    router.push({ name: 'checkout' });
 };
 
 const isInWishlist = ref(false);
@@ -87,15 +101,21 @@ const checkWishlist = async () => {
 
 const handleWishlist = async () => {
     if (!authStore.isAuthenticated) {
-        alert('Debes iniciar sesión para añadir productos a la lista de deseos.');
+        toastStore.addToast('Debes iniciar sesión para añadir a la lista de deseos.', 'error');
         return;
     }
     try {
         const response = await api.post(`/wishlist/${product.value.id}`);
         isInWishlist.value = response.data.status === 'added';
-        alert(response.data.message);
+        
+        if (response.data.status === 'added') {
+             toastStore.addToast('Producto añadido a la lista de deseos', 'success');
+        } else {
+             toastStore.addToast('Producto eliminado de la lista de deseos', 'info');
+        }
     } catch (error) {
         console.error('Error toggling wishlist:', error);
+        toastStore.addToast('Error al actualizar la lista de deseos', 'error');
     }
 };
 
@@ -112,7 +132,7 @@ const newReview = ref({
 
 const submitReview = async () => {
     if (!newReview.value.comment.trim()) {
-        alert('Por favor escribe un comentario.');
+        toastStore.addToast('Por favor escribe un comentario.', 'error');
         return;
     }
 
@@ -122,16 +142,15 @@ const submitReview = async () => {
         await fetchProduct(product.value.id);
         newReview.value.comment = '';
         newReview.value.rating = 5;
-        alert('¡Gracias por tu valoración!');
+        toastStore.addToast('¡Gracias por tu valoración!', 'success');
     } catch (error) {
         console.error('Error submitting review:', error);
         const errorMsg = error.response && error.response.data && error.response.data.error 
             ? error.response.data.error 
-            : 'Error al enviar la valoración. Inténtalo de nuevo.';
-        alert(errorMsg);
+            : 'Error al enviar la valoración.';
+        toastStore.addToast(errorMsg, 'error');
     }
 };
-
 </script>
 
 <template>
@@ -151,12 +170,37 @@ const submitReview = async () => {
         <div class="row g-5">
             <!-- Image -->
             <div class="col-md-6">
-                <div class="p-4 bg-white rounded shadow-sm d-flex align-items-center justify-content-center border position-relative" style="min-height: 400px;">
-                     <span v-if="product.oferta" class="badge bg-danger position-absolute top-0 start-0 m-3 fs-5 px-3 py-2">Oferta</span>
-                     <img v-if="product.image_url" :src="product.image_url" :alt="product.nombre" class="img-fluid" style="max-height: 400px; object-fit: contain;">
+                <!-- Image Container -->
+                <div class="mb-4 d-flex justify-content-center align-items-center position-relative overflow-hidden bg-white rounded-3 shadow-sm" style="height: 500px; width: 100%;">
+                     <span v-if="product.oferta" class="badge bg-danger position-absolute top-0 start-0 m-3 fs-5 px-3 py-2" style="z-index: 10;">Oferta</span>
+                     
+                     <img v-if="currentImage" :src="currentImage" :alt="product.nombre" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
                      <div v-else class="text-center text-muted">
                         <i class="bi bi-image" style="font-size: 5rem;"></i>
                         <p>Sin imagen</p>
+                    </div>
+                </div>
+
+                <!-- Thumbnails -->
+                <div v-if="product.images && product.images.length > 0" class="d-flex justify-content-center gap-3 overflow-auto py-2">
+                    <div 
+                        @click="currentImage = product.image_url"
+                        class="ratio ratio-1x1 rounded-3 border overflow-hidden position-relative"
+                        :class="currentImage === product.image_url ? 'border-dark ring-2' : 'border-light opacity-75'"
+                        style="width: 80px; cursor: pointer; transition: all 0.2s;"
+                    >
+                         <img :src="product.image_url" class="img-fluid w-100 h-100" style="object-fit: cover;">
+                    </div>
+
+                    <div 
+                        v-for="img in product.images" 
+                        :key="img.id" 
+                        @click="currentImage = img.image_url"
+                        class="ratio ratio-1x1 rounded-3 border overflow-hidden position-relative"
+                        :class="currentImage === img.image_url ? 'border-dark ring-2' : 'border-light opacity-75'"
+                        style="width: 80px; cursor: pointer; transition: all 0.2s;"
+                    >
+                         <img :src="img.image_url" class="img-fluid w-100 h-100" style="object-fit: cover;">
                     </div>
                 </div>
             </div>
@@ -193,8 +237,11 @@ const submitReview = async () => {
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                        <button type="submit" class="btn btn-dark btn-lg px-4 flex-grow-1" :disabled="!product.stock">
+                        <button type="submit" class="btn btn-outline-dark btn-lg px-4 flex-grow-1" :disabled="!product.stock">
                            <i class="bi bi-cart-plus me-2"></i> Añadir al carrito
+                        </button>
+                        <button type="button" @click="buyNow" class="btn btn-dark btn-lg px-4 flex-grow-1" :disabled="!product.stock">
+                           <i class="bi bi-lightning-charge me-2"></i> Comprar ya
                         </button>
                         <button type="button" @click="handleWishlist" class="btn btn-outline-danger btn-lg px-4">
                             <i :class="isInWishlist ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>

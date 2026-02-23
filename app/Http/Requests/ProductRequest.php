@@ -3,33 +3,34 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     public function rules(): array
     {
         return [
-            'nombre' => ['required', 'string', 'max:255'],
-            'descripcion' => ['required', 'string', 'max:255'],
-            'sku' => ['required', 'string', 'max:255'],
-            'marca' => ['required', 'string', 'max:255'],
-            'color' => ['required', 'string', 'max:255'],
-            'talla' => ['required', 'string', 'max:255'],
-            'sexo' => ['required', 'string', 'max:255'],
-            'altura' => ['required', 'string', 'max:255'],
-            'deporte' => ['required', 'string', 'max:255'],
-            'oferta' => ['required', 'boolean', 'max:255'],
-            'categoria' => ['required', 'string', 'max:255'],
-            'precio' => ['required', 'decimal'],
-            'stock' => ['required', 'integer'],
-            'categoria' => ['required', 'string'],
-            'imagen' => ['required', 'string'],
+            'nombre'      => ['required', 'string', 'max:255'],
+            'descripcion' => ['nullable', 'string'],
+            'sku'         => ['nullable', 'string', 'max:255'],
+            'marca'       => ['nullable', 'string', 'max:255'],
+            'color'       => ['nullable', 'string', 'max:255'],
+            'talla'       => ['nullable', 'string', 'max:255'],
+            'sexo'        => ['nullable', 'string', 'max:255'],
+            'altura'      => ['nullable', 'string', 'max:255'],
+            'deporte'     => ['nullable', 'string', 'max:255'],
+            'oferta'      => ['nullable', 'boolean'],
+            'categoria'   => ['nullable', 'string', 'max:255'],
+            'precio'      => ['required', 'numeric', 'min:0'],
+            'stock'       => ['nullable', 'integer', 'min:0'],
+            'img'         => ['nullable', 'string'],
+            'secondary_images' => ['nullable', 'array'],
+            'secondary_images.*' => ['string'], // URLs or filenames
+            'ajuste'      => ['nullable', 'string', 'max:255'],
         ];
     }
 }

@@ -7,6 +7,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Order;
 
 class User extends Authenticatable
 {
@@ -24,6 +25,8 @@ class User extends Authenticatable
         'nombre_usuario',
         'email',
         'contraseña',
+        'role',
+        'google_id',
     ];
 
     /**
@@ -62,5 +65,30 @@ class User extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function wishlist()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists')->withTimestamps();
+    }
+    
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function hasRole($role)
+    {
+        // Check direct role column first (fast, no join)
+        if ($this->role === $role) {
+            return true;
+        }
+        // Also check pivot table for users with multiple roles
+        return $this->roles()->where('name', $role)->exists();
     }
 }
