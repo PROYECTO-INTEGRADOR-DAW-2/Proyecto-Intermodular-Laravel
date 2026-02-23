@@ -66,15 +66,18 @@ services:
     profiles: ["frontend"]
     networks:
       - laravel-network
-    image: nginx:stable-alpine
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile
     container_name: frontend
     ports:
-      - "8081:80"
+      - "5173:5173"
     volumes:
-      - ./frontend/dist:/usr/share/nginx/html
-      - ./docker/frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend:/app
+      - /app/node_modules # Map a volume to node_modules to avoid host system conflicts
+    environment:
+      - HOST=0.0.0.0
     restart: always
-
   ftp:
     networks:
       - laravel-network
