@@ -74,8 +74,7 @@ const router = createRouter({
         {
             path: '/checkout',
             name: 'checkout',
-            component: () => import('../views/CheckoutView.vue'),
-            meta: { requiresAuth: true }
+            component: () => import('../views/CheckoutView.vue')
         },
         {
             path: '/admin',
@@ -87,6 +86,11 @@ const router = createRouter({
             path: '/forbidden',
             name: 'forbidden',
             component: ForbiddenView
+        },
+        {
+            path: '/sostenibilidad',
+            name: 'sostenibilidad',
+            component: () => import('../views/SostenibilidadView.vue')
         },
         {
             path: '/oauth/callback',

@@ -170,9 +170,11 @@ const submitReview = async () => {
         <div class="row g-5">
             <!-- Image -->
             <div class="col-md-6">
-                <!-- Image Container -->
                 <div class="mb-4 d-flex justify-content-center align-items-center position-relative overflow-hidden bg-white rounded-3 shadow-sm" style="height: 500px; width: 100%;">
-                     <span v-if="product.oferta" class="badge bg-danger position-absolute top-0 start-0 m-3 fs-5 px-3 py-2" style="z-index: 10;">Oferta</span>
+                     <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2" style="z-index: 10;">
+                         <span v-if="product.oferta" class="badge bg-danger fs-5 px-3 py-2">Oferta</span>
+                         <span v-if="product.is_eco" class="badge bg-success fs-5 px-3 py-2" title="Producto fabricado con materiales sostenibles"><i class="bi bi-recycle me-2"></i>Eco</span>
+                     </div>
                      
                      <img v-if="currentImage" :src="currentImage" :alt="product.nombre" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;">
                      <div v-else class="text-center text-muted">

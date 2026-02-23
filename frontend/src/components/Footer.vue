@@ -20,6 +20,7 @@
 
         <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3">
           <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Enlaces útiles</h5>
+          <p><router-link :to="{ name: 'sostenibilidad' }" class="text-white text-decoration-none">Sostenibilidad</router-link></p>
           <p><a href="#" class="text-white text-decoration-none">Tu Cuenta</a></p>
           <p><a href="#" class="text-white text-decoration-none">Ser Afiliado</a></p>
           <p><a href="#" class="text-white text-decoration-none">Tarifas de Envío</a></p>

@@ -20,8 +20,9 @@ const productForm = reactive({
     secondary_images: []
 })
 
-// Orders
+// Orders & Analytics
 const orders = ref([])
+const topProducts = ref([])
 
 // Users
 const users = ref([])
@@ -152,6 +153,15 @@ const fetchOrders = async () => {
     finally { isLoading.value = false }
 }
 
+const fetchAnalytics = async () => {
+    try {
+        const res = await api.get('/admin/analytics/summary')
+        topProducts.value = res.data.top_products || []
+    } catch (e) {
+        console.error('Error cargando analíticas', e)
+    }
+}
+
 const statusOptions = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
 const statusLabels = {
     pending: 'Pendiente', processing: 'En proceso',
@@ -220,7 +230,7 @@ const switchTab = async (tab) => {
 }
 
 onMounted(async () => {
-    await Promise.all([fetchProducts(), fetchOrders(), fetchUsers()])
+    await Promise.all([fetchProducts(), fetchOrders(), fetchUsers(), fetchAnalytics()])
 })
 </script>
 
@@ -276,6 +286,63 @@ onMounted(async () => {
                         <div class="stat-value">{{ stats.revenue }}€</div>
                         <div class="stat-label">Ingresos totales</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Top Products (Analytics) -->
+            <div class="row mb-4">
+                <div class="col-12">
+                     <div class="card border-0 shadow-sm">
+                         <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                             <h5 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow text-danger me-2"></i>Top 5 Productos Más Vendidos</h5>
+                         </div>
+                         <div class="card-body">
+                             <!-- Vista Desktop (Tabla) -->
+                             <div class="table-responsive d-none d-md-block">
+                                 <table class="table table-hover align-middle mb-0">
+                                     <thead class="table-light">
+                                         <tr>
+                                             <th>Producto</th>
+                                             <th>Marca</th>
+                                             <th class="text-end">Unidades Vendidas</th>
+                                         </tr>
+                                     </thead>
+                                     <tbody>
+                                         <tr v-for="tp in topProducts" :key="tp.id">
+                                             <td>
+                                                 <div class="d-flex align-items-center gap-3">
+                                                     <img :src="tp.image_url" alt="" width="40" height="40" class="rounded object-fit-cover shadow-sm">
+                                                     <span class="fw-bold">{{ tp.name }}</span>
+                                                 </div>
+                                             </td>
+                                             <td>{{ tp.brand }}</td>
+                                             <td class="text-end fw-bold text-success">{{ tp.total_sold }}</td>
+                                         </tr>
+                                         <tr v-if="topProducts.length === 0">
+                                             <td colspan="3" class="text-center text-muted py-3">No hay datos de ventas disponibles</td>
+                                         </tr>
+                                     </tbody>
+                                 </table>
+                             </div>
+                             
+                             <!-- Vista Móvil (Scroll Horizontal) -->
+                             <div class="d-flex d-md-none gap-3 overflow-auto pb-3 pt-1 snap-container px-1">
+                                 <div v-for="tp in topProducts" :key="tp.id" class="card border border-light shadow-sm flex-shrink-0 snap-item bg-light" style="width: 85vw; max-width: 320px; border-radius: 12px;">
+                                     <div class="card-body d-flex align-items-center gap-3">
+                                         <img :src="tp.image_url" alt="" width="65" height="65" class="rounded-circle object-fit-cover shadow-sm bg-white border">
+                                         <div class="flex-grow-1 overflow-hidden">
+                                             <h6 class="fw-bold mb-1 text-truncate">{{ tp.name }}</h6>
+                                             <small class="text-muted d-block mb-1">{{ tp.brand }}</small>
+                                             <span class="badge bg-success text-white"><i class="bi bi-graph-up-arrow me-1"></i>{{ tp.total_sold }} uds.</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div v-if="topProducts.length === 0" class="text-center text-muted w-100 py-3">
+                                     No hay datos de ventas disponibles
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
                 </div>
             </div>
 
@@ -700,5 +767,18 @@ onMounted(async () => {
     width: 100%;
     max-width: 700px;
     max-height: 90vh;
+}
+
+/* Horizontal Scroll for Mobile Products */
+.snap-container {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding: 0.5rem;
+}
+.snap-container::-webkit-scrollbar {
+    display: none; /* Ocultar barra de scroll para un look más limpio */
+}
+.snap-item {
+    scroll-snap-align: center;
 }
 </style>
