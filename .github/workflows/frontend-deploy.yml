@@ -34,7 +34,7 @@ jobs:
           username: ${{ secrets.PROD_USER }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            mkdir -p ${{ secrets.PROD_PATH }}/frontend/dist
+            sudo mkdir -p ${{ secrets.PROD_PATH }}/frontend/dist
 
       - name: Deploy to Production
         uses: appleboy/scp-action@master
@@ -54,4 +54,4 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
             cd ${{ secrets.PROD_PATH }}
-            docker compose --profile frontend up -d frontend
+            sudo docker-compose up -d frontend
