@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
 import { useCartStore } from '@/stores/cart';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
@@ -8,6 +8,18 @@ import { useToastStore } from '@/stores/toast';
 const cartStore = useCartStore();
 const router = useRouter();
 const toastStore = useToastStore();
+
+const checkoutItems = computed(() => {
+    return cartStore.buyNowItem ? [cartStore.buyNowItem] : cartStore.details;
+});
+
+const checkoutTotal = computed(() => {
+    return cartStore.buyNowItem ? cartStore.buyNowItem.subtotal : cartStore.total;
+});
+
+onUnmounted(() => {
+    cartStore.clearBuyNowItem();
+});
 
 const formData = ref({
     address: '',
@@ -27,9 +39,9 @@ const isSubmitting = ref(false);
 const errorMessage = ref('');
 
 const handleSubmit = async () => {
-    if (cartStore.items.length === 0) {
-        errorMessage.value = 'El carrito está vacío.';
-        toastStore.addToast('El carrito está vacío.', 'error');
+    if (checkoutItems.value.length === 0) {
+        errorMessage.value = 'No hay artículos para comprar.';
+        toastStore.addToast('No hay artículos para comprar.', 'error');
         return;
     }
 
@@ -38,18 +50,23 @@ const handleSubmit = async () => {
 
     try {
         const orderData = {
-            items: cartStore.details.map(item => ({
+            items: checkoutItems.value.map(item => ({
                 product_id: item.product_id,
                 quantity: item.quantity,
                 size: String(item.size)
             })),
-            total: cartStore.total,
+            total: checkoutTotal.value,
             ...formData.value
         };
 
         await api.post('/orders', orderData);
         
-        cartStore.clearCart();
+        if (cartStore.buyNowItem) {
+            cartStore.clearBuyNowItem();
+        } else {
+            cartStore.clearCart();
+        }
+        
         toastStore.addToast('¡Pedido realizado con éxito!', 'success');
         router.push({ name: 'orders' });
 
@@ -73,11 +90,11 @@ const handleSubmit = async () => {
         <div class="row g-5">
             <div class="col-md-5 col-lg-4 order-md-last">
                 <h4 class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-primary">Tu Carrito</span>
-                    <span class="badge bg-primary rounded-pill">{{ cartStore.count }}</span>
+                    <span class="text-primary">Resumen</span>
+                    <span class="badge bg-primary rounded-pill">{{ cartStore.buyNowItem ? 1 : cartStore.count }}</span>
                 </h4>
                 <ul class="list-group mb-3 shadow-sm rounded-4">
-                    <li v-for="item in cartStore.details" :key="item.index" class="list-group-item d-flex justify-content-between lh-sm">
+                    <li v-for="(item, index) in checkoutItems" :key="index" class="list-group-item d-flex justify-content-between lh-sm">
                         <div>
                             <h6 class="my-0">{{ item.name }}</h6>
                             <small class="text-muted">Cant: {{ item.quantity }} | Talla: {{ item.size }}</small>
@@ -86,7 +103,7 @@ const handleSubmit = async () => {
                     </li>
                     <li class="list-group-item d-flex justify-content-between bg-light fw-bold">
                         <span>Total (EUR)</span>
-                        <strong>{{ Number(cartStore.total).toFixed(2) }} €</strong>
+                        <strong>{{ Number(checkoutTotal).toFixed(2) }} €</strong>
                     </li>
                 </ul>
                 <div class="d-grid gap-2">

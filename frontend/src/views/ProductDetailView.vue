@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import api from '@/services/api';
 import { useCartStore } from '@/stores/cart';
@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useToastStore } from '@/stores/toast';
 
 const route = useRoute();
+const router = useRouter();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const toastStore = useToastStore();
@@ -74,6 +75,15 @@ const addToCart = () => {
     }
     cartStore.addToCart(product.value, selectedSize.value, quantity.value);
     toastStore.addToast('Producto añadido al carrito', 'success');
+};
+
+const buyNow = () => {
+    if (!selectedSize.value) {
+        toastStore.addToast('Por favor selecciona una talla.', 'error');
+        return;
+    }
+    cartStore.setBuyNowItem(product.value, selectedSize.value, quantity.value);
+    router.push({ name: 'checkout' });
 };
 
 const isInWishlist = ref(false);
@@ -227,8 +237,11 @@ const submitReview = async () => {
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                        <button type="submit" class="btn btn-dark btn-lg px-4 flex-grow-1" :disabled="!product.stock">
+                        <button type="submit" class="btn btn-outline-dark btn-lg px-4 flex-grow-1" :disabled="!product.stock">
                            <i class="bi bi-cart-plus me-2"></i> Añadir al carrito
+                        </button>
+                        <button type="button" @click="buyNow" class="btn btn-dark btn-lg px-4 flex-grow-1" :disabled="!product.stock">
+                           <i class="bi bi-lightning-charge me-2"></i> Comprar ya
                         </button>
                         <button type="button" @click="handleWishlist" class="btn btn-outline-danger btn-lg px-4">
                             <i :class="isInWishlist ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>

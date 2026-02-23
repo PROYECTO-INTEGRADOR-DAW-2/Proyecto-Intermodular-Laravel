@@ -57,7 +57,9 @@ Route::name('api.')->group(function () {
             // All orders (admin view)
             Route::get('orders', [App\Http\Controllers\Api\OrderController::class, 'adminIndex']);
             Route::patch('orders/{order}/status', [App\Http\Controllers\Api\OrderController::class, 'updateStatus']);
+            
             // Product management (admin)
+            Route::post('products/import', [\App\Http\Controllers\ProductImportController::class, 'store']);
             Route::apiResource('products', App\Http\Controllers\Api\ProductController::class)
                 ->parameters(['products' => 'product'])
                 ->only(['store', 'update', 'destroy']);

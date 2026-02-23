@@ -38,6 +38,34 @@ const showToast = (message, type = 'success') => {
 }
 
 // ─── Products ─────────────────────────────────────────────────────────────────
+const fileInput = ref(null)
+
+const triggerExcelUpload = () => {
+    if (fileInput.value) fileInput.value.click()
+}
+
+const handleExcelUpload = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    isLoading.value = true
+    try {
+        const response = await api.post('/admin/products/import', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
+        showToast(response.data.message || 'Importación exitosa', 'success')
+        await fetchProducts()
+    } catch (error) {
+        showToast(error.response?.data?.message || 'Error al importar archivo', 'danger')
+    } finally {
+        event.target.value = ''
+        isLoading.value = false
+    }
+}
+
 const fetchProducts = async () => {
     isLoading.value = true
     try {
@@ -285,9 +313,15 @@ onMounted(async () => {
                         <span class="input-group-text"><i class="bi bi-search"></i></span>
                         <input v-model="productSearch" type="text" class="form-control" placeholder="Buscar producto...">
                     </div>
-                    <button @click="openCreateProduct" class="btn btn-danger">
-                        <i class="bi bi-plus-lg me-1"></i>Nuevo Producto
-                    </button>
+                    <div class="d-flex gap-2">
+                        <input type="file" ref="fileInput" @change="handleExcelUpload" accept=".csv, .xlsx, .xls" class="d-none">
+                        <button @click="triggerExcelUpload" class="btn btn-success shadow-sm">
+                            <i class="bi bi-file-earmark-excel me-1"></i>Subir Excel
+                        </button>
+                        <button @click="openCreateProduct" class="btn btn-danger shadow-sm">
+                            <i class="bi bi-plus-lg me-1"></i>Nuevo Producto
+                        </button>
+                    </div>
                 </div>
 
                 <div class="card border-0 shadow-sm">

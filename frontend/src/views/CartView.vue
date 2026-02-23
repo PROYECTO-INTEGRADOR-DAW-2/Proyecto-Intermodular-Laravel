@@ -191,6 +191,14 @@ const handleCheckout = () => {
 
         </div>
 
+        <!-- Empty Cart Section -->
+        <div v-else class="text-center py-5">
+            <h3 class="mb-4 text-muted">Aún no hay ningún producto en tu carrito.</h3>
+            <router-link :to="{ name: 'products' }" class="btn btn-dark btn-lg px-4 shadow-sm mb-4">
+                <i class="bi bi-cart me-2"></i> Ir a Productos
+            </router-link>
+        </div>
+
         <!-- Wishlist Section -->
         <div v-if="authStore.isAuthenticated" class="mt-5">
             <hr class="my-5">

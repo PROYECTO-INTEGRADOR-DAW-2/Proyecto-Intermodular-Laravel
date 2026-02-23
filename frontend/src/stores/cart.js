@@ -12,6 +12,9 @@ export const useCartStore = defineStore('cart', () => {
     const total = ref(0)
     const isLoading = ref(false)
 
+    // Buy Now bypass state
+    const buyNowItem = ref(null)
+
     // Getters
     const count = computed(() => items.value.reduce((acc, item) => acc + item.quantity, 0))
 
@@ -56,6 +59,21 @@ export const useCartStore = defineStore('cart', () => {
         saveToLocalStorage()
     }
 
+    const setBuyNowItem = (product, size, quantity = 1) => {
+        buyNowItem.value = {
+            product_id: product.id,
+            name: product.nombre,
+            size: size,
+            quantity: quantity,
+            price: product.precio,
+            subtotal: product.precio * quantity
+        }
+    }
+
+    const clearBuyNowItem = () => {
+        buyNowItem.value = null
+    }
+
     const fetchDetails = async () => {
         if (items.value.length === 0) {
             details.value = []
@@ -92,6 +110,9 @@ export const useCartStore = defineStore('cart', () => {
         removeFromCart,
         updateQuantity,
         clearCart,
-        fetchDetails
+        fetchDetails,
+        buyNowItem,
+        setBuyNowItem,
+        clearBuyNowItem
     }
 })
