@@ -74,6 +74,7 @@ const changePage = (url) => {
     if (!url) return;
     const urlObj = new URL(url);
     const page = urlObj.searchParams.get('page');
+    // Maintain active filters and just change the page parameter
     router.push({ name: 'products', query: { ...route.query, page } });
 };
 </script>

@@ -21,10 +21,10 @@
         <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3">
           <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Enlaces útiles</h5>
           <p><router-link :to="{ name: 'sostenibilidad' }" class="text-white text-decoration-none">Sostenibilidad</router-link></p>
-          <p><a href="#" class="text-white text-decoration-none">Tu Cuenta</a></p>
-          <p><a href="#" class="text-white text-decoration-none">Ser Afiliado</a></p>
-          <p><a href="#" class="text-white text-decoration-none">Tarifas de Envío</a></p>
-          <p><a href="#" class="text-white text-decoration-none">Ayuda</a></p>
+          <p><router-link :to="{ name: 'profile' }" class="text-white text-decoration-none">Tu Cuenta</router-link></p>
+          <p><router-link :to="{ name: 'afiliados' }" class="text-white text-decoration-none">Ser Afiliado</router-link></p>
+          <p><router-link :to="{ name: 'tarifas-envio' }" class="text-white text-decoration-none">Tarifas de Envío</router-link></p>
+          <p><router-link :to="{ name: 'ayuda' }" class="text-white text-decoration-none">Ayuda</router-link></p>
         </div>
 
         <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
