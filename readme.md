@@ -1,90 +1,102 @@
-# 🛒 Ecommerce-PI
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-> [!NOTE]
-> Deployment test - 2026-02-24
+<p align="center">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+</p>
 
-## 👤 Autors
+## About Laravel
 
-- Albert Danga Vicol
-- Jorge Vidal Gisbert
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-## Roles
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-[Roles](https://github.com/PROYECTO-INTEGRADOR-DAW-2/Proyecto-Intermodular/blob/main/docs/rols.md)
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## 🎯 Objectiu del projecte
+## Learning Laravel
 
-Desenvolupar una aplicació web de comerç electrònic com a projecte final de DAW.
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-## 📂 Estructura
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-- frontend/: HTML, CSS i JS
-- backend/: API o servidor
-- database/: scripts SQL
-- docs/: documentació
+## Laravel Sponsors
 
-## 📊 Estat actual
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-- [x] Configuració d’entorn
-- [x] Cronograma Gantt
-- [x] Asignacio roles i tasques
-- [x] Formulari de contacte
-- [x] Pla de riscos i prevencio
-- [x] Identificacio riscos
-- [x] Documentacio
+### Premium Partners
 
-## 🛠️ Tecnologías que utilizaremos
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
 
-- Laravel
-- Vue
-- Git / Github
-- Docker compose
-- Gantt
-- Markdown
-- HTML, CSS, JS
+## Contributing
 
-## 🔐 Autenticación: Breeze vs Manual
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-### Laravel Breeze
+## Code of Conduct
 
-**Ventajas:**
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-- ✅ Configuración rápida (un comando)
-- ✅ Mejores prácticas de seguridad incluidas
-- ✅ Vistas prediseñadas y totalmente funcionales
-- ✅ Validación robusta incorporada
-- ✅ Sistema de recuperación de contraseña incluido
+## Docker Setup
 
-**Desventajas:**
+Este proyecto utiliza Docker Compose con perfiles para gestionar dos entornos independientes: la aplicación principal y el entorno de pruebas (tests).
 
-- ❌ Menos control sobre la implementación
-- ❌ Estructura de vistas predefinida (Tailwind CSS por defecto)
-- ❌ Puede incluir funcionalidades innecesarias
+### Requisitos previos
 
-### Autenticación Manual
+- Docker y Docker Compose instalados.
+- Configurar las variables de entorno en el archivo `.env`.
 
-**Ventajas:**
+### Cómo arrancar la aplicación principal
 
-- ✅ Control total sobre el código y la lógica
-- ✅ Personalización completa del diseño
-- ✅ Solo incluye lo que necesitas
-- ✅ Mayor comprensión del proceso de autenticación
+Para arrancar el entorno de desarrollo de la aplicación:
 
-**Desventajas:**
+```bash
+docker compose --profile app up -d
+```
 
-- ❌ Configuración más lenta y compleja
-- ❌ Mayor riesgo de vulnerabilidades de seguridad
-- ❌ Necesitas implementar todas las funcionalidades manualmente
-- ❌ Más tiempo de desarrollo
+La aplicación estará disponible en `http://localhost:8000` (o `https://app.projectegrupb.es` si has configurado el archivo hosts).
 
-**💡 Conclusión:** Para este proyecto se ha optado por la **autenticación manual** para tener un control total sobre el diseño (Bootstrap en lugar de Tailwind) y comprender mejor el funcionamiento interno del sistema de autenticación de Laravel.
+### Cómo arrancar el entorno de pruebas
 
-## Plan de riesgos laborales
+Para arrancar el entorno de pruebas para alumnos:
 
-[Riesgos](https://github.com/PROYECTO-INTEGRADOR-DAW-2/Proyecto-Intermodular/blob/main/docs/RISKS.md)
+```bash
+docker compose --profile test up -d
+```
 
-[Riesgos individuales](https://github.com/PROYECTO-INTEGRADOR-DAW-2/Proyecto-Intermodular/blob/main/docs/riscos_individual.md)
+Este entorno permite el acceso a subdominios dinámicos mapeados a carpetas en `test_envs/`.
 
-## Sprints
+### Servicios comunes
 
-- [Sprint 1](https://github.com/PROYECTO-INTEGRADOR-DAW-2/Proyecto-Intermodular/blob/main/docs/Sprint1.md)
+Los servicios de base de datos (`db`), FTP (`ftp`) y Redis (`redis`) arrancan automáticamente con cualquiera de los perfiles.
+
+- **FTP**: Disponible en el puerto 21. Permite subir archivos a ambos entornos.
+- **Base de Datos**: MySQL persistente en el volumen `db_data`.
+- **phpMyAdmin**: Disponible en `http://localhost:8080`.
+
+### Detener los servicios
+
+Para detener todos los servicios:
+
+```bash
+docker compose down
+```
+
+---
+
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
