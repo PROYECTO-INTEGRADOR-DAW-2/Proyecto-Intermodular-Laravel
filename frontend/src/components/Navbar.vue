@@ -53,56 +53,61 @@ const handleSearch = () => {
                     <router-link :to="{ name: 'products', query: { sexo: 'Mujer' } }" class="nav-link">Mujer</router-link>
                 </li>
                 <li class="nav-item">
-                    <router-link :to="{ name: 'products' }" class="nav-link">Productos</router-link>
+                    <router-link :to="{ name: 'products' }" class="nav-link" active-class="active">Productos</router-link>
+                </li>
+                <li class="nav-item">
+                    <router-link :to="{ name: 'contact' }" class="nav-link" active-class="active">Contacto</router-link>
                 </li>
             </ul>
 
             <!-- Right Actions (Search, Auth, Cart) -->
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center gap-3 mt-3 mt-lg-0">
                 <!-- Search Form -->
-                <form @submit.prevent="handleSearch" class="d-flex" role="search">
+                <form @submit.prevent="handleSearch" class="d-flex w-100" role="search" style="max-width: 300px;">
                     <div class="input-group">
-                        <input v-model="searchQuery" class="form-control" type="search" placeholder="Buscar..." aria-label="Search" style="min-width: 300px;">
+                        <input v-model="searchQuery" class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
                         <button class="btn btn-danger" type="submit">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
                 </form>
 
-                <!-- Auth Dropdown -->
-                <div v-if="authStore.isAuthenticated" class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                        <img src="/img/user.png" alt="Usuario" width="32" height="32" class="rounded-circle me-2">
-                        <span>{{ authStore.user?.name }}</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end text-small shadow" aria-labelledby="dropdownUser1">
-                        <li class="px-3 py-1">
-                            <span v-for="role in authStore.user?.roles" :key="role" class="me-1">
-                                <RoleBadge :role="role" />
-                            </span>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><router-link :to="{ name: 'profile' }" class="dropdown-item">Mi Perfil</router-link></li>
-                        <li><router-link :to="{ name: 'orders' }" class="dropdown-item">Mis Pedidos</router-link></li>
-                        <li v-if="hasRole('admin')"><router-link :to="{ name: 'admin' }" class="dropdown-item text-danger fw-bold"><i class="bi bi-shield-lock me-1"></i>Panel Admin</router-link></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><button class="dropdown-item text-danger" @click="handleLogout">Cerrar Sesión</button></li>
-                    </ul>
-                </div>
-                <div v-else>
-                    <router-link :to="{ name: 'login' }" class="btn btn-outline-light d-flex align-items-center gap-2">
-                        <i class="bi bi-person-fill"></i> Acceder
+                <div class="d-flex align-items-center justify-content-between w-100 w-lg-auto gap-3">
+                    <!-- Auth Dropdown -->
+                    <div v-if="authStore.isAuthenticated" class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                            <img src="/img/user.png" alt="Usuario" width="32" height="32" class="rounded-circle me-2">
+                            <span>{{ authStore.user?.name }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg-end text-small shadow" aria-labelledby="dropdownUser1">
+                            <li class="px-3 py-1">
+                                <span v-for="role in authStore.user?.roles" :key="role" class="me-1">
+                                    <RoleBadge :role="role" />
+                                </span>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><router-link :to="{ name: 'profile' }" class="dropdown-item">Mi Perfil</router-link></li>
+                            <li><router-link :to="{ name: 'orders' }" class="dropdown-item">Mis Pedidos</router-link></li>
+                            <li v-if="hasRole('admin')"><router-link :to="{ name: 'admin' }" class="dropdown-item text-danger fw-bold"><i class="bi bi-shield-lock me-1"></i>Panel Admin</router-link></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button class="dropdown-item text-danger" @click="handleLogout">Cerrar Sesión</button></li>
+                        </ul>
+                    </div>
+                    <div v-else>
+                        <router-link :to="{ name: 'login' }" class="btn btn-outline-light d-flex align-items-center gap-2">
+                            <i class="bi bi-person-fill"></i> Acceder
+                        </router-link>
+                    </div>
+
+                    <!-- Cart Icon -->
+                    <router-link :to="{ name: 'cart' }" class="position-relative text-white ms-auto ms-lg-2">
+                        <img src="/img/carrito.png" alt="Carrito" width="32">
+                        <span v-if="cartStore.count > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ cartStore.count }}
+                            <span class="visually-hidden">items in cart</span>
+                        </span>
                     </router-link>
                 </div>
-
-                <!-- Cart Icon -->
-                <router-link :to="{ name: 'cart' }" class="position-relative text-white ms-2">
-                    <img src="/img/carrito.png" alt="Carrito" width="32">
-                    <span v-if="cartStore.count > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                        {{ cartStore.count }}
-                        <span class="visually-hidden">items in cart</span>
-                    </span>
-                </router-link>
             </div>
         </div>
     </div>
