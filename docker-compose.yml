@@ -23,10 +23,11 @@ services:
       APP_ENV: ${APP_ENV:-local}
       APP_DEBUG: "${APP_DEBUG:-true}"
       APP_URL: ${APP_URL:-https://app.projectegrupb.es}
-      DB_HOST: db
+      DB_HOST: ${DB_HOST:-database-cpr.cluster-cqe0droetm2x.us-east-1.rds.amazonaws.com}
+      DB_PORT: ${DB_PORT:-3306}
       DB_DATABASE: ${DB_DATABASE:-laravel}
-      DB_USERNAME: ${DB_USERNAME:-laravel}
-      DB_PASSWORD: ${DB_PASSWORD:-laravel}
+      DB_USERNAME: ${DB_USERNAME:-admin}
+      DB_PASSWORD: ${DB_PASSWORD:-passadmin}
       REDIS_HOST: redis
     depends_on:
       db:
@@ -93,25 +94,6 @@ services:
       - MAX_PORT=30050
     restart: always
 
-  db:
-    networks:
-      - laravel-network
-    image: mysql:8.4
-    container_name: db
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}" ]
-      retries: 3
-      timeout: 5s
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-      MYSQL_USER: ${DB_USERNAME:-laravel}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-laravel}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-
   redis:
     networks:
       - laravel-network
@@ -121,23 +103,20 @@ services:
       - "6379:6379"
 
   phpmyadmin:
-    networks:
-      - laravel-network
     image: phpmyadmin:latest
     container_name: phpmyadmin
     environment:
-      PMA_HOST: db
-      PMA_USER: ${DB_USERNAME:-laravel}
-      PMA_PASSWORD: ${DB_PASSWORD:-laravel}
+      PMA_HOST: database-cpr.cluster-cqe0droetm2x.us-east-1.rds.amazonaws.com
+      PMA_PORT: 3306
+      PMA_USER: admin 
+      PMA_PASSWORD: passadmin
     ports:
       - "8080:80"
-    depends_on:
-      db:
-        condition: service_healthy
+    networks:
+      - laravel-network
 
 volumes:
   db_data:
-
 
 networks:
   laravel-network:
