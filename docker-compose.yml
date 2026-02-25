@@ -71,12 +71,7 @@ services:
       dockerfile: ../docker/frontend/Dockerfile
     container_name: frontend
     ports:
-      - "5173:5173"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules # Map a volume to node_modules to avoid host system conflicts
-    environment:
-      - HOST=0.0.0.0
+      - "80:80"
     restart: always
   ftp:
     networks:
