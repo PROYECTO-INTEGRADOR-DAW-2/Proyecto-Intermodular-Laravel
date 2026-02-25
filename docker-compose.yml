@@ -108,8 +108,9 @@ services:
     environment:
       PMA_HOST: database-cpr.cluster-cqe0droetm2x.us-east-1.rds.amazonaws.com
       PMA_PORT: 3306
-      PMA_USER: admin 
+      PMA_USER: admin
       PMA_PASSWORD: passadmin
+      PMA_ABSOLUTE_URL: https://Balanceador-CPR-190026219.us-east-1.elb.amazonaws.com/phpmyadmin
     ports:
       - "8080:80"
     networks:
