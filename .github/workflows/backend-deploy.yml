@@ -31,25 +31,18 @@ jobs:
       - name: Run Tests
         run: php artisan test
 
- deploy:
+deploy:
     needs: tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted # <--- ARA FEM SERVIR EL TEU PUNTET VERD!
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v4
-
       - name: Deploy to Production
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.PROD_USER }}
-          key: ${{ secrets.PROD_SSH_KEY }}
-          script: |
-            cd ${{ secrets.PROD_PATH }}
-            git pull origin main
-            COMPOSE_PROFILES=app docker-compose up -d --build app
-            docker exec app php artisan key:generate
-            docker exec app php artisan migrate --force
-            docker exec app php artisan config:cache
-            docker exec app php artisan route:cache
-            docker exec app php artisan view:cache
+        run: |
+          cd ${{ secrets.PROD_PATH }}
+          git pull origin main
+          COMPOSE_PROFILES=app docker compose up -d --build app
+          docker exec app php artisan key:generate --force
+          docker exec app php artisan migrate --force
+          docker exec app php artisan config:cache
+          docker exec app php artisan route:cache
+          docker exec app php artisan view:cache
