@@ -41,6 +41,7 @@ jobs:
             cd ${{ secrets.PROD_PATH }}
             git pull origin main
             COMPOSE_PROFILES=app docker-compose up -d --build app
+            docker exec app git config --global --add safe.directory /home/app/ftp
             docker exec app composer install --no-dev --optimize-autoloader
             docker exec app php artisan key:generate --force
             docker exec app php artisan migrate --force
