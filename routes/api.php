@@ -49,7 +49,7 @@ Route::name('api.')->group(function () {
             Route::post('wishlist/{product}', [App\Http\Controllers\Api\WishlistController::class , 'toggle']);
 
             // Admin-only routes
-            Route::middleware('role:admin')->prefix('admin')->group(function () {
+            Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
                     Route::get('users', [App\Http\Controllers\Api\RoleController::class , 'users']);
                     Route::get('roles', [App\Http\Controllers\Api\RoleController::class , 'roles']);
                     Route::post('users/{user}/roles', [App\Http\Controllers\Api\RoleController::class , 'assignRole']);
