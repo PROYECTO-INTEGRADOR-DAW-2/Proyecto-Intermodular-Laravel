@@ -7,6 +7,13 @@ import ForbiddenView from '../views/ForbiddenView.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
+    scrollBehavior(to, from, savedPosition) {
+        if (savedPosition) {
+            return savedPosition
+        } else {
+            return { top: 0, behavior: 'smooth' }
+        }
+    },
     routes: [
         {
             path: '/',
@@ -74,8 +81,7 @@ const router = createRouter({
         {
             path: '/checkout',
             name: 'checkout',
-            component: () => import('../views/CheckoutView.vue'),
-            meta: { requiresAuth: true }
+            component: () => import('../views/CheckoutView.vue')
         },
         {
             path: '/admin',
@@ -89,9 +95,29 @@ const router = createRouter({
             component: ForbiddenView
         },
         {
+            path: '/sostenibilidad',
+            name: 'sostenibilidad',
+            component: () => import('../views/SostenibilidadView.vue')
+        },
+        {
             path: '/oauth/callback',
             name: 'oauth-callback',
             component: () => import('../views/OAuthCallbackView.vue'),
+        },
+        {
+            path: '/afiliados',
+            name: 'afiliados',
+            component: () => import('../views/AffiliateView.vue'),
+        },
+        {
+            path: '/tarifas-envio',
+            name: 'tarifas-envio',
+            component: () => import('../views/ShippingView.vue'),
+        },
+        {
+            path: '/ayuda',
+            name: 'ayuda',
+            component: () => import('../views/HelpView.vue'),
         }
     ]
 })

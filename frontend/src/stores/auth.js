@@ -13,11 +13,11 @@ export const useAuthStore = defineStore('auth', {
         async register(credentials) {
             try {
                 const response = await api.post('/register', credentials);
-                const { token, name } = response.data.data;
+                const { token, id, name } = response.data.data;
 
                 this.token = token;
                 this.isAuthenticated = true;
-                this.user = { name, roles: [] }; // Default empty roles for new users
+                this.user = { id, name, roles: [] }; // Default empty roles for new users
 
                 localStorage.setItem('token', token);
                 localStorage.setItem('user', JSON.stringify(this.user));
@@ -32,12 +32,12 @@ export const useAuthStore = defineStore('auth', {
         async login(credentials) {
             try {
                 const response = await api.post('/login', credentials)
-                const { token, name, email, role, roles } = response.data.data
+                const { token, id, name, email, role, roles } = response.data.data
 
                 this.token = token
                 this.isAuthenticated = true
                 // Construct user object with both direct role and roles array
-                this.user = { name, email, role, roles }
+                this.user = { id, name, email, role, roles }
 
                 localStorage.setItem('token', token)
                 localStorage.setItem('user', JSON.stringify(this.user))
@@ -83,10 +83,10 @@ export const useAuthStore = defineStore('auth', {
         },
 
         // Used by OAuth callback to store session data directly
-        setSession({ token, name, email, role, roles }) {
+        setSession({ token, id, name, email, role, roles }) {
             this.token = token
             this.isAuthenticated = true
-            this.user = { name, email, role, roles }
+            this.user = { id, name, email, role, roles }
             localStorage.setItem('token', token)
             localStorage.setItem('user', JSON.stringify(this.user))
         }

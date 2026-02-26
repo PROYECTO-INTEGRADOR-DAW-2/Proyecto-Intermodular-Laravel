@@ -101,8 +101,8 @@ onMounted(() => {
                 </div>
             </div>
 
-            <div v-else class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
-                <div v-for="product in masComprados" :key="product.id" class="col">
+            <div v-else class="d-flex flex-nowrap flex-lg-wrap gap-4 overflow-auto snap-container pb-4 pt-2 px-md-3 px-2">
+                <div v-for="product in masComprados" :key="product.id" class="snap-item position-relative">
                     <div class="card h-100 border-0 shadow-sm product-card transition-transform hover-lift">
                         <router-link :to="{ name: 'product-detail', params: { id: product.id } }" class="card-img-top d-flex align-items-center justify-content-center p-3 bg-white text-decoration-none" style="height: 250px;">
                              <!-- Image Logic Handling needed here if URLs vary -->
@@ -114,12 +114,12 @@ onMounted(() => {
                              <p class="card-text fw-bold mb-auto">{{ Number(product.precio).toFixed(2) }} €</p>
                              
                              <div class="d-flex gap-2 mt-3">
-                                <router-link :to="{ name: 'product-detail', params: { id: product.id } }" class="btn btn-dark flex-grow-1">Ver</router-link>
+                                <router-link :to="{ name: 'product-detail', params: { id: product.id } }" class="btn btn-dark w-100 rounded-pill">Ver</router-link>
                              </div>
                         </div>
                     </div>
                 </div>
-                <div v-if="masComprados.length === 0" class="col-12 text-center">
+                <div v-if="masComprados.length === 0" class="col-12 text-center w-100">
                     <p>No hay productos destacados.</p>
                 </div>
             </div>
@@ -136,5 +136,43 @@ onMounted(() => {
 }
 .transition-transform {
     transition: transform 0.3s ease;
+}
+
+/* Horizontal Scroll for Mobile Products */
+.snap-container {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding: 1rem;
+}
+.snap-container::-webkit-scrollbar {
+    display: none; 
+}
+
+/* Default Mobile: 1 product peek */
+.snap-item {
+    scroll-snap-align: center;
+    flex: 0 0 auto;
+    width: 85vw; /* Almost full width so the next peeks */
+    max-width: 340px; 
+}
+
+/* Tablet: 2 products peek */
+@media (min-width: 576px) {
+    .snap-item {
+        width: 45vw; 
+        max-width: 380px;
+    }
+}
+
+/* Desktop: Grid fallback */
+@media (min-width: 992px) {
+    .snap-item {
+        /* With gap-4 (1.5rem / 24px) we need to calculate width */
+        width: calc(25% - 18px); 
+        max-width: none;
+    }
+    .snap-container {
+        overflow: visible !important;
+    }
 }
 </style>
