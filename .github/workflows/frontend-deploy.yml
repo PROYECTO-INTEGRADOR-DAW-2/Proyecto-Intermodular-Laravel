@@ -20,8 +20,6 @@ jobs:
           
       - name: Build and Restart
         run: |
-          cd ${{ secrets.PROD_PATH }}/frontend
-          npm install
-          npm run build
-          cd ..
-          COMPOSE_PROFILES=frontend docker-compose up -d frontend
+          cd ${{ secrets.PROD_PATH }}
+          git pull origin main
+          COMPOSE_PROFILES=frontend docker-compose up -d --build frontend
