@@ -30,8 +30,6 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-passadmin}
       REDIS_HOST: redis
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_started
 
@@ -59,17 +57,15 @@ services:
       DB_DATABASE: ${DB_DATABASE:-laravel}
       DB_USERNAME: ${DB_USERNAME:-laravel}
       DB_PASSWORD: ${DB_PASSWORD:-laravel}
-    depends_on:
-      db:
-        condition: service_healthy
+    # removed depends_on: db as it is missing from this file
 
   frontend:
     profiles: ["frontend"]
     networks:
       - laravel-network
     build:
-      context: ./frontend
-      dockerfile: ../docker/frontend/Dockerfile
+      context: .
+      dockerfile: docker/frontend/Dockerfile
     container_name: frontend
     ports:
       - "80:80"
