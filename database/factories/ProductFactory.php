@@ -20,7 +20,7 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'sku' => $this->faker->unique()->randomNumber(8),
+            'sku' => \Faker\Factory::create()->unique()->randomNumber(8),
             'marca' => $this->faker->randomElement(["Adidas", "Nike", "Asics","Puma"]),
             'categoria' => $this->faker->randomElement(["Camisetas", "Pantalones", "Zapatillas"]),
             'nombre' => $this->faker->word(),
