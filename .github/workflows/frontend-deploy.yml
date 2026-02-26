@@ -24,4 +24,4 @@ jobs:
           npm install
           npm run build
           cd ..
-          COMPOSE_PROFILES=frontend docker compose up -d frontend
+          COMPOSE_PROFILES=frontend docker-compose up -d frontend
