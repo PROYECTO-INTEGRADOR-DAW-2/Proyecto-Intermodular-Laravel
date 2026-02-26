@@ -20,21 +20,21 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         return [
-            'sku' => fake()->unique()->randomNumber(8),
-            'marca' => fake()->randomElement(["Adidas", "Nike", "Asics","Puma"]),
-            'categoria' => fake()->randomElement(["Camisetas", "Pantalones", "Zapatillas"]),
-            'nombre' => fake()->word(),
-            'precio' => fake()->randomFloat(2, 1, 100),
-            'talla' => fake()->word(),
-            'color' => fake()->word(),
-            'stock' => fake()->randomNumber(2),
-            'ajuste' => fake()->randomElement(["Ajustado", "Holgado", "Normal"]),
-            'sexo' => fake()->randomElement(["Hombre", "Mujer", "Niño"]),
-            'descripcion' => fake()->sentence(),
-            'altura' => fake()->randomElement(["Bajo", "Alto", "Normal"]),
-            'deporte' => fake()->randomElement(["Trail"]),
-            'oferta' => fake()->boolean(),
-            'img' => fake()->imageUrl(),
+            'sku' => $this->faker->unique()->randomNumber(8),
+            'marca' => $this->faker->randomElement(["Adidas", "Nike", "Asics","Puma"]),
+            'categoria' => $this->faker->randomElement(["Camisetas", "Pantalones", "Zapatillas"]),
+            'nombre' => $this->faker->word(),
+            'precio' => $this->faker->randomFloat(2, 1, 100),
+            'talla' => $this->faker->word(),
+            'color' => $this->faker->word(),
+            'stock' => $this->faker->randomNumber(2),
+            'ajuste' => $this->faker->randomElement(["Ajustado", "Holgado", "Normal"]),
+            'sexo' => $this->faker->randomElement(["Hombre", "Mujer", "Niño"]),
+            'descripcion' => $this->faker->sentence(),
+            'altura' => $this->faker->randomElement(["Bajo", "Alto", "Normal"]),
+            'deporte' => $this->faker->randomElement(["Trail"]),
+            'oferta' => $this->faker->boolean(),
+            'img' => $this->faker->imageUrl(),
         ];
     }
 }
