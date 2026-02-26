@@ -40,7 +40,7 @@ jobs:
           run: |
             cd ${{ secrets.PROD_PATH }}
             git pull origin main
-            COMPOSE_PROFILES=app docker compose up -d --build app
+            COMPOSE_PROFILES=app docker-compose up -d --build app
             docker exec app php artisan key:generate --force
             docker exec app php artisan migrate --force
             docker exec app php artisan config:cache
