@@ -2,11 +2,11 @@ name: Backend CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths-ignore:
-      - 'frontend/**'
-      - 'README.md'
-      - '.gitignore'
+      - "frontend/**"
+      - "README.md"
+      - ".gitignore"
 
 jobs:
   tests:
@@ -17,7 +17,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: "8.3"
           extensions: mbstring, xml, ctype, iconv, mysql, bcmath, gd
 
       - name: Install Dependencies
@@ -32,19 +32,18 @@ jobs:
         run: php artisan test
 
   deploy:
-      needs: tests
-      runs-on: self-hosted # <--- ARA FEM SERVIR EL TEU PUNTET VERD!
-      if: github.ref == 'refs/heads/main'
-      steps:
-        - name: Deploy to Production
-          run: |
-            cd ${{ secrets.PROD_PATH }}
-            git pull origin main
-            COMPOSE_PROFILES=app docker-compose up -d --build app
-            docker exec app git config --global --add safe.directory /home/app/ftp
-            docker exec app composer install --no-dev --optimize-autoloader
-            docker exec app php artisan key:generate --force
-            docker exec app php artisan migrate --force
-            docker exec app php artisan config:cache
-            docker exec app php artisan route:cache
-            docker exec app php artisan view:cache
+    needs: tests
+    runs-on: self-hosted # <--- ARA FEM SERVIR EL TEU PUNTET VERD!
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to Production
+        run: |
+          cd ${{ secrets.PROD_PATH }}
+          git pull origin main
+          COMPOSE_PROFILES=app docker-compose up -d --build app
+          docker exec app git config --global --add safe.directory /home/app/ftp
+          docker exec app composer install --no-dev --optimize-autoloader
+          docker exec app php artisan key:generate --force
+          docker exec app php artisan migrate --force
+          docker exec app php artisan config:cache
+          docker exec app php artisan route:cache
