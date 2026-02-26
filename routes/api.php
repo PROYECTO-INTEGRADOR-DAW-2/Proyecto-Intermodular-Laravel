@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SocialAuthController;
+use App\Http\Controllers\ChatController;
 
 // ── Google OAuth2 (public, no auth required) ──────────────────────────────────
 Route::get('oauth/google/redirect', [SocialAuthController::class , 'redirect']);
@@ -30,6 +31,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('login', [AuthController::class , 'login']);
 Route::post('register', [AuthController::class , 'register']);
+
+Route::post('chat', [ChatController::class , 'chat'])->name('chat');
 
 Route::name('api.')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
