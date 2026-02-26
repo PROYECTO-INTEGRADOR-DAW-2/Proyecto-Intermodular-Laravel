@@ -10,12 +10,12 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         // ... (existing index logic) ...
-        // Iniciar la consulta
+        // Iniciar la consulta nueva query que se va formando
         $query = Product::query();
 
         // Aplicar filtros si existen en la request
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
+            $query->where(function ($q) use ($request) {
                 $q->where('nombre', 'like', '%' . $request->search . '%')
                     ->orWhere('sku', 'like', '%' . $request->search . '%');
             });
@@ -23,7 +23,7 @@ class ProductController extends Controller
 
         if ($request->filled('sexo')) {
             $sexosFiltrados = $request->sexo;
-            
+
             if (in_array('Hombre', $sexosFiltrados) || in_array('Mujer', $sexosFiltrados)) {
                 if (!in_array('Unisex', $sexosFiltrados)) {
                     $sexosFiltrados[] = 'Unisex';
@@ -86,7 +86,7 @@ class ProductController extends Controller
 
         // Obtener el producto promocionado para el banner (Nike Gato)
         $promotedProduct = Product::where('nombre', 'like', '%nike gato%')->first();
-        
+
         return view('welcome', compact('masComprados', 'promotedProduct'));
     }
 }
