@@ -34,6 +34,7 @@ class ProductFactory extends Factory
             'altura' => fake()->randomElement(["Bajo", "Alto", "Normal"]),
             'deporte' => fake()->randomElement(["Trail"]),
             'oferta' => fake()->boolean(),
+            'is_eco' => fake()->boolean(30),
             'img' => fake()->imageUrl(),
         ];
     }

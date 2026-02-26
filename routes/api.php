@@ -14,6 +14,7 @@ Route::get('oauth/google/callback', [SocialAuthController::class, 'callback']);
 Route::get('/user', function (Request $request) {
     $user = $request->user()->load('roles');
     return response()->json([
+        'id'    => $user->id,
         'name'  => $user->nombre,
         'email' => $user->email,
         'role'  => $user->role,
@@ -41,9 +42,11 @@ Route::name('api.')->group(function () {
             ->except(['index', 'show']);
 
         Route::apiResource('orders', App\Http\Controllers\Api\OrderController::class)
-            ->only(['index', 'store']);
+            ->only(['index']);
 
         Route::post('products/{product}/reviews', [App\Http\Controllers\Api\ReviewController::class, 'store']);
+        Route::put('products/{product}/reviews/{review}', [App\Http\Controllers\Api\ReviewController::class, 'update']);
+        Route::delete('products/{product}/reviews/{review}', [App\Http\Controllers\Api\ReviewController::class, 'destroy']);
         
         Route::get('wishlist', [App\Http\Controllers\Api\WishlistController::class, 'index']);
         Route::post('wishlist/{product}', [App\Http\Controllers\Api\WishlistController::class, 'toggle']);
@@ -58,6 +61,9 @@ Route::name('api.')->group(function () {
             Route::get('orders', [App\Http\Controllers\Api\OrderController::class, 'adminIndex']);
             Route::patch('orders/{order}/status', [App\Http\Controllers\Api\OrderController::class, 'updateStatus']);
             
+            // Analytics
+            Route::get('analytics/summary', [App\Http\Controllers\Api\AdminAnalyticsController::class, 'summary']);
+            
             // Product management (admin)
             Route::post('products/import', [\App\Http\Controllers\ProductImportController::class, 'store']);
             Route::apiResource('products', App\Http\Controllers\Api\ProductController::class)
@@ -67,13 +73,16 @@ Route::name('api.')->group(function () {
 
     });
 
-    // Endpoints públics (lectura)
+    // Endpoints públics (lectura i checkout de convidats)
     Route::get('home-products', [ProductController::class, 'home']);
-    Route::post('cart/details', [App\Http\Controllers\Api\CartController::class, 'getDetails']);
+    Route::post('orders', [App\Http\Controllers\Api\OrderController::class, 'store']); // Guest checkout allowed
+    Route::post('chat', [App\Http\Controllers\ChatController::class, 'chat']);
+    Route::post('contact', [App\Http\Controllers\Api\ContactController::class, 'store']);
 
     Route::apiResource('products', ProductController::class)
-        ->parameters(['products' => 'product'])
         ->only(['index', 'show']);
+
+    Route::post('cart/details', [ProductController::class, 'cartDetails']);
 
 });
 

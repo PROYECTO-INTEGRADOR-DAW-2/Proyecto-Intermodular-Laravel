@@ -76,8 +76,10 @@ class OrderController extends Controller
         try {
             DB::beginTransaction();
 
+            $userId = auth('sanctum')->id() ?? null;
+
             $order = Order::create([
-                'user_id' => $request->user()->id,
+                'user_id' => $userId,
                 'total' => $validated['total'],
                 'status' => 'pending',
                 'address' => $validated['address'],
@@ -101,6 +103,42 @@ class OrderController extends Controller
             }
 
             DB::commit();
+
+            // Enviar webhook a n8n si el usuario está registrado (tiene email)
+            try {
+                $user = auth('sanctum')->user();
+                if ($user && $user->email) {
+                    $order->load('items.product');
+                    
+                    $itemsArray = $order->items->map(function($item) {
+                        return [
+                            'name' => $item->product ? $item->product->nombre : 'Producto',
+                            'quantity' => $item->quantity,
+                            'price' => $item->price,
+                            'size' => $item->size ?? '-',
+                            // format image URL appropriately if needed
+                            'image' => $item->product && $item->product->img ? url(ltrim($item->product->img, '/')) : ''
+                        ];
+                    })->toArray();
+
+                    $webhookPayload = [
+                        'order_id' => $order->id,
+                        'customer_name' => trim($user->nombre . ' ' . $user->apellidos),
+                        'customer_email' => $user->email,
+                        'total' => $order->total,
+                        'address' => $order->address,
+                        'city' => $order->city,
+                        'postal_code' => $order->postal_code,
+                        'phone' => $order->phone,
+                        'items' => $itemsArray
+                    ];
+
+                    // Sustituye "TU-NUEVO-WEBHOOK-AQUI" por el ID real del nuevo nodo Webhook en n8n
+                    \Illuminate\Support\Facades\Http::post('http://172.16.211.88:5678/webhook-test/d3e4a2ba-23c7-48bb-8963-5ec637553433', $webhookPayload);
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Error sending order webhook to n8n: ' . $e->getMessage());
+            }
 
             return response()->json($order->load('items'), 201);
 
