@@ -36,17 +36,24 @@ Route::post('register', [AuthController::class , 'register']);
 Route::post('chat', [ChatController::class , 'chat'])->name('chat');
 
 Route::name('api.')->group(function () {
+    // Authenticated Routes
     Route::middleware('auth:sanctum')->group(function () {
-            Route::post('logout', [AuthController::class , 'logout']);
+        Route::post('logout', [AuthController::class, 'logout']);
 
-        // Exemple: protegim els endpoints d'escriptura
+        // Authenticated Profile & Reviews
+        Route::put('/user/profile', [AuthController::class, 'updateProfile']);
+        Route::get('/user/reviews', [App\Http\Controllers\Api\ReviewController::class, 'userIndex']);
+
+        // Protected Product Routes (Write actions)
         Route::apiResource('products', ProductController::class)
             ->parameters(['products' => 'product'])
             ->except(['index', 'show']);
 
+        // Orders
         Route::apiResource('orders', App\Http\Controllers\Api\OrderController::class)
             ->only(['index']);
 
+        // Reviews & Wishlist
         Route::post('products/{product}/reviews', [App\Http\Controllers\Api\ReviewController::class, 'store']);
         Route::put('products/{product}/reviews/{review}', [App\Http\Controllers\Api\ReviewController::class, 'update']);
         Route::delete('products/{product}/reviews/{review}', [App\Http\Controllers\Api\ReviewController::class, 'destroy']);
@@ -55,11 +62,12 @@ Route::name('api.')->group(function () {
         Route::post('wishlist/{product}', [App\Http\Controllers\Api\WishlistController::class, 'toggle']);
 
         // Admin-only routes
-        Route::middleware('role:admin')->prefix('admin')->group(function () {
+        Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
             Route::get('users', [App\Http\Controllers\Api\RoleController::class, 'users']);
             Route::get('roles', [App\Http\Controllers\Api\RoleController::class, 'roles']);
             Route::post('users/{user}/roles', [App\Http\Controllers\Api\RoleController::class, 'assignRole']);
             Route::delete('users/{user}/roles/{role}', [App\Http\Controllers\Api\RoleController::class, 'removeRole']);
+            
             // All orders (admin view)
             Route::get('orders', [App\Http\Controllers\Api\OrderController::class, 'adminIndex']);
             Route::patch('orders/{order}/status', [App\Http\Controllers\Api\OrderController::class, 'updateStatus']);
@@ -69,61 +77,21 @@ Route::name('api.')->group(function () {
             
             // Product management (admin)
             Route::post('products/import', [\App\Http\Controllers\ProductImportController::class, 'store']);
-            Route::apiResource('products', App\Http\Controllers\Api\ProductController::class)
-                ->parameters(['products' => 'product'])
-                ->except(['index', 'show']);
-
-            Route::apiResource('orders', App\Http\Controllers\Api\OrderController::class)
-                ->only(['index', 'store']);
-
-            Route::post('products/{product}/reviews', [App\Http\Controllers\Api\ReviewController::class , 'store']);
-
-            Route::get('wishlist', [App\Http\Controllers\Api\WishlistController::class , 'index']);
-            Route::post('wishlist/{product}', [App\Http\Controllers\Api\WishlistController::class , 'toggle']);
-
-            // Admin-only routes
-            Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-                    Route::get('users', [App\Http\Controllers\Api\RoleController::class , 'users']);
-                    Route::get('roles', [App\Http\Controllers\Api\RoleController::class , 'roles']);
-                    Route::post('users/{user}/roles', [App\Http\Controllers\Api\RoleController::class , 'assignRole']);
-                    Route::delete('users/{user}/roles/{role}', [App\Http\Controllers\Api\RoleController::class , 'removeRole']);
-                    // All orders (admin view)
-                    Route::get('orders', [App\Http\Controllers\Api\OrderController::class , 'adminIndex']);
-                    Route::patch('orders/{order}/status', [App\Http\Controllers\Api\OrderController::class , 'updateStatus']);
-
-                    // Product management (admin)
-                    Route::post('products/import', [\App\Http\Controllers\ProductImportController::class , 'store']);
-                    Route::apiResource('products', App\Http\Controllers\Api\ProductController::class)
-                        ->parameters(['products' => 'product'])
-                        ->only(['store', 'update', 'destroy']);
-                }
-                );
-
-            }
-            );
-
-            // Endpoints públics (lectura)
-            Route::get('home-products', [ProductController::class , 'home']);
-            Route::post('cart/details', [App\Http\Controllers\Api\CartController::class , 'getDetails']);
-
-            // Products public (read)
-            Route::apiResource('products', ProductController::class)
-                ->parameters(['products' => 'product'])
-                ->only(['index', 'show']);
+            
+            // Admin can do everything with products (usually)
+            // But we already have the general products resource above.
+            // If admin needs specific overrides, they go here.
         });
-
     });
 
-    // Endpoints públics (lectura i checkout de convidats)
+    // Public Routes (No authentication required)
     Route::get('home-products', [ProductController::class, 'home']);
+    Route::post('cart/details', [ProductController::class, 'cartDetails']);
     Route::post('orders', [App\Http\Controllers\Api\OrderController::class, 'store']); // Guest checkout allowed
     Route::post('chat', [App\Http\Controllers\ChatController::class, 'chat']);
     Route::post('contact', [App\Http\Controllers\Api\ContactController::class, 'store']);
 
     Route::apiResource('products', ProductController::class)
         ->only(['index', 'show']);
-
-    Route::post('cart/details', [ProductController::class, 'cartDetails']);
-
 });
 
