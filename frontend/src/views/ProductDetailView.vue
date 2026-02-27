@@ -259,12 +259,17 @@ const deleteReview = async (reviewId) => {
 
                 <p class="lead mb-4">{{ product.descripcion || 'Sin descripción disponible.' }}</p>
 
-                <div class="mb-4">
-                    <span class="badge bg-light text-dark border me-2 p-2">{{ product.sexo }}</span>
-                    <span class="badge bg-light text-dark border me-2 p-2">{{ product.categoria }}</span>
+                <div class="mb-4 d-flex flex-wrap gap-2">
+                    <span class="badge bg-light text-dark border p-2">{{ product.sexo }}</span>
+                    <span class="badge bg-light text-dark border p-2">{{ product.categoria }}</span>
                     <span :class="['badge p-2', product.stock > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger']">
                         {{ product.stock > 0 ? 'En Stock' : 'Agotado' }}
                     </span>
+                    <template v-if="product.is_eco">
+                        <span class="badge bg-success p-2"><i class="bi bi-star me-1"></i>Eco Score</span>
+                        <span class="badge bg-success p-2"><i class="bi bi-box-seam me-1"></i>Embalatge reciclat</span>
+                        <span class="badge bg-success p-2"><i class="bi bi-geo-alt me-1"></i>Proveïdor local</span>
+                    </template>
                 </div>
 
                 <form @submit.prevent="addToCart">
@@ -296,6 +301,27 @@ const deleteReview = async (reviewId) => {
                     <p class="mb-1"><i class="bi bi-truck me-2"></i> Envío gratis en pedidos superiores a 50€</p>
                     <p class="mb-1"><i class="bi bi-arrow-repeat me-2"></i> Devoluciones gratuitas en 30 días</p>
                     <p class="mb-0"><i class="bi bi-shield-check me-2"></i> Garantía de 2 años</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Products (Moved up) -->
+        <div v-if="relatedProducts.length > 0" class="mt-5">
+            <hr class="my-5">
+            <h3 class="mb-4 fw-bold">También te podrían gustar</h3>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+                <div v-for="related in relatedProducts" :key="related.id" class="col">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="bg-white p-3 rounded-top d-flex align-items-center justify-content-center" style="height: 200px;">
+                             <img v-if="related.image_url" :src="related.image_url" class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                             <div v-else class="text-muted"><i class="bi bi-image"></i></div>
+                        </div>
+                        <div class="card-body text-center">
+                            <h6 class="card-title text-truncate"><router-link :to="{ name: 'product-detail', params: { id: related.id } }" class="text-decoration-none text-dark">{{ related.nombre }}</router-link></h6>
+                            <p class="card-text fw-bold">{{ Number(related.precio).toFixed(2) }} €</p>
+                            <router-link :to="{ name: 'product-detail', params: { id: related.id } }" class="btn btn-sm btn-outline-dark w-100">Ver producto</router-link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -382,26 +408,7 @@ const deleteReview = async (reviewId) => {
             </div>
         </div>
 
-        <!-- Related Products -->
-        <div v-if="relatedProducts.length > 0" class="mt-5">
-            <hr class="my-5">
-            <h3 class="mb-4 fw-bold">Productos Relacionados</h3>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
-                <div v-for="related in relatedProducts" :key="related.id" class="col">
-                    <div class="card h-100 border-0 shadow-sm">
-                        <div class="bg-white p-3 rounded-top d-flex align-items-center justify-content-center" style="height: 200px;">
-                             <img v-if="related.image_url" :src="related.image_url" class="img-fluid" style="max-height: 100%; object-fit: contain;">
-                             <div v-else class="text-muted"><i class="bi bi-image"></i></div>
-                        </div>
-                        <div class="card-body text-center">
-                            <h6 class="card-title text-truncate"><router-link :to="{ name: 'product-detail', params: { id: related.id } }" class="text-decoration-none text-dark">{{ related.nombre }}</router-link></h6>
-                            <p class="card-text fw-bold">{{ Number(related.precio).toFixed(2) }} €</p>
-                            <router-link :to="{ name: 'product-detail', params: { id: related.id } }" class="btn btn-sm btn-outline-dark w-100">Ver producto</router-link>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
     </div>
     <div v-else class="container my-5 text-center">

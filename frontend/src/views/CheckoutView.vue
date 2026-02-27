@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue';
 import { useCartStore } from '@/stores/cart';
+import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import api from '@/services/api';
 import { useToastStore } from '@/stores/toast';
 
 const cartStore = useCartStore();
+const authStore = useAuthStore();
 const router = useRouter();
 const toastStore = useToastStore();
 
@@ -25,7 +27,8 @@ const formData = ref({
     address: '',
     city: '',
     postal_code: '',
-    phone: ''
+    phone: '',
+    guest_email: ''
 });
 
 const payment = ref({
@@ -56,7 +59,8 @@ const handleSubmit = async () => {
                 size: String(item.size)
             })),
             total: checkoutTotal.value,
-            ...formData.value
+            ...formData.value,
+            guest_email: authStore.isAuthenticated ? undefined : formData.value.guest_email
         };
 
         await api.post('/orders', orderData);
@@ -117,6 +121,14 @@ const handleSubmit = async () => {
                 <h4 class="mb-3">Dirección de Envío</h4>
                 <form @submit.prevent="handleSubmit" class="needs-validation">
                     <div class="row g-3">
+                        <!-- Email only for guests -->
+                        <div v-if="!authStore.isAuthenticated" class="col-12">
+                            <label for="guest_email" class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="guest_email" v-model="formData.guest_email"
+                                   placeholder="tu@email.com" required>
+                            <small class="text-muted">Recibirás la confirmación del pedido en este correo</small>
+                        </div>
+
                         <div class="col-12">
                             <label for="address" class="form-label">Dirección</label>
                             <input type="text" class="form-control" id="address" v-model="formData.address" placeholder="Calle Ejemplo 123" required>

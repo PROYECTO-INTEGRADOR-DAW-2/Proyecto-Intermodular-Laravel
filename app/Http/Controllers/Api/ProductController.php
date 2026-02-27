@@ -138,7 +138,11 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        return new ProductResource($product);
+        return (new ProductResource($product))->additional([
+            'additional' => [
+                'related' => ProductResource::collection($relatedProducts)
+            ]
+        ]);
     }
 
     public function home()
@@ -193,6 +197,42 @@ class ProductController extends Controller
         }
 
         return new ProductResource($product->load('images'));
+    }
+
+    public function cartDetails(Request $request)
+    {
+        $cartItems = $request->input('items', []);
+        if (empty($cartItems)) {
+            return response()->json(['items' => [], 'total' => 0]);
+        }
+
+        $ids = array_column($cartItems, 'id');
+        $products = Product::whereIn('id', $ids)->get()->keyBy('id');
+
+        $items = [];
+        $total = 0;
+
+        foreach ($cartItems as $cartItem) {
+            $product = $products->get($cartItem['id']);
+            if (!$product) continue;
+
+            $subtotal = $product->precio * $cartItem['quantity'];
+            $total += $subtotal;
+
+            $items[] = [
+                'product_id' => $product->id,
+                'name'       => $product->nombre,
+                'marca'      => $product->marca,
+                'price'      => $product->precio,
+                'image'      => $product->image_url,
+                'categoria'  => $product->categoria,
+                'quantity'   => $cartItem['quantity'],
+                'size'       => $cartItem['size'] ?? null,
+                'subtotal'   => $subtotal,
+            ];
+        }
+
+        return response()->json(['items' => $items, 'total' => $total]);
     }
 
     public function destroy(Product $product)

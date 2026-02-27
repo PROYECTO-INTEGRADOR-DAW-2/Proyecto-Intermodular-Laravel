@@ -688,8 +688,9 @@ onMounted(async () => {
 }
 
 .admin-header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    border-bottom: 3px solid #dc3545;
+    background: #212529;
+    border-bottom: 2px solid #dc3545;
+    border-top: 2px solid #dc3545;
 }
 
 .admin-icon {

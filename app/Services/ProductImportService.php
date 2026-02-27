@@ -30,14 +30,17 @@ class ProductImportService {
         // Limpiar el log de importaciones anteriores
         $logPath = storage_path('logs/imports.log');
         if (file_exists($logPath)) {
-            unlink($logPath);
+            @unlink($logPath);
         }
 
-        Storage::deleteDirectory('imports');
-
-        $path = $file->store('imports');
+        // En lugar de borrar y crear el directorio (que causa problemas de permisos en Docker),
+        // guardamos el archivo con un nombre único en el disco local ('storage/app')
+        $filename = 'import_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('imports', $filename, 'local');
     
-        $spreadsheet = IOFactory::load($file->getRealPath());
+        // Obtener la ruta absoluta correcta
+        $absolutePath = Storage::disk('local')->path($path);
+        $spreadsheet = IOFactory::load($absolutePath);
 
         $sheet = $spreadsheet->getSheet(0);
 
