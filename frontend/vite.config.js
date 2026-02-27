@@ -14,12 +14,12 @@ export default defineConfig({
         port: 5173,
         proxy: {
             '/api': {
-                target: 'https://localhost',
+                target: 'http://app',
                 changeOrigin: true,
                 secure: false,
             },
             '/sanctum': {
-                target: 'https://localhost',
+                target: 'http://app',
                 changeOrigin: true,
                 secure: false,
             },
