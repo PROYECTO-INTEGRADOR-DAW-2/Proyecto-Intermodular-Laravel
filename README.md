@@ -1,50 +1,76 @@
-# J&A Sports - Tienda Online
+# J&A Sports - Global Project Documentation
 
-Bienvenido/a al repositorio oficial de **J&A Sports**, una plataforma moderna de comercio electrónico para productos deportivos, desarrollada como Proyecto Integrador. Este proyecto une tecnologías de Backend (Laravel) y Frontend (Vue.js) para crear una experiencia de usuario completa, segura y atractiva.
+Welcome to the **J&A Sports** official repository. This project is a modern e-commerce platform developed as an Intermodular Project. It integrates a PHP Backend (Laravel) and a Vue.js Frontend into a robust, cloud-native solution.
 
 ---
 
-## 2️⃣ Documentación técnica (mínimos)
+## 📂 Documentation Structure
+The documentation is organized into several modules for clarity:
 
-### Descripción del Proyecto y Stack Tecnológico
-**J&A Sports** es una tienda virtual diseñada para ofrecer a los usuarios una experiencia de compra fluida. Permite a los usuarios explorar un catálogo de ropa y equipamiento deportivo, gestionar su carrito de compra, tramitar pedidos, y a los administradores, gestionar el inventario y a los usuarios de la aplicación.
+### 🌐 Global & Transversal
+- **[Global Architecture](DOCS/GLOBAL_ARCHITECTURE.md)**: System design, data flow, and technology stack.
+- **[Infrastructure & CI/CD](DOCS/INFRASTRUCTURE.md)**: AWS Cloud setup, Docker environments, and automated pipelines.
+- **[Contribution Guidelines](DOCS/CONTRIBUTION.md)**: Branch strategy, code style, and team organization.
 
-**Stack Tecnológico:**
-*   **Backend:** [Laravel](https://laravel.com/) (Framework PHP). Se encarga del API RESTful relacional, gestión de la base de datos (MySQL), autenticación (Sanctum), roles, y procesos en segundo plano (servicios externos, webhooks).
-*   **Frontend:** [Vue 3](https://vuejs.org/) con Composition API, [Vue Router](https://router.vuejs.org/) para la navegación *client-side* y [Pinia](https://pinia.vuejs.org/) como gestor de estado global.
-*   **Diseño/UI:** [Bootstrap 5](https://getbootstrap.com/) para estilos y la cuadrícula responsive, combinado con CSS personalizado para los componentes visuales y animaciones. Iconografía proporcionada por [Bootstrap Icons](https://icons.getbootstrap.com/).
-*   **Base de datos:** MySQL (gestionada vía contenedor Docker).
+### 👤 User Information
+- **[User Manual](DOCS/USER_MANUAL.md)**: How to navigate, shop, and manage the application.
+- **[Test Credentials](DOCS/USER_MANUAL.md#6-test-credentials)**: Accounts for system validation.
 
-### Cómo ejecutar en desarrollo (Docker - Laravel Sail)
-El proyecto está diseñado para ejecutarse con **Laravel Sail**, la interfaz de línea de comandos (CLI) ligera para interactuar con el entorno Docker de Laravel por defecto.
+---
 
-1.  **Clonar el repositorio:**
-    ```bash
-    git clone [URL_DEL_REPOSITORIO]
-    cd Proyecto-Intermodular-Laravel
-    ```
-2.  **Instalar las dependencias y configuración del backend:**
-    Se ha preparado un archivo `Makefile` para simplificar los procesos. Ejecuta el siguiente comando para levantar el entorno de desarrollo:
-    ```bash
-    make up
-    ```
-    Si quieres arrancar desde cero regenerando todos los contenedores e instalando Composer y npm, ejecuta secuencialmente:
-    ```bash
-    make setup
-    make install
-    ```
-3.  **Iniciar el compilador del frontend (Vite):**
-    Abre una terminal nueva y entra al directorio del frontend para aplicar/compilar los cambios de Vue al instante:
-    ```bash
-    cd frontend
-    npm run dev
-    ```
-4.  La aplicación backend estará disponible en `http://localhost` (o en el puerto asignado en tu `.env`) y la interfaz principal (frontend) en el puerto local de Vite proporcionado en la consola.
+## 🚀 Quick Start (Development)
 
-### Cómo desplegar en producción (docker-compose.prod.yml)
-Para el entorno de producción, será necesario construir directamente los *assets* y exponer un servidor web optimizado. 
-*(Si el proyecto dispone de un archivo `docker-compose.prod.yml`, aquí se indica cómo realizar el despliegue mediante:* `docker compose -f docker-compose.prod.yml up -d --build`*)*
+This project uses **Docker Compose** to manage independent environments.
 
+1. **Setup Backend**:
+   ```bash
+   docker compose --profile app up -d
+   ```
+   Access: `http://localhost:8000`
+
+2. **Setup Frontend**:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+   Access: Port provided by Vite in console.
+
+3. **Running Tests**:
+   ```bash
+   docker compose --profile test up -d
+   ```
+
+---
+
+## ☁️ Infrastructure at a Glance (AWS)
+- **Domain**: `projecteXX.ddaw.es`
+- **Computing**: Dockerized EC2 instances.
+- **Database**: AWS RDS (MySQL) with Multi-AZ.
+- **Entry**: Application Load Balancer (ALB) + HTTPS (Let's Encrypt).
+- **Security**: Sanctum Auth + Role-based Access Control (RBAC).
+
+---
+
+## 🛠 Tech Stack
+- **Backend**: Laravel 11, Sanctum, MySQL, Redis.
+- **Frontend**: Vue 3, Pinia, Bootstrap 5, Vee-Validate.
+- **Automation**: N8N Webhooks, GitHub Actions.
+- **API Docs**: Swagger (accessible at `/api/documentation`).
+
+---
+
+## ✅ Sprint Status & Deliverables
+The project has successfully completed Sprints 1 through 6, implementing:
+- [x] Product CRUD & Search.
+- [x] Cart & Checkout system.
+- [x] OAuth2 (Google) Integration.
+- [x] Automated Role Management.
+- [x] Intelligent Webhooks (N8N) for eco-friendly communications.
+- [x] Full Infrastructure in AWS.
+
+---
+*For more detailed information, please refer to the files in the [DOCS/](DOCS/) directory.*
 ### Variables de entorno necesarias (sin secretos)
 El archivo `.env` controla el entorno del proyecto. Aquí se muestran algunas variables clave (modificando u ocultando las claves privadas):
 ```env
