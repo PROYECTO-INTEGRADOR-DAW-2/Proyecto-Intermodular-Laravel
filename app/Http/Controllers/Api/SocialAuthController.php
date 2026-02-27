@@ -92,6 +92,7 @@ class SocialAuthController extends BaseController
 
         return $this->sendResponse([
             'token' => $token,
+            'id'    => $user->id,
             'name'  => $user->nombre,
             'email' => $user->email,
             'role'  => $user->role,

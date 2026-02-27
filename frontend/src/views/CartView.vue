@@ -64,6 +64,21 @@ const handleQuantityChange = (index, newQty) => {
     cartStore.updateQuantity(index, newQty);
 };
 
+const handleSizeChange = (index, size) => {
+    cartStore.updateSize(index, size);
+};
+
+const getSizes = (item) => {
+    const catLower = item.categoria ? item.categoria.toLowerCase() : '';
+    if (catLower.includes('zapatillas') || catLower.includes('calzado') || catLower.includes('botas')) {
+        return Array.from({ length: 9 }, (_, i) => i + 38);
+    } else if (catLower.includes('calcetines')) {
+        return ['S (34-38)', 'M (38-42)', 'L (42-46)'];
+    } else {
+        return ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+    }
+};
+
 const handleRemove = (index) => {
     if (confirm('¿Estás seguro de eliminar este producto del carrito?')) {
         cartStore.removeFromCart(index);
@@ -117,7 +132,12 @@ const handleCheckout = () => {
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-4 text-center fw-bold">{{ item.size }}</td>
+                            <td class="py-4 text-center fw-bold">
+                                <select class="form-select form-select-sm d-inline-block text-center fw-bold" style="width: 90px;"
+                                        :value="item.size" @change="handleSizeChange(index, $event.target.value)">
+                                    <option v-for="s in getSizes(item)" :key="s" :value="s">{{ s }}</option>
+                                </select>
+                            </td>
                             <td class="py-4 text-center">
                                 <input type="number" class="form-control border-2 text-center fw-bold d-inline-block" style="width: 80px;" 
                                        :value="item.quantity" min="1" 
@@ -150,10 +170,12 @@ const handleCheckout = () => {
                                   </button>
                               </div>
                               <div class="row g-3 mb-3">
-                                   <div class="col-6">
-                                       <small class="text-muted fw-bold d-block">Talla</small>
-                                       <span class="fs-5">{{ item.size }}</span>
-                                   </div>
+                                    <div class="col-6">
+                                        <small class="text-muted fw-bold d-block">Talla</small>
+                                        <select class="form-select form-select-sm" :value="item.size" @change="handleSizeChange(index, $event.target.value)">
+                                            <option v-for="s in getSizes(item)" :key="s" :value="s">{{ s }}</option>
+                                        </select>
+                                    </div>
                                    <div class="col-6">
                                        <small class="text-muted fw-bold d-block">Cantidad</small>
                                        <input type="number" class="form-control" :value="item.quantity" min="1" @change="handleQuantityChange(index, $event.target.value)">

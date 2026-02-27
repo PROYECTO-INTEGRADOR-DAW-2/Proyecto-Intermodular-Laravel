@@ -110,6 +110,11 @@ const router = createRouter({
             component: () => import('../views/AffiliateView.vue'),
         },
         {
+            path: '/contacto',
+            name: 'contact',
+            component: () => import('../views/ContactView.vue'),
+        },
+        {
             path: '/tarifas-envio',
             name: 'tarifas-envio',
             component: () => import('../views/ShippingView.vue'),

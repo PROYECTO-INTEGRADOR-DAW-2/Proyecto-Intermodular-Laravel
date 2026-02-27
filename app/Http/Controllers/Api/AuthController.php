@@ -81,6 +81,7 @@ class AuthController extends BaseController
         $user = $request->user();
         $result = [
             'token' => $user->createToken('api')->plainTextToken,
+            'id'    => $user->id,
             'name'  => $user->nombre,
             'email' => $user->email,
             'role'  => $user->role,                          // direct column
@@ -140,7 +141,8 @@ class AuthController extends BaseController
 
         $result = [
             'token' => $user->createToken('api')->plainTextToken,
-            'name' => $user->nombre,
+            'id'    => $user->id,
+            'name'  => $user->nombre,
             'email' => $user->email,
         ];
 
