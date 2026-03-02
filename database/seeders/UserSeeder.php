@@ -19,6 +19,8 @@ class UserSeeder extends Seeder
             'nombre_usuario' => "alvertt",
             'contraseña' => Hash::make("password")
         ]);
+
+        User::factory()->count(10)->create()
     }
 
 }
