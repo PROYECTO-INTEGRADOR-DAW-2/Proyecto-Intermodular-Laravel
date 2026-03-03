@@ -1,14 +1,35 @@
 import axios from "axios";
-const api = axios.create({
-  baseURL: 'https://app.projectegrupb.es/api/',
-  timeout: 5000,
-  headers: {'Authorization': 'Bearer TOKEN_AQUÍ'}
+
+
+// Instancia para invitados (sin token)
+export const publicApi = axios.create({
+    baseURL: 'https://app.projectegrupb.es/api/',
+    timeout: 5000,
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }});
+
+// Instancia para usuarios logueados (con interceptor de token)
+export const privateApi = axios.create({
+    baseURL: 'https://app.projectegrupb.es/api/',
+    timeout: 5000,
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }});
+
+privateApi.interceptors.request.use(config => {
+    config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
+    return config;
 });
+
+
 
 const fetchProducts = async (query = {}) => {
 
     try {
-        const response = await api.get('/products', {
+        const response = await publicApi.get('/products', {
             params: {
                 nombre: query?.nombre,
                 categoria: query?.categoria,
@@ -42,7 +63,7 @@ const fetchProducts = async (query = {}) => {
 
 const fetchMostPurchasedProducts = () => {
     try {
-        const response = axios.get('/most-purchased');
+        const response = publicApi.get('/most-purchased');
 
         return {
             success: true,
@@ -65,6 +86,39 @@ const fetchMostPurchasedProducts = () => {
             }
         }
     }
+}
+
+// AUTH METHODS
+
+const login = async (data) => {
+
+    try {
+
+        const response = await publicApi.post('/login', data);
+
+        return {
+            success: true,
+            data: response.data,
+            message: "Se ha logueado"
+        }
+
+        
+    } catch (error) {
+        if (error.response || error.statusText) {
+            return {
+                success: false,
+                data: `Error ${error.response.status || 'Tipo sin especificar'} : ${error.statusText || 'Descripcion sin especificar'}`,
+                message: "Ha habido un error al cargar los productos"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: "Ha habido un error al intentar iniciar sesion"
+            }
+        }
+    }
+
 }
 
 export {

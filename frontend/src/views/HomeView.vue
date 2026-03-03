@@ -1,24 +1,24 @@
 <script setup>
-  import { useRoute } from 'vue-router';
-  import { ref } from 'vue';
-  import videoNike from '@assets/vid/Zapatillas_nike.mp4'
+    import { useRoute } from 'vue-router';
+    import { ref } from 'vue';
+    
+    
+    
 
-  
-
-  
+    
 
 
 
-  // TAREAS
-  // 1.- Obtener los productos mas comprados
-  
+    // TAREAS
+    // 1.- Obtener los productos mas comprados
+    
 
 </script>
 
 
 <template>
-  <main>
-        <header id="header-home" class="d-flex align-items-center justify-content-center text-center" style="background-image: url('../../public/img/fondopagina.jpg');">
+    <main>
+        <header id="header-home" class="d-flex align-items-center justify-content-center text-center">
             <div class="container-fluid">
                 <h1>J&A Sports</h1>
                 <p>Compra a montones y viste a tu propio estilo</p>
@@ -30,32 +30,32 @@
             <div id="brands" class="row justify-content-md-around g-0 g-sm-4">
                 <article class="col-6 col-md-6 col-lg-2 text-center">
                     <a href="#" aria-label="Ver novedades de Nike">
-                        <img src="" alt="Logotipo de Nike" class="fotoMasNovedades">
-                        <img src="" alt="" class="fotoSimbolo d-none d-sm-inline"
+                        <img src="/img/logoNike.jpg" alt="Logotipo de Nike" class="fotoMasNovedades">
+                        <img src="/img/simboloNike.png" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
                     </a>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
                     <a href="#" aria-label="Ver novedades de Adidas">
-                        <img src="" alt="Logotipo de Adidas" class="fotoMasNovedades">
-                        <img src="" alt="" class="fotoSimboloAdidas d-none d-sm-inline"
+                        <img src="/img/logoAdidass.jpg" alt="Logotipo de Adidas" class="fotoMasNovedades">
+                        <img src="/img/AdidasSimbolo.png" alt="" class="fotoSimboloAdidas d-none d-sm-inline"
                             aria-hidden="true">
                     </a>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
                     <a href="#" aria-label="Ver novedades de Puma">
-                        <img src="" alt="Logotipo de Puma" class="fotoMasNovedades">
-                        <img src="" alt="" class="fotoSimbolo d-none d-sm-inline"
+                        <img src="/img/logospuma.jpg" alt="Logotipo de Puma" class="fotoMasNovedades">
+                        <img src="/img/SimboloPuma.png" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
                     </a>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
                     <a href="#" aria-label="Ver novedades de Asics">
-                        <img src="" alt="Logotipo de Asics" class="fotoMasNovedades">
-                        <img src="" alt="" class="fotoSimbolo d-none d-sm-inline"
+                        <img src="/img/asicslogo.jpg" alt="Logotipo de Asics" class="fotoMasNovedades">
+                        <img src="/img/SimboloAsics.png" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
                     </a>
                 </article>
@@ -64,7 +64,7 @@
 
         <div id="videos-carusel" class="container-fluid p-0 mt-5">
             <div class="video-container">
-                <video :src="videoNike" autoplay loop muted width="100%"
+                <video src="/vid/Zapatillas_nike.mp4" autoplay loop muted width="100%"
                     aria-label="Video promocional de Zapatillas Nike"></video>
                 <div class="video-desc d-flex flex-column justify-content-center align-items-center">
                     <h2>Nuevas Nike Gato 2.0</h2>

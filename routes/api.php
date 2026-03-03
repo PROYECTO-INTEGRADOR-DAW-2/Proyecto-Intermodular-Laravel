@@ -26,6 +26,8 @@ Route::name('api.')->group(function () {
         Route::apiResource('products', ApiProductController::class)
             ->parameters(['products' => 'product'])
             ->except(['index', 'show']);
+        
+        Route::post('login', [AuthController::class, 'login'])
 
     });
 
