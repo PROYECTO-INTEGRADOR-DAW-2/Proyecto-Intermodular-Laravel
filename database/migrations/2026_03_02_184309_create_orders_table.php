@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('subtotal', 12, 2);
             $table->decimal('tax_amount', 12, 2)->default(0);
             $table->decimal('shipping_amount', 12, 2)->default(0);
-            $table->decimal('total_amount', 12, 2);
+            $table->decimal('total_amount', 12, 2)->storedAs('subtotal + tax_amount + shipping_amount');
             
             // Estados
             $table->enum('status', ['pending', 'paid', 'shipped', 'delivered', 'cancelled'])->default('pending');
@@ -28,7 +28,6 @@ return new class extends Migration
             
             // Snapshot de dirección
             $table->text('shipping_address');
-            $table->string('shipping_city');
             
             $table->timestamps();
         });

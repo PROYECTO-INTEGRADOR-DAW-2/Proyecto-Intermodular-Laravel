@@ -2,8 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Models\ORDER;
+use App\Enums\OrderStatus;
+use App\Models\Order;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Enums\OrderStatusEnum;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Product>
@@ -20,22 +23,28 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         return [
-            'order_number' => $this->faker->bothify('ORD-####-????')
+            'order_number' => $this->faker->bothify('ORD-####-????'),
+            
+            // Relación con usuario
             'user_id' => User::query()->inRandomOrder()->first()?->id ?? User::factory(),
-            'total_amount' => fake()->randomNumber(3),
-            'tax_amount' => fake()->randomElement(["Camisetas", "Pantalones", "Zapatillas"]),
-            'nombre' => fake()->unique()->words(3, true),
-            'precio' => fake()->randomFloat(2, 1, 100),
-            'talla' => fake()->word(),
-            'color' => fake()->word(),
-            'stock' => fake()->randomNumber(2),
-            'ajuste' => fake()->randomElement(["Ajustado", "Holgado", "Normal"]),
-            'sexo' => fake()->randomElement(["Hombre", "Mujer", "Niño"]),
-            'descripcion' => fake()->sentence(),
-            'altura' => fake()->randomElement(["Bajo", "Alto", "Normal"]),
-            'deporte' => fake()->randomElement(["Trail"]),
-            'oferta' => fake()->boolean(),
-            'img' => fake()->imageUrl(),
+            
+            // Status usando el Enum (quitamos los paréntesis de faker)
+            'status' => $this->faker->randomElement([
+                OrderStatus::CANCELLED, 
+                OrderStatus::DELIVERED, 
+                OrderStatus::PAID, 
+                OrderStatus::SHIPPED, 
+                OrderStatus::PENDING
+            ]),
+            
+            // Precios (usamos randomFloat para decimales reales, tt)
+            'subtotal' => $this->faker->randomFloat(2, 50, 500),
+            'tax_amount' => $this->faker->randomFloat(2, 5, 50),
+            'shipping_amount' => $this->faker->randomFloat(2, 0, 15),
+
+            
+            'payment_method' => $this->faker->randomElement(["Visa", "Transfer", "Paypal"]),
+            'shipping_address' => $this->faker->address()
         ];
     }
 }

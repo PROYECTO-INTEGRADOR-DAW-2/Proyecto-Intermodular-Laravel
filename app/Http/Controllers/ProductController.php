@@ -16,7 +16,7 @@ class ProductController extends Controller
     {
         $products = $this->service->list();
 
-        return view('products.index', compact($products))
+        return view('products.index', compact($products));
 
     }
 

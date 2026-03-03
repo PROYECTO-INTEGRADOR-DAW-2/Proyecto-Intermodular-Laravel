@@ -13,7 +13,8 @@ const fetchProducts = async (query = {}) => {
                 nombre: query?.nombre,
                 categoria: query?.categoria,
                 marca: query?.marca,
-                sexo: query?.sexo
+                sexo: query?.sexo,
+                precio_max: query?.precio_max
             }
         });
 

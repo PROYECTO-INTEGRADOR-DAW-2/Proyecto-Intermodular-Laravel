@@ -1,6 +1,8 @@
 <script setup>
-  import { useRoute } from vue;
+  import { useRoute } from 'vue-router';
   import { ref } from 'vue';
+
+  
 
   
 
@@ -96,7 +98,7 @@
             </div>
         </section>
     </main>
-    <script src="" defer></script>
+
 
 
 
