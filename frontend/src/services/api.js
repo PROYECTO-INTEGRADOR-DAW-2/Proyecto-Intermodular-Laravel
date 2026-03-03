@@ -40,7 +40,7 @@ const fetchProducts = async (query = {}) => {
     }
 }
 
-fetchMostPurchasedProducts = () => {
+const fetchMostPurchasedProducts = () => {
     try {
         const response = axios.get('/most-purchased');
 
@@ -69,7 +69,6 @@ fetchMostPurchasedProducts = () => {
 
 export {
     fetchProducts,
-    fetchMostPurchasedProducts,
+    fetchMostPurchasedProducts
     
-
 }

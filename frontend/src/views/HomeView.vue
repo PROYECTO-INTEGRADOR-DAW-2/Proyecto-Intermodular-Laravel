@@ -1,6 +1,7 @@
 <script setup>
   import { useRoute } from 'vue-router';
   import { ref } from 'vue';
+  import videoNike from '@assets/vid/Zapatillas_nike.mp4'
 
   
 
@@ -17,7 +18,7 @@
 
 <template>
   <main>
-        <header id="header-home" class="d-flex align-items-center justify-content-center text-center" style="background-image: url('');">
+        <header id="header-home" class="d-flex align-items-center justify-content-center text-center" style="background-image: url('../../public/img/fondopagina.jpg');">
             <div class="container-fluid">
                 <h1>J&A Sports</h1>
                 <p>Compra a montones y viste a tu propio estilo</p>
@@ -63,7 +64,7 @@
 
         <div id="videos-carusel" class="container-fluid p-0 mt-5">
             <div class="video-container">
-                <video src="" autoplay loop muted width="100%"
+                <video :src="videoNike" autoplay loop muted width="100%"
                     aria-label="Video promocional de Zapatillas Nike"></video>
                 <div class="video-desc d-flex flex-column justify-content-center align-items-center">
                     <h2>Nuevas Nike Gato 2.0</h2>
@@ -106,8 +107,6 @@
 </template>
 
 <style scoped>
-.home {
-  padding: 2rem;
-  text-align: center;
-}
+
+
 </style>

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { fetchProducts, fetchMostPurchasedProducts } from './services/api.js'
+import { fetchProducts, fetchMostPurchasedProducts } from '../services/api.js'
 
 export const useProductsStore = defineStore('products', {
     state: () => ({
@@ -9,7 +9,7 @@ export const useProductsStore = defineStore('products', {
         debug: true
     }),
     actions: () => ({
-        fetchProducts(query = {}) {
+        getProducts(query = {}) {
             const response = fetchProducts(query);
 
             if (response.success) {
@@ -22,7 +22,7 @@ export const useProductsStore = defineStore('products', {
             }
         },
 
-        fetchMostPurchasedProducts() {
+        getMostPurchasedProducts() {
             const response = getMostPurchasedProducts();
 
             if (response.success) {
