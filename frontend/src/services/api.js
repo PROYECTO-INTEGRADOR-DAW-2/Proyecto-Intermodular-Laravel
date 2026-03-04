@@ -3,8 +3,8 @@ import axios from "axios";
 
 // Instancia para invitados (sin token)
 export const publicApi = axios.create({
-    baseURL: 'https://app.projectegrupb.es/api/',
-    timeout: 5000,
+    baseURL: '/api/',
+    timeout: 30000,
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -12,8 +12,8 @@ export const publicApi = axios.create({
 
 // Instancia para usuarios logueados (con interceptor de token)
 export const privateApi = axios.create({
-    baseURL: 'https://app.projectegrupb.es/api/',
-    timeout: 5000,
+    baseURL: '/api/',
+    timeout: 30000,
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -24,12 +24,10 @@ privateApi.interceptors.request.use(config => {
     return config;
 });
 
-
-
 const fetchProducts = async (query = {}) => {
-
     try {
-        const response = await publicApi.get('/products', {
+        console.log("Axios: Fetching products with query:", query);
+        const response = await publicApi.get('products', {
             params: {
                 nombre: query?.nombre,
                 categoria: query?.categoria,
@@ -38,6 +36,7 @@ const fetchProducts = async (query = {}) => {
                 precio_max: query?.precio_max
             }
         });
+        console.log("Axios: Response received:", response.data);
 
         return {
             success: true,
@@ -45,10 +44,11 @@ const fetchProducts = async (query = {}) => {
             message: "Productos cargados correctamente"
         }
     } catch(error) {
+        console.error("Axios: Error in fetchProducts:", error);
         if (error.response || error.statusText) {
             return {
                 success: false,
-                data: `Error ${error.response.status || 'Tipo sin especificar'} : ${error.statusText || 'Descripcion sin especificar'}`,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.statusText || 'Descripcion sin especificar'}`,
                 message: "Ha habido un error al cargar los productos"
             }
         } else {
@@ -61,9 +61,9 @@ const fetchProducts = async (query = {}) => {
     }
 }
 
-const fetchMostPurchasedProducts = () => {
+const fetchMostPurchasedProducts = async () => {
     try {
-        const response = publicApi.get('/most-purchased');
+        const response = await publicApi.get('/most-purchased');
 
         return {
             success: true,

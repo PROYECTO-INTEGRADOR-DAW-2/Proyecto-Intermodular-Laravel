@@ -10,7 +10,7 @@ export const useAuthStore = defineStore('auth', {
     }),
     actions: () => ({
         async loginAction(email, password) {
-            const response = await login(email, password);
+            const response = await login({email, password});
 
             if (response.success) {
                 this.addMensajeAction("success", response.message);

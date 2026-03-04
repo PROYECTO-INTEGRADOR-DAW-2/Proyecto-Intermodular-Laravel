@@ -8,13 +8,13 @@ export const useProductsStore = defineStore('products', {
         messages: [],
         debug: true
     }),
-    actions: () => ({
-        getProducts(query = {}) {
-            const response = fetchProducts(query);
+    actions: {
+        async getProducts(query = {}) {
+            const response = await fetchProducts(query);
 
             if (response.success) {
                 this.addMensajeAction("success", response.message)
-                this.products = response.data;
+                this.products = response.data.data || response.data;
                 return response;
             } else {
                 this.addMensajeAction("error", response.message)
@@ -22,14 +22,14 @@ export const useProductsStore = defineStore('products', {
             }
         },
 
-        getMostPurchasedProducts() {
-            const response = getMostPurchasedProducts();
+        async getMostPurchasedProducts() {
+            const response = await fetchMostPurchasedProducts();
 
             if (response.success) {
-                debug && this.addMensajeAction("success", response.message) 
+                this.debug && this.addMensajeAction("success", response.message) 
                 return response
             } else {
-                debug && this.addMensajeAction("")
+                this.debug && this.addMensajeAction("")
             }
         },
 
@@ -44,5 +44,5 @@ export const useProductsStore = defineStore('products', {
                     break;
             }
         }
-    })
+    }
 })

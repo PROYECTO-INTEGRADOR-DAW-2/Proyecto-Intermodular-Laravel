@@ -8,6 +8,13 @@ export default defineConfig({
   server: {
     watch: {
       usePolling: true
+    },
+    proxy: {
+      '/api': {
+        target: 'http://app',
+        changeOrigin: true,
+        secure: false
+      }
     }
   },
   resolve: {
