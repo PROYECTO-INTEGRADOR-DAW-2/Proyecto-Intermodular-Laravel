@@ -33,9 +33,14 @@ class ProductController extends Controller
             $q->whereIn('marca', (array) $input); 
         });
 
-        $query->when($request->input('marca'), function ($q, $input) {
+        $query->when($request->input('deporte'), function ($q, $input) {
             // Importante: $input aquí ya es el array que viene del request
-            $q->whereIn('marca', (array) $input); 
+            $q->whereIn('deporte', (array) $input); 
+        });
+
+        $query->when($request->input('altura'), function ($q, $input) {
+            // Importante: $input aquí ya es el array que viene del request
+            $q->whereIn('altura', (array) $input); 
         });
 
         $query->when($request->input('sexo'), function ($q, $input) {
@@ -48,11 +53,14 @@ class ProductController extends Controller
             $q->where('precio', '<=', (integer) $input);
         });
 
+        $maxPrice = $query->max('precio');
 
 
         $productos = $query->paginate(10);
 
-        return ProductResource::collection($productos);
+        return ProductResource::collection($productos)->additional(['meta' => [
+            ['max_price' => $maxPrice]
+        ]]);
 
     }
 

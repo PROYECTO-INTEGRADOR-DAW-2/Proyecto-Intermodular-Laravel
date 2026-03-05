@@ -2,12 +2,12 @@
     import { useProductsStore } from '../stores/productsStore.js';
     import { computed, onMounted, ref } from 'vue';
     import { watch } from 'vue';
+    import FilterSideBar from '../components/FilterSideBar.vue';
 
     const store = useProductsStore();
     const products = computed(() => store.products);
-    const query = ref({
-        name: ""
-    })
+    const metaData = computed(() => store.meta)
+    
     
 
     //Funcion para generar URL de la imagen
@@ -21,15 +21,20 @@
         return url;
     }
 
-    const fetchProducts = () => {
-        console.log("Fetching products...");
-        store.getProducts({})
+    const fetchProducts = (query) => {
+        store.getProducts(query);
     }
 
+    
+
+    
+
+
+
+
+
     onMounted(() => {
-        console.log("ProductsView mounted");
         fetchProducts();
-        console.log("Current products in store:", products.value);
     });
 
     
@@ -47,15 +52,7 @@
 <template>
     <div class="main-container">
 
-        <div class="filter-container">
-            <div class="filter">
-                <form method="get">
-                    <label for="nombre">Nombre</label>
-                    <input type="text" name="nombre" v-bind="query.name">
-
-                </form>
-            </div>
-        </div>
+        <FilterSideBar @filter="fetchProducts"></FilterSideBar>
 
 
         <div class="products-container">
@@ -80,7 +77,8 @@
 
 <style scoped>
     .main-container {
-        grid-template-areas: "filter" "products";
+        display: grid;
+        grid-template-areas: "filter products";
     }
 
     .products-container {
