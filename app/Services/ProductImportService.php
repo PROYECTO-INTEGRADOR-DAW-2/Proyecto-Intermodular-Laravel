@@ -25,7 +25,6 @@ class ProductImportService {
 
 
     
-
     public function import(UploadedFile $file) {
         // Limpiar el log de importaciones anteriores
         $logPath = storage_path('logs/imports.log');

@@ -29,10 +29,6 @@
 
     
 
-
-
-
-
     onMounted(() => {
         fetchProducts();
     });
@@ -88,7 +84,7 @@
         justify-self: center;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: auto;
+        grid-template-rows: repeat(4, 1fr);
     }
 
     .product {

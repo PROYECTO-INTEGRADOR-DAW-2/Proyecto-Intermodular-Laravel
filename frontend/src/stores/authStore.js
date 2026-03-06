@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login, register } from '../services/axios.js'
+import { login, register } from '../services/api.js'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -8,7 +8,7 @@ export const useAuthStore = defineStore('auth', {
         messages: [],
         bearerToken: localStorage.getItem('token') || null
     }),
-    actions: () => ({
+    actions: {
         async loginAction(email, password) {
             const response = await login({email, password});
 
@@ -51,5 +51,5 @@ export const useAuthStore = defineStore('auth', {
                     break;
             }
         }
-    })
+    }
 })
