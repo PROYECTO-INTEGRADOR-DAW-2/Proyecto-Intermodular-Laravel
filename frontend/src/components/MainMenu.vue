@@ -1,6 +1,6 @@
 <script setup>
     import {RouterLink} from 'vue-router';
-    import {useAuthStore} from '../stores/auth';
+    import {useAuthStore} from '../stores/authStore.js';
 
     const authStore = useAuthStore();
 
@@ -46,10 +46,8 @@
                                 <li><a href="#" class="text-white text-decoration-none">Niños</a></li>
                                 <li><a href="#" class="text-white text-decoration-none">Productos</a></li>
                                 
-                                    <li class="{{ request()->routeIs('dashboard') ? 'active-nav' : '' }}">
-                                        <a href="{{ route('dashboard') }}" class="text-white text-decoration-none">
-                                            {{ __('Dashboard') }}
-                                        </a>
+                                    <li v-if="authStore.isAuthenticated">
+                                        <router-link to="/dashboard">Dashboard</router-link>
                                     </li>
                                 
                             </ul>
@@ -63,37 +61,34 @@
                     <!-- Icons -->
                     <div class="col-lg-2 col-md-12 d-flex justify-content-center justify-content-lg-end">
                         <ul id="icon-nav" class="d-flex list-unstyled m-0 gap-3 align-items-center">
-                            @auth
+                            
                                 <!-- User Dropdown -->
-                                <li class="nav-item dropdown">
+                                <li v-if="authStore.isAuthenticated" class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <img src="{{ asset('img/user.png') }}" alt="Icono de usuario" style="pointer-events: none;">
-                                        <span class="ms-2 d-none d-lg-inline-block">{{ Auth::user()->name }}</span>
+                                        <img src="" alt="Icono de usuario" style="pointer-events: none;">
+                                        <span class="ms-2 d-none d-lg-inline-block"></span>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userDropdown">
-                                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">{{ __('Profile') }}</a></li>
+                                        <li><a class="dropdown-item" href=""></a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <form method="POST" action="{{ route('logout') }}">
-                                                @csrf
+                                            <form method="POST" action="">
                                                 <button type="submit" class="dropdown-item">
-                                                    {{ __('Log Out') }}
+                                                    
                                                 </button>
                                             </form>
                                         </li>
                                     </ul>
                                 </li>
-                            @else
-                                <li>
-                                    <a href="{{ route('login') }}" aria-label="Iniciar sesión">
-                                        <img src="{{ asset('img/user.png') }}" alt="Icono de usuario">
+                            
+                                <li v-else>
+                                    <a href="" aria-label="Iniciar sesión">
+                                        <img src="" alt="Icono de usuario">
                                     </a>
                                 </li>
-                            @endauth
-                            
                             <li>
                                 <a href="#" aria-label="Ver carrito">
-                                    <img src="{{ asset('img/carrito.png') }}" alt="Icono del carrito">
+                                    <img src="" alt="Icono del carrito">
                                 </a>
                             </li>
                         </ul>

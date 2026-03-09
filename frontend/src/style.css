@@ -271,6 +271,25 @@ body {
   color: #FFFFFF;
 }
 
+.button-secondary {
+  display: block;
+  text-decoration: none;
+  text-align: center;
+  color: black;
+  background-color: white;
+  border: 1px solid #D72631;
+  padding: 20px 0;
+  transition: background-color 0.5s ease, color 0.5s ease;
+  width: 100%;
+  cursor: pointer;
+}
+
+.button-secondary:hover,
+.button-secondary:focus {
+  background-color: #1F1F1F;
+  color: #FFFFFF;
+}
+
 footer p,
 footer h3 {
   color: #FFFFFF;

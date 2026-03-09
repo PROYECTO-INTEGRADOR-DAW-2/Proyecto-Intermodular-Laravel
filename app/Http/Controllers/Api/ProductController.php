@@ -17,6 +17,8 @@ class ProductController extends Controller
         
         $query = Product::query();
 
+        $maxPrice = $query->max('precio');
+
         // 1. Para el nombre (string)
         $query->when($request->input('nombre'), function ($q, $input) {
             $q->where('nombre', 'like', '%' . $input . '%');
@@ -53,7 +55,7 @@ class ProductController extends Controller
             $q->where('precio', '<=', (integer) $input);
         });
 
-        $maxPrice = $query->max('precio');
+        
 
 
         $productos = $query->paginate(10);

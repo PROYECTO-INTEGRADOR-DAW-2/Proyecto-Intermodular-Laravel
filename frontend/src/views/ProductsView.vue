@@ -6,7 +6,7 @@
 
     const store = useProductsStore();
     const products = computed(() => store.products);
-    const metaData = computed(() => store.meta)
+    const metaData = computed(() => store.meta);
     
     
 
@@ -48,7 +48,7 @@
 <template>
     <div class="main-container">
 
-        <FilterSideBar @filter="fetchProducts"></FilterSideBar>
+        <FilterSideBar :max_price="metaData?.[0]?.max_price" @filter="fetchProducts"></FilterSideBar>
 
 
         <div class="products-container">
@@ -75,6 +75,7 @@
     .main-container {
         display: grid;
         grid-template-areas: "filter products";
+        grid-template-columns: 0.5fr 3fr;
     }
 
     .products-container {

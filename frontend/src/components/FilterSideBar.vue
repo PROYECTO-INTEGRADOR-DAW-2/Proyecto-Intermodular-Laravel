@@ -18,6 +18,18 @@
 
     const emit = defineEmits(['filter'])
 
+    const resetFilters = () => {
+        query.value = {
+            nombre: "",
+            categoria: [],
+            marca: [],
+            deporte: [],
+            altura: [],
+            sexo: [],
+            precio_max: metaData.max_price
+        }
+    }
+
 
 </script>
 
@@ -83,8 +95,16 @@
                         <label for="nina">Nina <input type="checkbox" name="sexo" id="nina" value="Nina" v-model="query.sexo"></label>
                     </div>
                 </div>
+
+                <div class="input-group">
+                    <label for="precio_max"><strong style="font-size: 20px;">Precio maximo: <span id="valor-seleccionado"> {{ query.precio_max }} </span></strong> </label >
+                    <input type="range" min="0" v-bind:max="metaData.max_price" v-model="query.precio_max">
                     
-                <input type="submit" value="Filtrar" class="button">
+                </div>
+
+                <button @click="resetFilters" class="button-secondary" style="margin:10px 0 10px 0">Restablecer filtros</button>
+                    
+                <input type="submit" value="Filtrar" class="button" style="margin:10px 0 10px 0">
             </form>
         
     </div>

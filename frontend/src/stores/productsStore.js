@@ -16,6 +16,7 @@ export const useProductsStore = defineStore('products', {
             if (response.success) {
                 this.addMensajeAction("success", response.message)
                 this.products = response.data.data || response.data;
+                response.data.meta ? this.meta = response.data.meta : this.meta = null;
                 return response;
             } else {
                 this.addMensajeAction("error", response.message)
