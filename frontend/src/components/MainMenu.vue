@@ -1,5 +1,5 @@
 <script setup>
-    import {RouterLink} from 'vue-router';
+    import { RouterLink } from 'vue-router';
     import {useAuthStore} from '../stores/authStore.js';
 
     const authStore = useAuthStore();
@@ -41,9 +41,9 @@
                     <!-- Navigation Links -->
                     <div class="col-lg-4 col-md-12 mt-3 mt-lg-0">
                             <ul id="main-nav" class="col d-flex flex-column flex-lg-row justify-content-around list-unstyled m-0 gx-0 gap-2 gap-lg-0">
-                                <li><a href="#" class="text-white text-decoration-none">Hombre</a></li>
-                                <li><a href="#" class="text-white text-decoration-none">Mujer</a></li>
-                                <li><a href="#" class="text-white text-decoration-none">Niños</a></li>
+                                <li><router-link to="/products?sexo=hombre" class="text-white text-decoration-none">Hombre</router-link></li>
+                                <li><router-link to="/products?sexo=mujer" class="text-white text-decoration-none">Mujer</router-link></li>
+                                <li><router-link to="products?sexo=nino,nina" class="text-white text-decoration-none">Niños</router-link></li>
                                 <li><a href="#" class="text-white text-decoration-none">Productos</a></li>
                                 
                                     <li v-if="authStore.isAuthenticated">
@@ -65,16 +65,16 @@
                                 <!-- User Dropdown -->
                                 <li v-if="authStore.isAuthenticated" class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-white d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <img src="" alt="Icono de usuario" style="pointer-events: none;">
-                                        <span class="ms-2 d-none d-lg-inline-block"></span>
+                                        <img src="/img/user.png" alt="Icono de usuario" style="pointer-events: none;">
+                                        <span class="ms-2 d-none d-lg-inline-block">{{ authStore.user.nombre_usuario }}</span>
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userDropdown">
-                                        <li><a class="dropdown-item" href=""></a></li>
+                                        <li><router-link to="/profile" class="dropdown-item">Perfil</router-link></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <form method="POST" action="">
+                                            <form method="POST" @submit.prevent="logout()">
                                                 <button type="submit" class="dropdown-item">
-                                                    
+                                                    Cerrar sesion
                                                 </button>
                                             </form>
                                         </li>
@@ -82,14 +82,14 @@
                                 </li>
                             
                                 <li v-else>
-                                    <a href="" aria-label="Iniciar sesión">
-                                        <img src="" alt="Icono de usuario">
-                                    </a>
+                                    <router-link to="/login">
+                                        <img src="/img/user.png" alt="Icono de usuario">
+                                    </router-link>
                                 </li>
                             <li>
-                                <a href="#" aria-label="Ver carrito">
-                                    <img src="" alt="Icono del carrito">
-                                </a>
+                                <router-link to="/cart">
+                                    <img src="/img/carrito.png" alt="Icono del carrito">
+                                </router-link>
                             </li>
                         </ul>
                     </div>

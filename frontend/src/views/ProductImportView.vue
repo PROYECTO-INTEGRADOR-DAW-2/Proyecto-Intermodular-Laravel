@@ -1,6 +1,6 @@
 <script setup>
 
-    import { useProductsStore } from 'vue';
+    import { useProductsStore } from '../stores/productsStore.js';
 
     const { importProducts } = useProductsStore();
 

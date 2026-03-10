@@ -9,8 +9,8 @@ export const useAuthStore = defineStore('auth', {
         bearerToken: localStorage.getItem('token') || null
     }),
     actions: {
-        async loginAction(email, password) {
-            const response = await login({email, password});
+        async loginAction(nombre_usuario, contraseña) {
+            const response = await login({nombre_usuario, contraseña});
 
             if (response.success) {
                 this.addMensajeAction("success", response.message);

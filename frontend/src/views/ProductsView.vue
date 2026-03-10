@@ -1,10 +1,11 @@
 <script setup>
     import { useProductsStore } from '../stores/productsStore.js';
-    import { computed, onMounted, ref } from 'vue';
-    import { watch } from 'vue';
+    import { computed, onMounted, watch } from 'vue';
+    import { useRoute } from 'vue-router';
     import FilterSideBar from '../components/FilterSideBar.vue';
 
     const store = useProductsStore();
+    const route = useRoute();
     const products = computed(() => store.products);
     const metaData = computed(() => store.meta);
     
@@ -21,19 +22,35 @@
         return url;
     }
 
+    //Funcion para obtener los productos con filtro o sin
     const fetchProducts = (query) => {
         store.getProducts(query);
     }
 
     
 
-    
+    //Funcion para limpiar los parametros en string con multiples valores separados por coma en HTML
+    const cleanURLParams = (query) => {
 
+        for (let param in query) {
+            if (query[param].includes(',')) query[param] = query[param].split(',');
+        }
+
+        return query;
+    }
+
+    //Funcion para realizar determinadas acciones al montar la vista
     onMounted(() => {
-        fetchProducts();
+
+        if (route.query) {
+            let cleanQuery = cleanURLParams(route.query);
+            fetchProducts(cleanQuery);
+
+        } else fetchProducts();
+        
     });
 
-    
+    //Funcion debug para ver que productos nuevos se han obtenido en el fetch
     watch(products, (newProducts) => {
         console.log("Products updated in store:", newProducts);
     }, { deep: true });

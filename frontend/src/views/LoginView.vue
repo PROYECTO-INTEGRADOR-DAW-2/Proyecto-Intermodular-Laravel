@@ -15,15 +15,18 @@
 <template>
     <div class="form-container">
         <div class="login-container">
-            <form @submit.prevent="login">
-                <div class="input-group">
-                    <label for="username">Usuario</label>
-                    <input type="text" name="username" id="username" v-model="userData.userName">
+            <h1 style="justify-self: center;">Inicia sesion</h1>
+            <form @submit.prevent="authStore.loginAction(userData)">
+                <div class="form-group">
+                    <input type="text" name="nombre_usuario" id="nombre_usuario" placeholder="Usuario" v-model="userData.userName">
                 </div>
 
-                <div class="input-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" name="password" id="password" v-model="userData.password">
+                <div class="form-group">
+                    <input type="password" name="contraseña" id="contraseña" placeholder="Contraseña" v-model="userData.password">
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="button">Iniciar sesion</button>
                 </div>
             </form>
         </div>
@@ -42,17 +45,29 @@
         height: 500px;
         width: 500px;
         display: grid;
-        justify-items: center;
-        align-items: center;
-        padding: 20px;
+        grid-template-rows: 0.5fr 2fr;
+        padding: 50px;
         border-radius: 20px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     }
+
+    .login-container label {
+        font-size: 30px;
+    }
+
+    .login-container form {
+        width: 100%;
+    }
+
+
+    .form-group input[type="text"], input[type="password"] {
+        height: 50px;
+    }
     
 
-    .input-group {
+    .form-group {
         display: grid;
-        margin: 5px;
+        margin: 20px 0 20px 0; 
     }
 
 </style>

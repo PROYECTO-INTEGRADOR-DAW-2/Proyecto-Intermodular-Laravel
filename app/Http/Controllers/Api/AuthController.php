@@ -13,8 +13,8 @@ class AuthController extends BaseController
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required','email'],
-            'password' => ['required'],
+            'nombre_usuario' => ['required'],
+            'contraseña' => ['required'],
         ]);
 
         if (!Auth::attempt($credentials)) {

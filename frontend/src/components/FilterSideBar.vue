@@ -39,13 +39,13 @@
     <div class="filter-container">
         
             <form @submit.prevent="emit('filter', query)" class="filter-form">
-                <div class="input-group">
+                <div class="filter-field">
                     <label for="nombre" style="font-size: 20px;"><strong>Nombre</strong></label>
                     <input type="text" name="nombre" id="nombre" v-model="query.nombre">
                 </div>
 
 
-                <div class="input-group">
+                <div class="filter-field">
                     <label for="categoria"><strong style="font-size: 20px;">Categoría</strong></label >
                     <div class="checkbox-group">
                         <label for="zapatillas">Zapatillas <input type="checkbox" name="categoria" id="zapatillas" value="Zapatillas" v-model="query.categoria"></label>
@@ -56,7 +56,7 @@
                     </div>
                 </div>
 
-                <div class="input-group">
+                <div class="filter-field">
                     <label for="marca"><strong style="font-size: 20px;">Marca</strong></label >
                     <div class="checkbox-group">
                         <label for="adidas">Adidas <input type="checkbox" name="marca" id="adidas" value="Adidas" v-model="query.marca"></label>
@@ -66,7 +66,7 @@
                     </div>
                 </div>
 
-                <div class="input-group">
+                <div class="filter-field">
                     <label for="deporte"><strong style="font-size: 20px;">Deporte</strong></label >
                     <div class="checkbox-group">
                         <label for="futbol">Fútbol <input type="checkbox" name="deporte" id="futbol" value="Fútbol" v-model="query.deporte"></label>
@@ -77,7 +77,7 @@
                     </div>
                 </div>
 
-                <div class="input-group">
+                <div class="filter-field">
                     <label for="altura"><strong style="font-size: 20px;">Altura</strong></label >
                     <div class="checkbox-group">
                         <label for="alto">Alto <input type="checkbox" name="altura" id="alto" value="Alto" v-model="query.altura"></label>
@@ -86,7 +86,7 @@
                     </div>
                 </div>
 
-                <div class="input-group">
+                <div class="filter-field">
                     <label for="sexo"><strong style="font-size: 20px;">Sexo</strong></label >
                     <div class="checkbox-group">
                         <label for="hombre">Hombre <input type="checkbox" name="sexo" id="hombre" value="Hombre" v-model="query.sexo"></label>
@@ -96,7 +96,7 @@
                     </div>
                 </div>
 
-                <div class="input-group">
+                <div class="filter-field">
                     <label for="precio_max"><strong style="font-size: 20px;">Precio maximo: <span id="valor-seleccionado"> {{ query.precio_max }} </span></strong> </label >
                     <input type="range" min="0" v-bind:max="metaData.max_price" v-model="query.precio_max">
                     
@@ -121,9 +121,10 @@
 
     .checkbox-group {
         display: grid;
+        margin-left: 15px;
     }
 
-    .input-group {
+    .filter-field {
         display: grid;
         margin: 5px;
     }
