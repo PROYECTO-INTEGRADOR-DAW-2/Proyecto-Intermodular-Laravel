@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\ImportProductsRequest;
@@ -8,9 +10,11 @@ use App\Services\ProductImportService;
 
 class ProductImportController extends Controller
 {
-    public function __construct(private ProductImportService $service) {}
+    public function __construct(private ProductImportService $service)
+    {
+    }
 
-    public function store(ImportProductsRequest $request) 
+    public function store(ImportProductsRequest $request)
     {
         // Da igual si el input se llama 'file', 'csv' o 'XyZ',
         // el método del Request ya sabe buscarlo.

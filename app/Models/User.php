@@ -54,8 +54,23 @@ class User extends Authenticatable
      *
      * @return string
      */
+    /**
+     * Get the password for the user.
+     *
+     * @return string
+     */
     public function getAuthPasswordName()
     {
         return 'contraseña';
+    }
+
+    /**
+     * Get the password hash for the user.
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->contraseña;
     }
 }

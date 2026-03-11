@@ -8,6 +8,7 @@
     const route = useRoute();
     const products = computed(() => store.products);
     const metaData = computed(() => store.meta);
+    const initialQuery = null;
     
     
 
@@ -44,7 +45,7 @@
 
         if (route.query) {
             let cleanQuery = cleanURLParams(route.query);
-            fetchProducts(cleanQuery);
+            initialQuery = cleanQuery;
 
         } else fetchProducts();
         
@@ -65,7 +66,7 @@
 <template>
     <div class="main-container">
 
-        <FilterSideBar :max_price="metaData?.[0]?.max_price" @filter="fetchProducts"></FilterSideBar>
+        <FilterSideBar :initialQuery="initialQuery" :max_price="metaData?.[0]?.max_price" @filter="fetchProducts"></FilterSideBar>
 
 
         <div class="products-container">

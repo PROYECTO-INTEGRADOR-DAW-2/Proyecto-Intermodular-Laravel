@@ -10,8 +10,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::post('login', [AuthController::class , 'login']);
-Route::post('register', [AuthController::class , 'register']);
 
 Route::name('api.')->group(function () {
 
@@ -22,18 +20,23 @@ Route::name('api.')->group(function () {
             Route::apiResource('products', ApiProductController::class)
                 ->parameters(['products' => 'product'])
                 ->except(['index', 'show']);
-            
-            Route::post('products/import', [ProductImportController::class, 'store'])->name('products.import');
-        });
+
+            Route::post('products/import', [ProductImportController::class , 'store'])->name('products.import');
+        }
+        );
 
         Route::get('/health', function () {
             return response()->json([
             'status' => 'ok',
             'message' => 'Api esta funcionando, tt'
             ]);
-        })->name('health');
+        }
+        )->name('health');
 
         // Endpoints públics (lectura)
         Route::apiResource('products', ApiProductController::class)
             ->parameters(['products' => 'product'])
-            ->only(['index', 'show']);    });
+            ->only(['index', 'show']);
+
+        Route::post('/login', [AuthController::class , 'login']);
+        Route::post('/register', [AuthController::class , 'register']);    });

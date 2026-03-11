@@ -106,18 +106,24 @@ const login = async (data) => {
 
         
     } catch (error) {
-        if (error.response || error.statusText) {
-            return {
-                success: false,
-                data: `Error ${error.response.status || 'Tipo sin especificar'} : ${error.statusText || 'Descripcion sin especificar'}`,
-                message: "Ha habido un error al cargar los productos"
+        console.error("Axios: Error in login:", error);
+        let errorData = "Sin descripcion de error";
+        
+        if (error.response && error.response.data) {
+            errorData = error.response.data.message || error.response.data.error || JSON.stringify(error.response.data);
+            if (error.response.data.info && error.response.data.info.error) {
+                errorData += ": " + error.response.data.info.error;
             }
+        } else if (error.statusText) {
+            errorData = error.statusText;
         } else {
-            return {
-                success: false,
-                data: error.message || 'Sin descripcion de error',
-                message: "Ha habido un error al intentar iniciar sesion"
-            }
+            errorData = error.message;
+        }
+
+        return {
+            success: false,
+            data: `Error ${error.response?.status || '500'} : ${errorData}`,
+            message: "Ha habido un error al intentar iniciar sesion"
         }
     }
 
@@ -126,6 +132,7 @@ const login = async (data) => {
 const register = async (data) => {
     try {
         const response = await publicApi.post('/register', data);
+        
         return {
             success: true,
             data: response.data,

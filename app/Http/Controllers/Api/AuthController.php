@@ -12,31 +12,51 @@ class AuthController extends BaseController
 {
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'nombre_usuario' => ['required'],
-            'contraseña' => ['required'],
-        ]);
+        try {
+            $request->validate([
+                'nombre_usuario' => ['required'],
+                'contraseña' => ['required'],
+            ]);
 
-        if (!Auth::attempt($credentials)) {
-            return $this->sendError('Unauthorised', ['error' => 'Credencials incorrectes'], 401);
+            logger()->info('Attempting login for: ' . $request->nombre_usuario);
+
+            if (!Auth::attempt(['nombre_usuario' => $request->nombre_usuario, 'password' => $request->contraseña])) {
+                logger()->warning('Login failed for: ' . $request->nombre_usuario);
+                return $this->sendError('Unauthorised', ['error' => 'Credencials incorrectes'], 401);
+            }
+
+            $user = Auth::user();
+            logger()->info('Login successful for ID: ' . $user->id);
+
+            $result = [
+                'token' => $user->createToken('api')->plainTextToken,
+                'user' => [
+                    'id' => $user->id,
+                    'nombre' => $user->nombre,
+                    'nombre_usuario' => $user->nombre_usuario,
+                    'email' => $user->email,
+                ],
+            ];
+
+            return $this->sendResponse($result, 'User signed in', 200);
         }
-
-        $user = $request->user();
-        $result = [
-            'token' => $user->createToken('api')->plainTextToken,
-            'name' => $user->name,
-        ];
-
-        return $this->sendResponse($result, 'User signed in', 200);
+        catch (\Exception $e) {
+            logger()->error('Login error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return $this->sendError('Internal Server Error', ['error' => $e->getMessage()], 500);
+        }
     }
 
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => ['required','string','max:255'],
-            'email' => ['required','email','unique:users,email'],
-            'password' => ['required','min:6'],
-            'confirm_password' => ['required','same:password'],
+            'nombre' => ['required', 'string', 'max:255'],
+            'apellidos' => ['required', 'string', 'max:255'],
+            'nombre_usuario' => ['required', 'string', 'max:255', 'unique:users,nombre_usuario'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'contraseña' => ['required', 'min:6'],
+            'confirm_contraseña' => ['required', 'same:contraseña'],
         ]);
 
         if ($validator->fails()) {
@@ -46,14 +66,21 @@ class AuthController extends BaseController
         $data = $validator->validated();
 
         $user = User::create([
-            'name' => $data['name'],
+            'nombre' => $data['nombre'],
+            'apellidos' => $data['apellidos'],
+            'nombre_usuario' => $data['nombre_usuario'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'contraseña' => Hash::make($data['contraseña']),
         ]);
 
         $result = [
             'token' => $user->createToken('api')->plainTextToken,
-            'name' => $user->name,
+            'user' => [
+                'id' => $user->id,
+                'nombre' => $user->nombre,
+                'nombre_usuario' => $user->nombre_usuario,
+                'email' => $user->email,
+            ],
         ];
 
         return $this->sendResponse($result, 'User created successfully', 201);
@@ -61,8 +88,12 @@ class AuthController extends BaseController
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $user = Auth::user();
+        if ($user) {
+            $user->currentAccessToken()->delete();
+            return $this->sendResponse(['nombre' => $user->nombre], 'User successfully signed out', 200);
+        }
 
-        return $this->sendResponse(['name' => $request->user()->name], 'User successfully signed out', 200);
+        return $this->sendError('No active session', [], 401);
     }
 }

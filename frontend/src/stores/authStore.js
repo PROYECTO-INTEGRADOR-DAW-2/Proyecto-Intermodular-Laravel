@@ -9,14 +9,19 @@ export const useAuthStore = defineStore('auth', {
         bearerToken: localStorage.getItem('token') || null
     }),
     actions: {
-        async loginAction(nombre_usuario, contraseña) {
-            const response = await login({nombre_usuario, contraseña});
+        async loginAction(data) {
+            const response = await login(data);
+
+            console.log(response.data)
 
             if (response.success) {
                 this.addMensajeAction("success", response.message);
-                this.user = response.data;
+                // La respuesta estandarizada es { success: true, data: { token: ..., user: ... }, message: ... }
+                const { token, user } = response.data.data;
+                this.user = user;
                 this.isAuthenticated = true;
-                localStorage.setItem("token", response.token);
+                this.bearerToken = token;
+                localStorage.setItem("token", token);
                 return response;
             } else {
                 this.addMensajeAction("error", response.message);
@@ -24,14 +29,16 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        async registerAction(name, username, email, password) {
-            const response = await register(name, username, email, password);
+        async registerAction(data) {
+            const response = await register(data);
 
             if (response.success) {
                 this.addMensajeAction("success", response.message);
-                this.user = response.data;
+                const { token, user } = response.data.data;
+                this.user = user;
                 this.isAuthenticated = true;
-                localStorage.setItem("token", response.token);
+                this.bearerToken = token;
+                localStorage.setItem("token", token);
                 
                 return response
             } else {

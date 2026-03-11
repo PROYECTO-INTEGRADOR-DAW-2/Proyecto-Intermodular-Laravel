@@ -5,8 +5,12 @@
     const authStore = useAuthStore();
 
     const userData = ref({
+        nombre: "",
+        apellidos: "",
         nombre_usuario: "",
-        contraseña: ""
+        email: "",
+        contraseña: "",
+        confirm_contraseña: ""
     });
 
 
@@ -14,11 +18,23 @@
 
 <template>
     <div class="form-container">
-        <div class="login-container">
-            <h1 style="justify-self: center;">Inicia sesion</h1>
-            <form @submit.prevent="authStore.loginAction(userData)">
+        <div class="register-container">
+            <h1 style="justify-self: center;">Registrate</h1>
+            <form @submit.prevent="authStore.registerAction(userData)">
+                <div class="form-group">
+                    <input type="text" name="nombre" id="nombre" placeholder="Nombre" v-model="userData.nombre">
+                </div>
+
+                <div class="form-group">
+                    <input type="text" name="apellidos" id="apellidos" placeholder="Apellidos" v-model="userData.apellidos">
+                </div>
+
                 <div class="form-group">
                     <input type="text" name="nombre_usuario" id="nombre_usuario" placeholder="Usuario" v-model="userData.nombre_usuario">
+                </div>
+
+                <div class="form-group">
+                    <input type="email" name="email" id="email" placeholder="Email" v-model="userData.email">
                 </div>
 
                 <div class="form-group">
@@ -26,9 +42,14 @@
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" class="button">Iniciar sesion</button>
+                    <input type="password" name="confirm_contraseña" id="confirm_contraseña" placeholder="Confirma contraseña" v-model="userData.confirm_contraseña">
                 </div>
-                <RouterLink to="/register">¿No tienes una cuenta?</RouterLink>
+
+                <div class="form-group">
+                    <button type="submit" class="button">Registrarse</button>
+                </div>
+
+                <RouterLink to="/login">¿Tienes una cuenta?</RouterLink>
             </form>
         </div>
     </div>
@@ -42,8 +63,8 @@
         height: 100vh;
     }
 
-    .login-container {
-        height: 500px;
+    .register-container {
+        height: auto;
         width: 500px;
         display: grid;
         grid-template-rows: 0.5fr 2fr;
@@ -60,8 +81,7 @@
         width: 100%;
     }
 
-
-    .form-group input[type="text"], input[type="password"] {
+    .form-group input[type="text"], input[type="password"], input[type="email"] {
         height: 50px;
     }
     

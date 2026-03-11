@@ -1,8 +1,11 @@
 <script setup>
-    import { ref } from 'vue';
+    import { onMounted, ref } from 'vue';
 
-    const metaData = defineProps({
-        max_price: Number
+    const props = defineProps({
+        metaData: {
+            max_price: Number
+        },
+        initialQuery: Object
     })
 
 
@@ -30,6 +33,15 @@
         }
     }
 
+    onMounted(() => {
+        if (initialQuery) {
+            for (let param of initialQuery) {
+                
+            }
+        }
+    })
+
+   
 
 </script>
 
@@ -98,7 +110,7 @@
 
                 <div class="filter-field">
                     <label for="precio_max"><strong style="font-size: 20px;">Precio maximo: <span id="valor-seleccionado"> {{ query.precio_max }} </span></strong> </label >
-                    <input type="range" min="0" v-bind:max="metaData.max_price" v-model="query.precio_max">
+                    <input type="range" min="0" v-bind:max="props.metaData.max_price" v-model="query.precio_max">
                     
                 </div>
 
