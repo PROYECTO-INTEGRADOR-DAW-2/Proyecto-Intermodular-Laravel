@@ -1,9 +1,10 @@
 <script setup>
-    import { onMounted, ref } from 'vue';
+    import { onMounted, ref, watch } from 'vue';
 
     const props = defineProps({
         metaData: {
-            max_price: Number
+            type: [Object, Array],
+            default: () => ({ max_price: 1000 })
         },
         initialQuery: Object
     })
@@ -16,12 +17,30 @@
         deporte: [],
         altura: [],
         sexo: [],
-        precio_max: metaData.max_price
+        precio_max: 1000
     })
 
     const emit = defineEmits(['filter'])
 
+    watch(() => props.metaData, (newVal) => {
+        const meta = Array.isArray(newVal) ? newVal[0] : newVal;
+        console.log(meta)
+        if (meta[0].max_price) {
+            query.value.precio_max = meta.max_price;
+        }
+    }, { immediate: true });
+
+    watch(() => props.initialQuery, (newQuery) => {
+        if (newQuery) {
+            query.value = { ...query.value, ...newQuery };
+            emit('filter', query.value);
+        }
+    }, { deep: true });
+
+    
+
     const resetFilters = () => {
+        const meta = Array.isArray(props.metaData) ? props.metaData[0] : props.metaData;
         query.value = {
             nombre: "",
             categoria: [],
@@ -29,19 +48,18 @@
             deporte: [],
             altura: [],
             sexo: [],
-            precio_max: metaData.max_price
+            precio_max: meta?.max_price || 1000
         }
     }
 
     onMounted(() => {
-        if (initialQuery) {
-            for (let param of initialQuery) {
-                
-            }
+        if (props.initialQuery) {
+            query.value = { ...query.value, ...props.initialQuery }
+            emit('filter', query.value);
         }
     })
 
-   
+    
 
 </script>
 
@@ -110,7 +128,7 @@
 
                 <div class="filter-field">
                     <label for="precio_max"><strong style="font-size: 20px;">Precio maximo: <span id="valor-seleccionado"> {{ query.precio_max }} </span></strong> </label >
-                    <input type="range" min="0" v-bind:max="props.metaData.max_price" v-model="query.precio_max">
+                    <input type="range" min="0" v-bind:max="props.metaData?.[0]?.max_price || 1000" v-model="query.precio_max">
                     
                 </div>
 

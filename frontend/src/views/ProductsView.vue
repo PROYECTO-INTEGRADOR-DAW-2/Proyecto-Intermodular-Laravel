@@ -1,6 +1,6 @@
 <script setup>
     import { useProductsStore } from '../stores/productsStore.js';
-    import { computed, onMounted, watch } from 'vue';
+    import { computed, onMounted, ref, watch } from 'vue';
     import { useRoute } from 'vue-router';
     import FilterSideBar from '../components/FilterSideBar.vue';
 
@@ -8,57 +8,64 @@
     const route = useRoute();
     const products = computed(() => store.products);
     const metaData = computed(() => store.meta);
-    const initialQuery = null;
-    
-    
+
+    // --- Helper Functions (Moved up for initialization) ---
+
+    //Funcion para limpiar los parametros en string con multiples valores separados por coma en HTML
+    const cleanURLParams = (query) => {
+        const cleaned = { ...query };
+        for (let param in cleaned) {
+            if (typeof cleaned[param] === 'string' && cleaned[param].includes(',')) {
+                cleaned[param] = cleaned[param].split(',');
+            }
+        }
+        return cleaned;
+    }
 
     //Funcion para generar URL de la imagen
     const getProductImgUrl = (product) => {
-        const productBrand = product?.marca.charAt(0).toUpperCase() + product?.marca.slice(1);;
-        const productCategory = product?.categoria.toLowerCase();
-        const productFileName = product?.img;
-
-        const url = `/img/${productBrand}/${productCategory}/${productFileName}`;
-
-        return url;
+        if (!product?.marca || !product?.categoria || !product?.img) return '/img/placeholder.png';
+        
+        try {
+            const productBrand = product.marca.charAt(0).toUpperCase() + product.marca.slice(1);
+            const productCategory = product.categoria.toLowerCase();
+            const productFileName = product.img;
+            return `/img/${productBrand}/${productCategory}/${productFileName}`;
+        } catch (e) {
+            console.error("Error generating product image URL:", e);
+            return '/img/placeholder.png';
+        }
     }
+
+    // --- State Initialization ---
+
+    // Inicializamos inmediatamente si hay query para que el hijo lo reciba en su onMounted
+    const initialQuery = ref(route.query && Object.keys(route.query).length > 0 ? cleanURLParams(route.query) : null);
+
+    // --- API Interactions ---
 
     //Funcion para obtener los productos con filtro o sin
     const fetchProducts = (query) => {
         store.getProducts(query);
     }
 
-    
-
-    //Funcion para limpiar los parametros en string con multiples valores separados por coma en HTML
-    const cleanURLParams = (query) => {
-
-        for (let param in query) {
-            if (query[param].includes(',')) query[param] = query[param].split(',');
-        }
-
-        return query;
-    }
+    // --- Lifecycle Hooks ---
 
     //Funcion para realizar determinadas acciones al montar la vista
     onMounted(() => {
-
-        if (route.query) {
-            let cleanQuery = cleanURLParams(route.query);
-            initialQuery = cleanQuery;
-
-        } else fetchProducts();
-        
+        // Si no hay query inicial, hacemos el fetch base aquí.
+        // Si hay query, FilterSideBar se encargará de emitir 'filter' y disparar fetchProducts.
+        if (!initialQuery.value) {
+            fetchProducts();
+        }
     });
+
+    // --- Watchers ---
 
     //Funcion debug para ver que productos nuevos se han obtenido en el fetch
     watch(products, (newProducts) => {
         console.log("Products updated in store:", newProducts);
     }, { deep: true });
-    
-
-
-
 
 </script>
 
@@ -66,7 +73,7 @@
 <template>
     <div class="main-container">
 
-        <FilterSideBar :initialQuery="initialQuery" :max_price="metaData?.[0]?.max_price" @filter="fetchProducts"></FilterSideBar>
+        <FilterSideBar :initialQuery="initialQuery" :metaData="metaData" @filter="fetchProducts"></FilterSideBar>
 
 
         <div class="products-container">
