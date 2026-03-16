@@ -44,4 +44,34 @@ class ReviewController extends Controller
             return response()->json(['error' => 'Error fetching reviews: ' . $e->getMessage()], 500);
         }
     }
+
+    public function update(Request $request, $productId, Review $review)
+    {
+        if ($review->user_id !== $request->user()->id) {
+            return response()->json(['error' => 'No estás autorizado para editar esta valoración.'], 403);
+        }
+
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        $review->update([
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'],
+        ]);
+
+        return response()->json($review->load('user'));
+    }
+
+    public function destroy(Request $request, $productId, Review $review)
+    {
+        if ($review->user_id !== $request->user()->id) {
+            return response()->json(['error' => 'No estás autorizado para eliminar esta valoración.'], 403);
+        }
+
+        $review->delete();
+
+        return response()->noContent();
+    }
 }

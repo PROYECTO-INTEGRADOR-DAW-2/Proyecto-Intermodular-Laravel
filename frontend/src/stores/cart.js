@@ -52,6 +52,12 @@ export const useCartStore = defineStore('cart', () => {
         fetchDetails()
     }
 
+    const updateSize = (index, size) => {
+        items.value[index].size = size
+        saveToLocalStorage()
+        fetchDetails()
+    }
+
     const clearCart = () => {
         items.value = []
         details.value = []
@@ -109,6 +115,7 @@ export const useCartStore = defineStore('cart', () => {
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateSize,
         clearCart,
         fetchDetails,
         buyNowItem,

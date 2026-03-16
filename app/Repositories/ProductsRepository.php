@@ -14,6 +14,23 @@ class ProductsRepository implements BaseRepository {
     }
 
     public function create(array $data) {
+        $sku    = $data['sku']    ?? null;
+        $nombre = $data['nombre'] ?? null;
+
+        \Illuminate\Support\Facades\Log::info("INTENTANDO CREAR: SKU=" . $sku . " Nombre=" . $nombre);
+
+        // Si ya existe por SKU o por nombre, no hacer nada (no duplicar)
+        $exists = Product::where(function($q) use ($sku, $nombre) {
+            if ($sku)    $q->orWhere('sku',    $sku);
+            if ($nombre) $q->orWhere('nombre', $nombre);
+        })->exists();
+
+        if ($exists) {
+            \Illuminate\Support\Facades\Log::warning("EL PRODUCTO YA EXISTE (Omitiendo): SKU=" . $sku . " Nombre=" . $nombre);
+            return null; // Producto ya existe, se omite
+        }
+
+        \Illuminate\Support\Facades\Log::info("INSERTANDO NUEVO PRODUCTO EN BD");
         return Product::create($data);
     }
 
