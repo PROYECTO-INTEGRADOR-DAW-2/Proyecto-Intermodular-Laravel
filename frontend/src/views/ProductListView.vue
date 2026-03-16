@@ -30,6 +30,7 @@ const fetchProducts = async (params = {}) => {
         }
 
         const response = await axios.get('/api/products', { params: backendParams });
+        console.log(response.data)
         products.value = response.data.data;
         links.value = response.data.links;
         meta.value = response.data.meta;

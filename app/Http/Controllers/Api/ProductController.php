@@ -129,16 +129,22 @@ class ProductController extends Controller
      *     @OA\Response(response=404, description="No trobat")
      * )
      */
-    public function show(Product $product)
-    {
+    public function show(Product $product){
+        // Carga de relaciones (Eager Loading)
         $product->load(['reviews.user', 'images']);
-        
+    
+        // Obtener productos relacionados
         $relatedProducts = Product::where('categoria', $product->categoria)
             ->where('id', '!=', $product->id)
             ->take(4)
             ->get();
 
-        return new ProductResource($product);
+        // Retorno limpio del recurso con datos adicionales
+        return (new ProductResource($product))->additional([
+            'additional' => [
+                'related' => ProductResource::collection($relatedProducts)
+            ]
+        ]);
     }
 
     public function home()

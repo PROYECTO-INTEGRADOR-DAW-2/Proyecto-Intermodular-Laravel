@@ -23,11 +23,14 @@ const currentImage = ref(null);
 const fetchProduct = async (id) => {
     isLoading.value = true;
     try {
-        const response = await axios.get(`/api/products/${id}`);
+        const response = await api.get(`/products/${id}`);
+
+        console.log(response.data)
+
         product.value = response.data.data;
         currentImage.value = product.value.image_url;
         if (response.data.additional) {
-             relatedProducts.value = response.data.additional.related;
+                relatedProducts.value = response.data.additional.related;
         }
         
         // Reset selection
@@ -109,9 +112,9 @@ const handleWishlist = async () => {
         isInWishlist.value = response.data.status === 'added';
         
         if (response.data.status === 'added') {
-             toastStore.addToast('Producto añadido a la lista de deseos', 'success');
+            toastStore.addToast('Producto añadido a la lista de deseos', 'success');
         } else {
-             toastStore.addToast('Producto eliminado de la lista de deseos', 'info');
+            toastStore.addToast('Producto eliminado de la lista de deseos', 'info');
         }
     } catch (error) {
         console.error('Error toggling wishlist:', error);
