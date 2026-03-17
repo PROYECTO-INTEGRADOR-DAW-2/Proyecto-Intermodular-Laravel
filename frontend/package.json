@@ -13,8 +13,10 @@
     "axios": "^1.13.5",
     "bootstrap": "^5.3.3",
     "pinia": "^2.1.7",
+    "vee-validate": "^4.15.1",
     "vue": "^3.4.31",
-    "vue-router": "^4.4.0"
+    "vue-router": "^4.4.0",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",
