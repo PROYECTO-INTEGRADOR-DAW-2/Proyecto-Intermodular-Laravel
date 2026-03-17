@@ -5,6 +5,8 @@
 .env.production
 .phpactor.json
 .phpunit.result.cache
+readme.md
+README.md
 /.fleet
 /.idea
 /.nova
@@ -24,3 +26,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+laravel
+database.sqlite
+*.sqlite
+/database/*.sqlite

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\OrderItem;
+use App\Models\Review;
 use App\Models\Product;
 
 class AdminAnalyticsController extends Controller
@@ -38,10 +39,37 @@ class AdminAnalyticsController extends Controller
             })
             ->filter() // Remove nulls in case a product was hard-deleted
             ->values();
+        
+
+        
+        $bestReviewedProducts = Review::select('product_id', DB::raw('AVG(rating) as average_rating'))
+            ->groupBy('product_id')
+            ->orderByDesc('average_rating')
+            ->take(5)
+            ->with('product')
+            ->get()
+            ->map(function ($item) {
+
+                if($item->product) {
+                    return [
+                        'id' => $item->product->id,
+                        'name' => $item->product->nombre,
+                        'brand' => $item->product->marca,
+                        'image_url' => $item->product->image_url,
+                        'average_rating' => (int)$item->average_rating
+                    ];
+                }
+                return null;
+            })
+            ->filter()
+            ->values();
+
+       
 
         return response()->json([
             'success' => true,
-            'top_products' => $topProducts
+            'top_products' => $topProducts,
+            'best_reviewed' => $bestReviewedProducts
         ]);
     }
 }

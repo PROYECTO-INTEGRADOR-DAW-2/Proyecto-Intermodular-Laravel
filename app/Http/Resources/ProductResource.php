@@ -31,6 +31,7 @@ class ProductResource extends JsonResource
             'deporte' => $this->deporte,
             'oferta' => $this->oferta,
             'is_eco' => (bool) $this->is_eco,
+            'reconditioned' => (bool) $this->reconditioned,
             'img' => $this->img,
             'image_url' => $this->image_url, // Also adding image_url accessor
             'images' => ProductImageResource::collection($this->whenLoaded('images')),

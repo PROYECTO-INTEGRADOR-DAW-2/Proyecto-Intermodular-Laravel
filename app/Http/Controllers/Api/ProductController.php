@@ -100,6 +100,10 @@ class ProductController extends Controller
             $query->where('oferta', true);
         }
 
+        if ($request->filled('reconditioned')) {
+            $query->where('reconditioned', true);
+        }
+
         if ($request->filled('talla')) {
             $tallas = is_array($request->talla) ? $request->talla : explode(',', $request->talla);
             $query->whereIn('talla', $tallas);
@@ -129,15 +133,17 @@ class ProductController extends Controller
      *     @OA\Response(response=404, description="No trobat")
      * )
      */
-    public function show(Product $product)
-    {
+    public function show(Product $product){
+        // Carga de relaciones (Eager Loading)
         $product->load(['reviews.user', 'images']);
-        
+    
+        // Obtener productos relacionados
         $relatedProducts = Product::where('categoria', $product->categoria)
             ->where('id', '!=', $product->id)
             ->take(4)
             ->get();
 
+        // Retorno limpio del recurso con datos adicionales
         return (new ProductResource($product))->additional([
             'additional' => [
                 'related' => ProductResource::collection($relatedProducts)

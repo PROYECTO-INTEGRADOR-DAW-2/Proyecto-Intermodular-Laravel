@@ -23,6 +23,7 @@ const productForm = reactive({
 // Orders & Analytics
 const orders = ref([])
 const topProducts = ref([])
+const bestReviewedProducts = ref([])
 
 // Users
 const users = ref([])
@@ -156,7 +157,9 @@ const fetchOrders = async () => {
 const fetchAnalytics = async () => {
     try {
         const res = await api.get('/admin/analytics/summary')
+        console.log(res.data)
         topProducts.value = res.data.top_products || []
+        bestReviewedProducts.value = res.data.best_reviewed || []
     } catch (e) {
         console.error('Error cargando analíticas', e)
     }
@@ -289,7 +292,7 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <!-- Top Products (Analytics) -->
+            <!-- Best rewiewed Products (Analytics) -->
             <div class="row mb-4">
                 <div class="col-12">
                      <div class="card border-0 shadow-sm">
@@ -342,6 +345,62 @@ onMounted(async () => {
                                  </div>
                              </div>
                          </div>
+
+                         
+                     </div>
+
+                     <div class="card border-0 shadow-sm">
+                         <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                             <h5 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow text-danger me-2"></i>Top 5 Productos Mejores Valorados</h5>
+                         </div>
+                         <div class="card-body">
+                             <!-- Vista Desktop (Tabla) -->
+                             <div class="table-responsive d-none d-md-block">
+                                 <table class="table table-hover align-middle mb-0">
+                                     <thead class="table-light">
+                                         <tr>
+                                             <th>Producto</th>
+                                             <th>Marca</th>
+                                             <th class="text-end">Valoracion</th>
+                                         </tr>
+                                     </thead>
+                                     <tbody>
+                                         <tr v-for="product in bestReviewedProducts" :key="product.id">
+                                             <td>
+                                                 <div class="d-flex align-items-center gap-3">
+                                                     <img :src="product.image_url" alt="" width="40" height="40" class="rounded object-fit-cover shadow-sm">
+                                                     <span class="fw-bold">{{ product.name }}</span>
+                                                 </div>
+                                             </td>
+                                             <td>{{ product.brand }}</td>
+                                             <td class="text-end fw-bold text-success">{{ product.average_rating }}</td>
+                                         </tr>
+                                         <tr v-if="bestReviewedProducts.length === 0">
+                                             <td colspan="3" class="text-center text-muted py-3">No hay datos de valoraciones disponibles</td>
+                                         </tr>
+                                     </tbody>
+                                 </table>
+                             </div>
+                             
+                             <!-- Vista Móvil (Scroll Horizontal) -->
+                             <div class="d-flex d-md-none gap-3 overflow-auto pb-3 pt-1 snap-container px-1">
+                                 <div v-for="tp in bestReviewedProducts" :key="tp.id" class="card border border-light shadow-sm flex-shrink-0 snap-item bg-light" style="width: 85vw; max-width: 320px; border-radius: 12px;">
+                                     <div class="card-body d-flex align-items-center gap-3">
+                                         <img :src="tp.image_url" alt="" width="65" height="65" class="rounded-circle object-fit-cover shadow-sm bg-white border">
+                                         <div class="flex-grow-1 overflow-hidden">
+                                             <h6 class="fw-bold mb-1 text-truncate">{{ tp.name }}</h6>
+                                             <small class="text-muted d-block mb-1">{{ tp.brand }}</small>
+                                             <span class="badge bg-success text-white"><i class="bi bi-graph-up-arrow me-1"></i>{{ tp.average_rating }}</span>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div v-if="bestReviewedProducts.length === 0" class="text-center text-muted w-100 py-3">
+                                     No hay datos de ventas disponibles
+                                 </div>
+                             </div>
+                         </div>
+
+                         
                      </div>
                 </div>
             </div>
