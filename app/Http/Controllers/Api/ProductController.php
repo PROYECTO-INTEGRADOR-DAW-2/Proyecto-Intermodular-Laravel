@@ -100,6 +100,10 @@ class ProductController extends Controller
             $query->where('oferta', true);
         }
 
+        if ($request->filled('reconditioned')) {
+            $query->where('reconditioned', true);
+        }
+
         if ($request->filled('talla')) {
             $tallas = is_array($request->talla) ? $request->talla : explode(',', $request->talla);
             $query->whereIn('talla', $tallas);
@@ -139,10 +143,7 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-<<<<<<< HEAD
         // Retorno limpio del recurso con datos adicionales
-=======
->>>>>>> ff779825861d1cc30c813e2b01cf3b64eb29ea08
         return (new ProductResource($product))->additional([
             'additional' => [
                 'related' => ProductResource::collection($relatedProducts)

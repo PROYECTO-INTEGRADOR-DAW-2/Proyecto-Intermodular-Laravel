@@ -34,6 +34,8 @@ class ProductFactory extends Factory
             'altura' => $this->faker->randomElement(["Bajo", "Alto", "Normal"]),
             'deporte' => $this->faker->randomElement(["Trail"]),
             'oferta' => $this->faker->boolean(),
+            'is_eco' => $this->faker->boolean(),
+            'reconditioned' => $this->faker->boolean(),
             'img' => $this->faker->imageUrl(),
         ];
     }

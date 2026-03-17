@@ -22,7 +22,8 @@ const buildFilters = (f, maxPrice) => ({
     sexo: f.sexo ? (Array.isArray(f.sexo) ? f.sexo : [f.sexo]) : [],
     min_price: f.min_price || 0,
     max_price: f.max_price || maxPrice,
-    oferta: f.oferta === 'true' || f.oferta === true
+    oferta: f.oferta === 'true' || f.oferta === true,
+    reconditioned: f.reconditioned === 'true' || f.reconditioned === true
 });
 
 const filters = ref(buildFilters(props.initialFilters, props.metadata.maxPrice));
@@ -108,6 +109,11 @@ const resetFilters = () => {
         <div class="mb-3 form-check form-switch">
              <input class="form-check-input" type="checkbox" id="offerSwitch" v-model="filters.oferta">
              <label class="form-check-label" for="offerSwitch">Solo Ofertas</label>
+        </div>
+
+        <div class="mb-3 form-check form-switch">
+             <input class="form-check-input" type="checkbox" id="reconditionedSwitch" v-model="filters.reconditioned">
+             <label class="form-check-label" for="reconditionedSwitch">Solo reacondicionados</label>
         </div>
 
         <div class="d-grid gap-2">
