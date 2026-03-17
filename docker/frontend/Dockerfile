@@ -1,13 +1,14 @@
 # Etapa 1: Construcció (Build)
-FROM node:20-alpine AS build-stage
+# Stage 1: Build stage
+FROM node:20-alpine as build-stage
 WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ .
 RUN npm run build
 
-# Etapa 2: Servir amb Nginx (Producció)
-FROM nginx:stable-alpine AS production-stage
+# Stage 2: Production stage
+FROM nginx:stable-alpine as production-stage
 # Copiem el build de l'etapa anterior a la carpeta que Nginx sap llegir
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 # Copiem la teva configuració personalitzada de nginx

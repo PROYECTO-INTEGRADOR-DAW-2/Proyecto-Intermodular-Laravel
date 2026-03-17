@@ -66,6 +66,7 @@ services:
     build:
       context: .
       dockerfile: docker/frontend/Dockerfile
+      target: production-stage
     container_name: frontend
     ports:
       - "80:80"
