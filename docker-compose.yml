@@ -13,7 +13,6 @@ services:
     container_name: app
     ports:
       - "8000:80"
-      - "443:443"
     volumes:
       - ./:/home/app/ftp
       - ./public:/home/app/ftp/www
@@ -70,6 +69,9 @@ services:
     container_name: frontend
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./backups:/home/backupuser/ftp/fitxers:ro
     restart: always
   ftp:
     networks:
