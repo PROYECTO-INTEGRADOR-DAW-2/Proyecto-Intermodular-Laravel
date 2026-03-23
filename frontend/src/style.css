@@ -421,3 +421,7 @@ footer ul {
   outline-offset: 0;
   border-color: #D72631;
 }
+
+.error-msg {
+        color: red;
+    }

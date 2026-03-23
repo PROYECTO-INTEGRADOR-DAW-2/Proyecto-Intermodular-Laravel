@@ -155,9 +155,38 @@ const register = async (data) => {
     }
 }
 
+const updateProfile = async(data) => {
+    try {
+        const response = await privateApi.put('/update-profile', data);
+
+        return {
+            success: true,
+            data: response.data,
+            message: "Se ha actualizado el perfil correctamente"
+        }
+
+    } catch (error) {
+        if (error.response || error.statusText) {
+            return {
+                success: false,
+                data: `Error ${error.response.status || 'Tipo sin especificar'} : ${error.statusText || 'Descripcion sin especificar'}`,
+                message: "Ha habido un error al registrarse"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: "Ha habido un error al intentar registrarse"
+            }
+        }
+    }
+
+}
+
 export {
     fetchProducts,
     fetchMostPurchasedProducts,
     login,
-    register
+    register,
+    updateProfile
 }

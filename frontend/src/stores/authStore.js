@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login, register } from '../services/api.js'
+import { login, register, updateProfile } from '../services/api.js'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -40,11 +40,25 @@ export const useAuthStore = defineStore('auth', {
                 this.bearerToken = token;
                 localStorage.setItem("token", token);
                 
-                return response
+                return response;
             } else {
                 this.addMensajeAction("error", response.message)
                 return false;
             }
+        },
+
+        async updateProfileAction(data) {
+            const response = await updateProfile(data);
+
+            if (response.success) {
+                this.addMensajeAction("success", response.message);
+                this.user = response.data.data;
+            } else {
+                this.addMensajeAction("error", response.message)
+                return false;
+            }
+
+
         },
 
         addMensajeAction(type, message) {

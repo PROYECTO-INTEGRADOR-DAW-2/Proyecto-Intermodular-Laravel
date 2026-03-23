@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Repositories\ProductsRepository;
 
-class EquipService {
+class ProductsService {
     public function __construct(private ProductsRepository $repo) {}
 
     public function list() {
