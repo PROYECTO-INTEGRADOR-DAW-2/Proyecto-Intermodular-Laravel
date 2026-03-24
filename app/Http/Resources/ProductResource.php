@@ -12,6 +12,7 @@ class ProductResource extends JsonResource
      *
      * @return array<string, mixed>
      */
+
     public function toArray($request): array
     {
         return [
@@ -33,4 +34,6 @@ class ProductResource extends JsonResource
             'img' => $this->img,
         ];
     }
+
+    
 }

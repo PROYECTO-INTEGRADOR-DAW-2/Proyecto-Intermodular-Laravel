@@ -6,7 +6,8 @@ export const useAuthStore = defineStore('auth', {
         user: null,
         isAuthenticated: false,
         messages: [],
-        bearerToken: localStorage.getItem('token') || null
+        bearerToken: localStorage.getItem('token') || null,
+        debug: true
     }),
     actions: {
         async loginAction(data) {
@@ -52,7 +53,9 @@ export const useAuthStore = defineStore('auth', {
 
             if (response.success) {
                 this.addMensajeAction("success", response.message);
-                this.user = response.data.data;
+                const { user } = response.data.data;
+                console.log(response.message)
+                this.user = user;
             } else {
                 this.addMensajeAction("error", response.message)
                 return false;
@@ -62,13 +65,17 @@ export const useAuthStore = defineStore('auth', {
         },
 
         addMensajeAction(type, message) {
+
+        
             switch (type) {
                 case "success":
                     this.messages.push({type, message})
+                    this.debug || console.log(message)
                     break;
             
                 case "error":
                     this.messages.push({type, message})
+                    this.debug || console.log(message)
                     break;
             }
         }

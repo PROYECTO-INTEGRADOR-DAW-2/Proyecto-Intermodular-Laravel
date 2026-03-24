@@ -33,6 +33,7 @@ class AuthController extends BaseController
                 'user' => [
                     'id' => $user->id,
                     'nombre' => $user->nombre,
+                    'apellidos' => $user->apellidos,
                     'nombre_usuario' => $user->nombre_usuario,
                     'email' => $user->email,
                 ],

@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 
-class ProfileController extends Controller
+class ProfileController extends BaseController
 {
 
     /**
@@ -23,6 +23,20 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        $user = Auth::user();
+
+        $result = [
+            'user' => [
+                'id' => $user->id,
+                'nombre' => $user->nombre,
+                'apellidos' => $user->apellidos,
+                'nombre_usuario' => $user->nombre_usuario,
+                'email' => $user->email,
+            ]
+        ];
+
+        return $this->sendResponse($result, 'Se ha actualizado correctamente su perfil', 200);
 
 
     }
