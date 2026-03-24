@@ -24,11 +24,15 @@
         email: yup.string().email('Email no válido').required('El email es obligatorio'),
     });
 
-    const onSubmit = (values) => {
+    const onSubmitProfile = (values) => {
         authStore.updateProfileAction(values);
     };
 
-    const currentTab = "#datos-personales";
+    const onSubmitPassword = (values) => {
+        authStore.updatePassordAction(values);
+    }
+
+    let currentTab = "#datos-personales";
 
     watch(() => route.hash, (newHash) => {
         currentTab = newHash;
@@ -45,12 +49,12 @@
 <template>
 
     <div class="tabs">
-        <router-link to="{ hash: '#datos-personales' }" class="tab">Datos personales</router-link>
-        <router-link to="{ hash: '#contraseña' }" class="tab">Contraseña</router-link>
+        <router-link :to="{ hash: '#datos-personales' }" class="tab" :class="{ 'tab-active': currentTab === '#datos-personales' }">Datos personales</router-link>
+        <router-link :to="{ hash: '#contraseña' }" class="tab" :class="{ 'tab-active': currentTab === '#contraseña' }">Contraseña</router-link>
     </div>
 
     <div class="form-container">
-        <Form v-if="authStore.user && currentTab === '#datos-personales'" :validation-schema="schemaProfile" :initial-values="initialData" @submit="onSubmit" class="profile-form">
+        <Form v-if="authStore.user && currentTab === '#datos-personales'" :validation-schema="schemaProfile" :initial-values="initialData" @submit="onSubmitProfile" class="profile-form">
             <div class="form-group">
                 <label>Nombre:</label>
                 <Field name="nombre" type="text" placeholder="Tu nombre"/>
@@ -79,6 +83,23 @@
             <button type="submit" class="button">Actualizar Perfil</button>
         </Form>
 
+        <Form v-if="authStore.user && currentTab === '#contraseña'" :validation-schema="schemaProfile" :initial-values="initialData" @submit="onSubmitPassword" class="profile-form">
+            <div class="form-group">
+                <label>Contraseña actual:</label>
+                <Field name="contraseña-actual" type="password"/>
+                <ErrorMessage name="contraseña-actual" class="error-msg" />
+            </div>
+
+            <div class="form-group">
+                <label>Contraseña nueva:</label>
+                <Field name="contraseña-nueva" type="password"/>
+                <ErrorMessage name="contraseña-nueva" class="error-msg" />
+            </div>
+            
+            <router-link to="/reset-password" class="tab">No recuerdas tu contraseña?</router-link>
+            <button type="submit" class="button">Actualizar Contraseña</button>
+        </Form>
+
     </div>
     
 </template>
@@ -100,16 +121,18 @@
     .tab {
         height: 100%;
         width: 100%;
-        transition: all 0.5s ease;
+        
         text-decoration: none;
         color: black;
 
         align-content: center;
         text-align: center;
+
+        transition: all 0.5s ease;
     }
 
 
-    .tab:active {
+    .tab-active {
         background-color: #D72631;
         color: white;
     }

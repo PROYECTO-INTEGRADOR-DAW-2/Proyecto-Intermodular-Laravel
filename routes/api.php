@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController as ApiProductController;
 use App\Http\Controllers\Api\ProductImportController;
 use App\Http\Controllers\Api\ProfileController;
+
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PasswordController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -25,7 +27,8 @@ Route::name('api.')->group(function () {
             Route::post('products/import', [ProductImportController::class , 'store'])->name('products.import');
 
             // Endpoints de actualizacion de perfil de usuario
-            Route::put('/update-profile', [ProfileController::class, 'update'])->name('user.update-profile');   
+            Route::put('/update-profile', [ProfileController::class, 'update'])->name('user.update-profile');
+            Route::put('/update-password', [PasswordController::class, 'update'])->('user.update-password');
         }
         );
 

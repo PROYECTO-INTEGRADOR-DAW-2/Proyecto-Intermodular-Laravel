@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login, register, updateProfile } from '../services/api.js'
+import { login, register, updateProfile, updatePassword } from '../services/api.js'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -61,6 +61,18 @@ export const useAuthStore = defineStore('auth', {
                 return false;
             }
 
+        },
+
+        async updatePasswordAction(data) {
+            const response = await updatePassword(data);
+
+            if (response.success) {
+                this.addMensajeAction("success", response.message);
+                console.log(response.message)
+            } else {
+                this.addMensajeAction("error", response.message)
+                return false;
+            }
 
         },
 
