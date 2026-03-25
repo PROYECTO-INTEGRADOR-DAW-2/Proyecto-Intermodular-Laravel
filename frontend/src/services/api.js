@@ -190,10 +190,12 @@ const updatePassword = async (data) => {
         return {
             success: true,
             data: response.data,
-            message: "Se ha actualizado la contraseña correctamente"
+            message: response.message
         }
 
     } catch (error) {
+        console.log(error)
+
         if (error.response || error.statusText) {
             return {
                 success: false,
@@ -211,11 +213,29 @@ const updatePassword = async (data) => {
 
 }
 
+const fetchUser = async () => {
+    try {
+        const response = await privateApi.get('/user');
+        return {
+            success: true,
+            data: response.data,
+            message: "Usuario cargado correctamente"
+        }
+    } catch (error) {
+        return {
+            success: false,
+            data: error.response?.data || error.message,
+            message: "Error al cargar el usuario"
+        }
+    }
+}
+
 export {
     fetchProducts,
     fetchMostPurchasedProducts,
     login,
     register,
     updateProfile,
-    updatePassword
+    updatePassword,
+    fetchUser
 }

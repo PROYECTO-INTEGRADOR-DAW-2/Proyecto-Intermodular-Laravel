@@ -29,7 +29,7 @@
     };
 
     const onSubmitPassword = (values) => {
-        authStore.updatePassordAction(values);
+        authStore.updatePasswordAction(values);
     }
 
     let currentTab = "#datos-personales";

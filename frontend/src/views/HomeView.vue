@@ -29,35 +29,35 @@
             <h2 class="text-center mb-5">Novedades</h2>
             <div id="brands" class="row justify-content-md-around g-0 g-sm-4">
                 <article class="col-6 col-md-6 col-lg-2 text-center">
-                    <a href="#" aria-label="Ver novedades de Nike">
+                    <router-link to="/products?marca=nike" aria-label="Ver novedades de Nike">
                         <img src="/img/logoNike.jpg" alt="Logotipo de Nike" class="fotoMasNovedades">
                         <img src="/img/simboloNike.png" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
-                    </a>
+                    </router-link>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
-                    <a href="#" aria-label="Ver novedades de Adidas">
+                    <router-link to="/products?marca=adidas" aria-label="Ver novedades de Adidas">
                         <img src="/img/logoAdidass.jpg" alt="Logotipo de Adidas" class="fotoMasNovedades">
                         <img src="/img/AdidasSimbolo.png" alt="" class="fotoSimboloAdidas d-none d-sm-inline"
                             aria-hidden="true">
-                    </a>
+                    </router-link>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
-                    <a href="#" aria-label="Ver novedades de Puma">
+                    <router-link to="/products?marca=puma" aria-label="Ver novedades de Puma">
                         <img src="/img/logospuma.jpg" alt="Logotipo de Puma" class="fotoMasNovedades">
                         <img src="/img/SimboloPuma.png" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
-                    </a>
+                    </router-link>
                 </article>
 
                 <article class="col-6 col-md-6 col-lg-2 text-center">
-                    <a href="#" aria-label="Ver novedades de Asics">
+                    <router-link to="/products?marca=asics" aria-label="Ver novedades de Asics">
                         <img src="/img/asicslogo.jpg" alt="Logotipo de Asics" class="fotoMasNovedades">
                         <img src="/img/SimboloAsics.png" alt="" class="fotoSimbolo d-none d-sm-inline"
                             aria-hidden="true">
-                    </a>
+                    </router-link>
                 </article>
             </div>
         </section>

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login, register, updateProfile, updatePassword } from '../services/api.js'
+import { login, register, updateProfile, updatePassword, fetchUser } from '../services/api.js'
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -23,6 +23,7 @@ export const useAuthStore = defineStore('auth', {
                 this.isAuthenticated = true;
                 this.bearerToken = token;
                 localStorage.setItem("token", token);
+
                 return response;
             } else {
                 this.addMensajeAction("error", response.message);
@@ -40,7 +41,7 @@ export const useAuthStore = defineStore('auth', {
                 this.isAuthenticated = true;
                 this.bearerToken = token;
                 localStorage.setItem("token", token);
-                
+
                 return response;
             } else {
                 this.addMensajeAction("error", response.message)
@@ -54,7 +55,6 @@ export const useAuthStore = defineStore('auth', {
             if (response.success) {
                 this.addMensajeAction("success", response.message);
                 const { user } = response.data.data;
-                console.log(response.message)
                 this.user = user;
             } else {
                 this.addMensajeAction("error", response.message)
@@ -65,10 +65,13 @@ export const useAuthStore = defineStore('auth', {
 
         async updatePasswordAction(data) {
             const response = await updatePassword(data);
+            console.log(response)
 
             if (response.success) {
                 this.addMensajeAction("success", response.message);
-                console.log(response.message)
+                const { token } = response.data.data;
+                this.bearerToken = token;
+                localStorage.setItem('token', token);
             } else {
                 this.addMensajeAction("error", response.message)
                 return false;
@@ -76,17 +79,40 @@ export const useAuthStore = defineStore('auth', {
 
         },
 
+        async fetchUserAction() {
+            if (!this.bearerToken) return;
+
+            const response = await fetchUser();
+
+            if (response.success) {
+                this.user = response.data;
+                this.isAuthenticated = true;
+            } else {
+                this.user = null;
+                this.isAuthenticated = false;
+                this.bearerToken = null;
+                localStorage.removeItem('token');
+            }
+        },
+
+        async logoutAction() {
+            this.user = null;
+            this.isAuthenticated = false;
+            this.bearerToken = null;
+            localStorage.removeItem('token');
+        },
+
         addMensajeAction(type, message) {
 
-        
+
             switch (type) {
                 case "success":
-                    this.messages.push({type, message})
+                    this.messages.push({ type, message })
                     this.debug || console.log(message)
                     break;
-            
+
                 case "error":
-                    this.messages.push({type, message})
+                    this.messages.push({ type, message })
                     this.debug || console.log(message)
                     break;
             }

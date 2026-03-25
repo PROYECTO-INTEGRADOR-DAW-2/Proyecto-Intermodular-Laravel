@@ -28,4 +28,15 @@ class BaseController extends Controller
 
         return response()->json($payload, $code);
     }
+
+    protected function sendMessage($message, $code) {
+
+        $payload = [
+            'success' => true,
+            'message' => $message,
+        ];
+
+        return response()->json($payload, $code);
+    }
+
 }

@@ -17,6 +17,8 @@
         for (let param in cleaned) {
             if (typeof cleaned[param] === 'string' && cleaned[param].includes(',')) {
                 cleaned[param] = cleaned[param].split(',');
+            } else if (typeof cleaned[param] === 'string') {
+                cleaned[param] = [cleaned[param]];
             }
         }
         return cleaned;
@@ -40,7 +42,7 @@
     // --- State Initialization ---
 
     // Inicializamos inmediatamente si hay query para que el hijo lo reciba en su onMounted
-    const initialQuery = ref(route.query && Object.keys(route.query).length > 0 ? cleanURLParams(route.query) : null);
+    const initialQuery = ref({});
 
     // --- API Interactions ---
 
@@ -51,14 +53,7 @@
 
     // --- Lifecycle Hooks ---
 
-    //Funcion para realizar determinadas acciones al montar la vista
-    onMounted(() => {
-        // Si no hay query inicial, hacemos el fetch base aquí.
-        // Si hay query, FilterSideBar se encargará de emitir 'filter' y disparar fetchProducts.
-        if (!initialQuery.value) {
-            fetchProducts();
-        }
-    });
+
 
     // --- Watchers ---
 
@@ -66,6 +61,16 @@
     watch(products, (newProducts) => {
         console.log("Products updated in store:", newProducts);
     }, { deep: true });
+
+    watch(() => route.query, () => {
+        initialQuery.value = route.query && Object.keys(route.query).length > 0 
+        ? cleanURLParams(route.query) 
+        : null;
+    }, { immediate: true, deep: true})
+
+    onMounted(() => {
+        if(Object.keys(route.query).length === 0) fetchProducts();
+    })
 
 </script>
 

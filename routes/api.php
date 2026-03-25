@@ -2,8 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\Api\ProductController as ApiProductController;
 use App\Http\Controllers\Api\ProductImportController;
+
 use App\Http\Controllers\Api\ProfileController;
 
 use App\Http\Controllers\Api\AuthController;
@@ -28,7 +30,7 @@ Route::name('api.')->group(function () {
 
             // Endpoints de actualizacion de perfil de usuario
             Route::put('/update-profile', [ProfileController::class, 'update'])->name('user.update-profile');
-            Route::put('/update-password', [PasswordController::class, 'update'])->('user.update-password');
+            Route::put('/update-password', [PasswordController::class, 'update'])->name('user.update-password');
         }
         );
 

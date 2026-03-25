@@ -43,8 +43,8 @@
                             <ul id="main-nav" class="col d-flex flex-column flex-lg-row justify-content-around list-unstyled m-0 gx-0 gap-2 gap-lg-0">
                                 <li><router-link to="/products?sexo=hombre" class="text-white text-decoration-none">Hombre</router-link></li>
                                 <li><router-link to="/products?sexo=mujer" class="text-white text-decoration-none">Mujer</router-link></li>
-                                <li><router-link to="products?sexo=nino,nina" class="text-white text-decoration-none">Niños</router-link></li>
-                                <li><a href="#" class="text-white text-decoration-none">Productos</a></li>
+                                <li><router-link to="/products?sexo=nino,nina" class="text-white text-decoration-none">Niños</router-link></li>
+                                <li><router-link to="/products" class="text-white text-decoration-none">Productos</router-link></li>
                                 
                                     <li v-if="authStore.isAuthenticated">
                                         <router-link to="/dashboard">Dashboard</router-link>

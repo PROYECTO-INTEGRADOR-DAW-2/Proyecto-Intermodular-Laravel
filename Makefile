@@ -14,6 +14,8 @@ EXEC_FRONTEND = $(DOCKER_COMPOSE) exec frontend
 setup: .env
 	@echo "Iniciando configuracion de la aplicacion..."
 	$(DOCKER_COMPOSE) up -d --build
+	@echo "Añadiendo excepcion en /home/app/ftp para git"
+	$(DOCKER_COMPOSE) exec app git config --system --add safe.directory /home/app/ftp
 	@echo "Instalando dependencias de PHP (esto puede tardar la primera vez)..."
 	$(EXEC_APP) composer install --no-scripts --no-interaction
 	@echo "Generando clave de aplicacion..."

@@ -9,7 +9,17 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 const app = createApp(App)
 
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
+
+// Inicializar la autenticación si hay un token
+import { useAuthStore } from './stores/authStore.js'
+
+const authStore = useAuthStore(pinia)
+
+if (localStorage.getItem('token')) {
+    authStore.fetchUserAction()
+}
 
 app.mount('#app')
