@@ -30,6 +30,7 @@
             deporte: [],
             altura: [],
             sexo: [],
+            novedades: false,
             precio_max: meta?.products?.max_price || 1000
         }
     }
@@ -134,8 +135,12 @@
                 </div>
 
                 <div class="filter-field">
-                    <label for="precio_max"><strong style="font-size: 20px;">Precio maximo: <span id="valor-seleccionado"> {{ query.precio_max }} </span></strong> </label >
+                    <label for="precio_max"><strong style="font-size: 20px;">Precio maximo: </input> <span id="valor-seleccionado"> {{ query.precio_max }} </span></strong> </label >
                     <input type="range" min="0" v-bind:max="props.metaData?.products?.max_price || 1000" v-model="query.precio_max">
+                </div>
+
+                <div class="filter-field">
+                    <label for="novedades" class="checkbox-item-toggler"><strong style="font-size: 20px;">Novedades </strong><input type="checkbox" name="novedades" id="novedades" v-model="query.novedades"><span class="custom-toggler"></span></label >
                 </div>
 
                 <button @click="resetFilters" class="button-secondary" style="margin:10px 0 10px 0">Restablecer filtros</button>
@@ -157,7 +162,6 @@
 
     .checkbox-group {
         display: grid;
-
     }
 
     .filter-field {
@@ -169,6 +173,7 @@
         cursor: pointer;
         padding: 10px;
         display: grid;
+        align-items: center;
         grid-template-columns: 1fr 1fr;
     }
 
@@ -214,6 +219,64 @@
     .checkmark-active::after {
         display: block;
     }
+    
+
+
+
+
+    .checkbox-item-toggler {
+        cursor: pointer;
+        padding: 10px;
+        display: grid;
+        align-items: center;
+        justify-items: center;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .checkbox-item-toggler input{
+        display: none;
+    }
+
+    .checkbox-item-toggler input:checked + .custom-toggler {
+        background-color: #ffdcdc;
+    }
+
+    .checkbox-item-toggler input:checked + .custom-toggler::after {
+        transform: translateX(100%);
+    }
+
+    .custom-toggler {
+        width: 40px;
+        height: 20px;
+        border: 2px solid #D72631;
+        border-radius: 20px;
+        display: inline-block;
+        position: relative;
+        transition: all 0.5s ease;
+    }
+
+    .custom-toggler::after {
+        content: "";
+        left: 3px;
+        top: 1px;
+        position: absolute;
+        width: 15px;
+        height: 90%;
+        background-color: black;
+        border-radius: 100%;
+        transition: all 0.5s ease;  
+    }
+
+
+    .custom-toggler-active {
+        background-color: #cf8489;
+    }
+
+
+
+
+
+
 
 
 

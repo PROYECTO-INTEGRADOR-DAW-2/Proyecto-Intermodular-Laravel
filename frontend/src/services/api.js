@@ -8,7 +8,8 @@ export const publicApi = axios.create({
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-    }});
+    }
+});
 
 // Instancia para usuarios logueados (con interceptor de token)
 export const privateApi = axios.create({
@@ -17,7 +18,8 @@ export const privateApi = axios.create({
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-    }});
+    }
+});
 
 privateApi.interceptors.request.use(config => {
     config.headers.Authorization = `Bearer ${localStorage.getItem('token')}`;
@@ -33,9 +35,10 @@ const fetchProducts = async (query = {}) => {
                 categoria: query?.categoria,
                 marca: query?.marca,
                 deporte: query?.deporte,
-                altura: query?.altura, 
+                altura: query?.altura,
                 sexo: query?.sexo,
-                precio_max: query?.precio_max
+                precio_max: query?.precio_max,
+                novedades: query?.novedades
             }
         });
         console.log("Axios: Response received:", response.data);
@@ -45,7 +48,7 @@ const fetchProducts = async (query = {}) => {
             data: response.data,
             message: "Productos cargados correctamente"
         }
-    } catch(error) {
+    } catch (error) {
         console.error("Axios: Error in fetchProducts:", error);
         if (error.response || error.statusText) {
             return {
@@ -72,7 +75,7 @@ const fetchMostPurchasedProducts = async () => {
             data: response.data,
             message: "Productos mas comprados cargados correctamente"
         }
-        
+
     } catch (error) {
         if (error.response || error.statusText) {
             return {
@@ -104,11 +107,11 @@ const login = async (data) => {
             message: "Se ha logueado"
         }
 
-        
+
     } catch (error) {
         console.error("Axios: Error in login:", error);
         let errorData = "Sin descripcion de error";
-        
+
         if (error.response && error.response.data) {
             errorData = error.response.data.message || error.response.data.error || JSON.stringify(error.response.data);
             if (error.response.data.info && error.response.data.info.error) {
@@ -132,7 +135,7 @@ const login = async (data) => {
 const register = async (data) => {
     try {
         const response = await publicApi.post('/register', data);
-        
+
         return {
             success: true,
             data: response.data,

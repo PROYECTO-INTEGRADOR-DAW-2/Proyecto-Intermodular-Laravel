@@ -54,6 +54,10 @@ class ProductController extends Controller
             $q->where('precio', '<=', (integer) $input);
         });
 
+        $query->when($request->boolean('novedades'), function ($q) {
+            $q->where('novedades', true);
+        });
+
         $maxPrice = $query->max('precio');
         
         $productos = $query->paginate(10);
