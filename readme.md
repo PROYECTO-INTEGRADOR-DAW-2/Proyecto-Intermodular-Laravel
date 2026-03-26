@@ -173,7 +173,8 @@ L'aplicació ha completat amb èxit tots els objectius presentats a les memòrie
 
 ### 🌱 C6 — Sostenibilidad (ASG + ecodiseño) (SOST)
 - [x] Creación de apartados explicativos hacia el ecodiseño ecológico local dentro del espacio `SostenibilidadView.vue` del Footer.
-- [x] Añadir productos con etiquetas de Eco y 
+- [x] Añadir productos con etiquetas de Eco y reacondicionado
+- [X] Apoyar a la reduccion de consumo de energia utilizando varias estrategias a nivel codigo para no consumir energia excesivamente
 
 ---
 **Agradecimientos conjuntos por el largo y provechoso trabajo desarrollado a lo largo de este Proyecto Intermodular.**
