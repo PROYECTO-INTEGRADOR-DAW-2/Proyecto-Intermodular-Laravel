@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('altura');
             $table->string('deporte');
             $table->boolean('oferta');
+            $table->boolean('novedad');
             $table->string('img');
             $table->timestamps();
         });

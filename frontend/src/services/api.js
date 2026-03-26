@@ -38,9 +38,11 @@ const fetchProducts = async (query = {}) => {
                 altura: query?.altura,
                 sexo: query?.sexo,
                 precio_max: query?.precio_max,
-                novedades: query?.novedades
+                novedades: query?.novedades,
+                ofertas: query?.ofertas
             }
         });
+        
         console.log("Axios: Response received:", response.data);
 
         return {

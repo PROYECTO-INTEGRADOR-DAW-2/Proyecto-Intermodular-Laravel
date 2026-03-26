@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 use App\Traits\CustomValidationResponse; 
 use Illuminate\Validation\Rules\Password;
 
-class PasswordUpdateRequest extends FormRequest
+class RegisterRequest extends FormRequest
 {
     use CustomValidationResponse;
     /**
@@ -18,8 +18,12 @@ class PasswordUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'contraseña_actual' => ['required', 'current_password'],
-            'contraseña_nueva' => ['required', Password::defaults() ]
+            'nombre' => ['required', 'string', 'max:255'],
+            'apellidos' => ['required', 'string', 'max:255'],
+            'nombre_usuario' => ['required', 'string', 'max:255', 'unique:users,nombre_usuario'],
+            'email' => ['required', 'email', 'unique:users,email'],
+            'contraseña' => ['required', Password::defaults()],
+            'confirm_contraseña' => ['required', 'same:contraseña'],
         ];
     }
 }

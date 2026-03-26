@@ -6,7 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+use App\Http\Requests\Auth\RegisterRequest;
+
 
 class AuthController extends BaseController
 {
@@ -49,35 +50,23 @@ class AuthController extends BaseController
         }
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'nombre' => ['required', 'string', 'max:255'],
-            'apellidos' => ['required', 'string', 'max:255'],
-            'nombre_usuario' => ['required', 'string', 'max:255', 'unique:users,nombre_usuario'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'contraseña' => ['required', 'min:6'],
-            'confirm_contraseña' => ['required', 'same:contraseña'],
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Error validation', $validator->errors(), 422);
-        }
-
-        $data = $validator->validated();
+        $validated = $request->validated();
 
         $user = User::create([
-            'nombre' => $data['nombre'],
-            'apellidos' => $data['apellidos'],
-            'nombre_usuario' => $data['nombre_usuario'],
-            'email' => $data['email'],
-            'contraseña' => Hash::make($data['contraseña']),
+            'nombre' => $validated['nombre'],
+            'apellidos' => $validated['apellidos'],
+            'nombre_usuario' => $validated['nombre_usuario'],
+            'email' => $validated['email'],
+            'contraseña' => Hash::make($validated['contraseña']),
         ]);
 
         $result = [
             'token' => $user->createToken('api')->plainTextToken,
             'user' => [
                 'id' => $user->id,
+                'apellidos' => $user->apellidos,
                 'nombre' => $user->nombre,
                 'nombre_usuario' => $user->nombre_usuario,
                 'email' => $user->email,

@@ -19,7 +19,7 @@ class PasswordController extends BaseController
         $user = $request->user();
 
         $user->update([
-            'contraseña' => Hash::make($validated['contraseña-nueva']),
+            'contraseña' => Hash::make($validated['contraseña_nueva']),
         ]);
 
         $user->tokens()->delete();
@@ -30,7 +30,7 @@ class PasswordController extends BaseController
             'token' => $newToken,
         ];
 
-        $this->sendResponse($payload, "Se ha actualizado correctamente la contraseña", 200);
+        return $this->sendResponse($payload, "Se ha actualizado correctamente la contraseña", 200);
         
     }
 }

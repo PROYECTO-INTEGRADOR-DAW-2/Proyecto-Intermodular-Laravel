@@ -24,6 +24,11 @@
         email: yup.string().email('Email no válido').required('El email es obligatorio'),
     });
 
+    const schemaPassword = yup.object({
+        contraseña_actual: yup.string().required('La contraseña antigua es obligatoria'),
+        contraseña_nueva: yup.string().required('La contraseña nueva es obligatoria')
+    });
+
     const onSubmitProfile = (values) => {
         authStore.updateProfileAction(values);
     };
@@ -39,9 +44,6 @@
     })
 
   
-
-    
-
 
 
 </script>
@@ -83,17 +85,17 @@
             <button type="submit" class="button">Actualizar Perfil</button>
         </Form>
 
-        <Form v-if="authStore.user && currentTab === '#contraseña'" :validation-schema="schemaProfile" :initial-values="initialData" @submit="onSubmitPassword" class="profile-form">
+        <Form v-if="authStore.user && currentTab === '#contraseña'" :validation-schema="schemaPassword" @submit="onSubmitPassword" class="profile-form">
             <div class="form-group">
                 <label>Contraseña actual:</label>
-                <Field name="contraseña-actual" type="password"/>
-                <ErrorMessage name="contraseña-actual" class="error-msg" />
+                <Field name="contraseña_actual" type="password"/>
+                <ErrorMessage name="contraseña_actual" class="error-msg" />
             </div>
 
             <div class="form-group">
                 <label>Contraseña nueva:</label>
-                <Field name="contraseña-nueva" type="password"/>
-                <ErrorMessage name="contraseña-nueva" class="error-msg" />
+                <Field name="contraseña_nueva" type="password"/>
+                <ErrorMessage name="contraseña_nueva" class="error-msg" />
             </div>
             
             <router-link to="/reset-password" class="tab">No recuerdas tu contraseña?</router-link>
