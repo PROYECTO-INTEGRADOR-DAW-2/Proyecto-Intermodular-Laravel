@@ -1,48 +1,48 @@
-# Global Architecture & System Design
+# Arquitectura Global y Diseño del Sistema
 
-## Overview
-**J&A Sports** is a decoupled web application following a Client-Server architecture. The system is designed to be scalable, secure, and maintainable, leveraging modern cloud infrastructure.
+## Descripción General
+**J&A Sports** es una aplicación web desacoplada que sigue una arquitectura Cliente-Servidor. El sistema está diseñado para ser escalable, seguro y mantenible, aprovechando la infraestructura moderna en la nube.
 
-## System Components
+## Componentes del Sistema
 
 ### 1. Backend (API)
 - **Framework**: Laravel 11 (PHP 8.3)
-- **Role**: Serves as the core logic engine, providing a RESTful API for the frontend and external services.
-- **Key Features**:
-    - **Authentication**: Laravel Sanctum for SPA and Mobile-ready token management.
-    - **OAuth2**: Integrated with Google Workspace for Social Login.
-    - **Authorization**: Custom Role-based Access Control (RBAC) (Admin, Client, Guest).
-    - **Business Logic**: Product management, order processing, and review systems.
-    - **Integrations**: Webhooks (N8N) for automated email notifications and external events.
+- **Rol**: Sirve como el motor de lógica central, proporcionando una API RESTful para el frontend y servicios externos.
+- **Características Clave**:
+    - **Autenticación**: Laravel Sanctum para gestión de tokens preparada para SPA y móviles.
+    - **OAuth2**: Integrado con Google Workspace para inicio de sesión social.
+    - **Autorización**: Control de Acceso Basado en Roles (RBAC) personalizado (Admin, Cliente, Invitado).
+    - **Lógica de Negocio**: Gestión de productos, procesamiento de pedidos y sistemas de reseñas.
+    - **Integraciones**: Webhooks (N8N) para notificaciones automáticas por correo electrónico y eventos externos.
 
-### 2. Frontend (Client)
+### 2. Frontend (Cliente)
 - **Framework**: Vue 3 (Composition API)
-- **Role**: Single Page Application (SPA) providing a rich, reactive user experience.
-- **Key Features**:
-    - **Navigation**: Vue Router for client-side routing.
-    - **State Management**: Pinia for global state (Auth, Cart).
-    - **UI/UX**: Bootstrap 5 + Custom CSS (Vibrant/Premium design).
-    - **Validation**: Vee-Validate + Yup for real-time form checking.
+- **Rol**: Single Page Application (SPA) que proporciona una experiencia de usuario rica y reactiva.
+- **Características Clave**:
+    - **Navegación**: Vue Router para enrutamiento en el lado del cliente.
+    - **Gestión de Estado**: Pinia para el estado global (Autenticación, Carrito).
+    - **IU/UX**: Bootstrap 5 + CSS personalizado (Diseño vibrante/premium).
+    - **Validación**: Vee-Validate + Yup para comprobación de formularios en tiempo real.
 
-### 3. Database & Storage
-- **Primary Database**: MySQL 8.x (Hosted on AWS RDS in production).
-- **Caching & Sessions**: Redis (7-alpine).
-- **File Storage**: FTP server for managing product assets and backups.
+### 3. Base de Datos y Almacenamiento
+- **Base de Datos Principal**: MySQL 8.x (Alojada en AWS RDS en producción).
+- **Caché y Sesiones**: Redis (7-alpine).
+- **Almacenamiento de Archivos**: Servidor FTP para gestionar activos de productos y copias de seguridad.
 
-## Relations & Data Flow
+## Relaciones y Flujo de Datos
 ```mermaid
 graph TD
-    User((User)) -->|HTTPS| Frontend[Vue Frontend]
-    Frontend -->|REST API| Backend[Laravel API]
+    User((Usuario)) -->|HTTPS| Frontend[Vue Frontend]
+    Frontend -->|API REST| Backend[Laravel API]
     Backend -->|SQL| RDS[(MySQL RDS)]
-    Backend -->|Pub/Sub| Redis[(Redis Cache)]
-    Backend -->|Webhooks| N8N[N8N Automation]
-    N8N -->|SMTP| Email[Email Service]
+    Backend -->|Pub/Sub| Redis[(Caché Redis)]
+    Backend -->|Webhooks| N8N[Automatización N8N]
+    N8N -->|SMTP| Email[Servicio de Correo]
     Auth[Google OAuth] -->|Token| Backend
 ```
 
-## Security Layer
-- **Encryption**: All communications are encrypted via SSL/TLS (HTTPS).
-- **Sanctum**: CSRF protection and Secure Cookies for the SPA.
-- **Access Control**: Middlewares protect sensitive routes based on Sanctum tokens and User Roles.
-- **CORS**: Strictly configured to only allow known origins.
+## Capa de Seguridad
+- **Cifrado**: Todas las comunicaciones están cifradas via SSL/TLS (HTTPS).
+- **Sanctum**: Protección CSRF y Cookies Seguras para la SPA.
+- **Control de Acceso**: Los middlewares protegen las rutas sensibles basándose en los tokens de Sanctum y los roles de usuario.
+- **CORS**: Estrictamente configurado para permitir solo orígenes conocidos.

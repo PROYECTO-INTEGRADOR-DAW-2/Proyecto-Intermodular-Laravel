@@ -18,48 +18,55 @@ Bienvenido/a al repositorio oficial de **J&A Sports**, una plataforma moderna de
 ### Cómo ejecutar en desarrollo (Docker - Laravel Sail)
 El proyecto está diseñado para ejecutarse con **Laravel Sail**, la interfaz de línea de comandos (CLI) ligera para interactuar con el entorno Docker de Laravel por defecto.
 
+La configuracion del entorno es completamente distinta en las ramas de desarrollo como Develop, Albert, Jorge por lo que para el entorno de desarrollo debemos ubicarnos obligatoriamente en este tipo de ramas con git checkout develop
+
 1.  **Clonar el repositorio:**
     ```bash
     git clone [URL_DEL_REPOSITORIO]
     cd Proyecto-Intermodular-Laravel
     ```
-2.  **Instalar las dependencias y configuración del backend:**
+2. **Cambiar de rama:**
+    ```bash
+    git checkout develop
+    ```
+3.  **Instalar las dependencias y configuración del backend:**
     Se ha preparado un archivo `Makefile` para simplificar los procesos. Ejecuta el siguiente comando para levantar el entorno de desarrollo:
     ```bash
     make up
     ```
-    Si quieres arrancar desde cero regenerando todos los contenedores e instalando Composer y npm, ejecuta secuencialmente:
+    Si quieres arrancar desde cero regenerando todos los contenedores e instalando Composer y npm, ejecuta secuencialmente (Altamente recomendado):
     ```bash
     make setup
     make install
     ```
-3.  **Iniciar el compilador del frontend (Vite):**
+4.  **Iniciar el compilador del frontend (Vite):**
     Abre una terminal nueva y entra al directorio del frontend para aplicar/compilar los cambios de Vue al instante:
     ```bash
     cd frontend
     npm run dev
     ```
-4.  La aplicación backend estará disponible en `http://localhost` (o en el puerto asignado en tu `.env`) y la interfaz principal (frontend) en el puerto local de Vite proporcionado en la consola.
+5.  La aplicación backend estará disponible en `http://localhost` (o en el puerto asignado en tu `.env`) y la interfaz principal (frontend) en el puerto local de Vite proporcionado en la consola (5173).
 
-### Cómo desplegar en producción (docker-compose.prod.yml)
+### Cómo desplegar en producción (docker-compose.yml)
 Para el entorno de producción, será necesario construir directamente los *assets* y exponer un servidor web optimizado. 
-*(Si el proyecto dispone de un archivo `docker-compose.prod.yml`, aquí se indica cómo realizar el despliegue mediante:* `docker compose -f docker-compose.prod.yml up -d --build`*)*
+
+
 
 ### Variables de entorno necesarias (sin secretos)
 El archivo `.env` controla el entorno del proyecto. Aquí se muestran algunas variables clave (modificando u ocultando las claves privadas):
 ```env
 APP_NAME="J&A Sports"
-APP_ENV=local
+APP_ENV=production
 APP_DEBUG=true
-APP_URL=http://localhost
+APP_URL=http://app.projectegrupb.es
 
 LOG_CHANNEL=stack
 
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
-DB_DATABASE=appstore_db
-DB_USERNAME=sail
+DB_DATABASE=laravel
+DB_USERNAME=admin
 # DB_PASSWORD="..."
 
 # Configuración de Mailer (Mails genéricos/N8N)
@@ -161,10 +168,12 @@ L'aplicació ha completat amb èxit tots els objectius presentats a les memòrie
 - [x] Implementación semántica HTML moderna, respetando jerarquías claras para las fichas de los artículos.
 
 ### 🤖 C5 — Mejora digital / “inteligente” (DIG)
-- [x] **Webhooks inteligentes por IA (N8N Automation):** Automatización del backend para integrarse a flujos basados en eventos, reenviando los correos electrónicos estéticos y formateados dinámicamente según la iteración propia del JSON mandado (`Customer Name, Images array...`), abstrayendo al servidor de PHP de realizar las comunicaciones de correo por sí sola y aligerando el peso de red.
+- [x] Desarrollado un panel de administracion en el que se muestran productos mas comprados y productos mejor valorados
+- [x] Añadida una seccion en home en el que aparecen los productos mas comprados
 
 ### 🌱 C6 — Sostenibilidad (ASG + ecodiseño) (SOST)
 - [x] Creación de apartados explicativos hacia el ecodiseño ecológico local dentro del espacio `SostenibilidadView.vue` del Footer.
+- [x] Añadir productos con etiquetas de Eco y 
 
 ---
 **Agradecimientos conjuntos por el largo y provechoso trabajo desarrollado a lo largo de este Proyecto Intermodular.**

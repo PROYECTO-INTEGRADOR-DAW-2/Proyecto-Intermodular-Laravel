@@ -1,55 +1,62 @@
-# Infrastructure & CI/CD Documentation
+# Documentación de Infraestructura y CI/CD
 
-## Environments
+## Entornos
 
-### 1. Development (Docker)
-- **Tool**: Docker Compose
-- **Profiles**:
-    - `app`: Full local environment (Laravel + Redis + FTP + phpMyAdmin).
-    - `frontend`: Independent Vue development server with HMR.
-    - `test`: Isolated environment for automated testing.
-- **Access**:
+### 1. Desarrollo (Docker)
+
+- **Herramienta**: Docker Compose
+- **Perfiles (Profiles)**:
+    - `app`: Entorno local completo (Laravel + Redis + FTP + phpMyAdmin).
+    - `frontend`: Servidor de desarrollo de Vue independiente con HMR.
+    - `test`: Entorno aislado para pruebas automatizadas.
+- **Acceso**:
+    - Frontend: `http://localhost:5173`
     - App: `http://localhost:8000`
     - phpMyAdmin: `http://localhost:8080`
     - FTP: `localhost:21`
 
-### 2. Production (AWS)
-- **Compute**: EC2 instances managed via Docker.
-- **Database**: AWS RDS (MySQL) with automated backups and Multi-AZ capabilities.
-- **Entry Point**: AWS Application Load Balancer (ALB) for SSL termination and traffic distribution.
-- **DNS**: Managed via custom DNS zone (`projecteXX.ddaw.es`).
-- **HTTPS**: Let's Encrypt certificates managed automatically.
+### 2. Producción (AWS)
 
-## Infrastructure Diagram
+- **Computación**: Instancias EC2 gestionadas a través de Docker.
+- **Base de Datos**: AWS RDS (MySQL) con copias de seguridad automatizadas y capacidades Multi-AZ.
+- **Punto de Entrada**: AWS Application Load Balancer (ALB) para la terminación de SSL y distribución de tráfico.
+- **DNS**: Gestionado a través de una zona DNS personalizada (`projecteXX.ddaw.es`).
+- **HTTPS**: Certificados de Let's Encrypt gestionados automáticamente.
+
+## Diagrama de Infraestructura
+
 ```mermaid
 graph LR
-    Internet((Internet)) -->|Port 443| ALB[Application Load Balancer]
-    ALB -->|Port 80| Nginx[Proxy/Nginx Container]
-    Nginx -->|FastCGI| App[Laravel Container]
-    App -->|Port 3306| RDS[(AWS RDS Cluster)]
-    App -->|Port 6379| Redis[(Redis)]
+    Internet((Internet)) -->|Puerto 443| ALB[Application Load Balancer]
+    ALB -->|Puerto 80| Nginx[Proxy/Contenedor Nginx]
+    Nginx -->|FastCGI| App[Contenedor Laravel]
+    App -->|Puerto 3306| RDS[(Cluster AWS RDS)]
+    App -->|Puerto 6379| Redis[(Redis)]
 ```
 
-## CI/CD Pipelines (GitHub Actions)
+## Pipelines de CI/CD (GitHub Actions)
 
-### Backend Pipeline (`backend-deploy.yml`)
-1. **Trigger**: Push to `main` (excluding `frontend/**`).
-2. **Phase 1: Test**: Installs dependencies, runs `php artisan test`.
-3. **Phase 2: Deploy**: 
-    - Connects to self-hosted runner.
-    - Pulls latest code.
-    - Rebuilds container (`COMPOSE_PROFILES=app`).
-    - Executes `migrate --force`.
-    - Clears and rebuilds caches (`config`, `route`).
+### Pipeline del Backend (`backend-deploy.yml`)
 
-### Frontend Pipeline (`frontend-deploy.yml`)
-1. **Trigger**: Push to `main` in `frontend/`.
-2. **Phase 1: Build & Deploy**:
-    - Connects to self-hosted runner.
-    - Rebuilds frontend container (`COMPOSE_PROFILES=frontend`).
-    - Nginx inside container serves optimized static assets.
+1. **Activador (Trigger)**: Push a `main` (excluyendo `frontend/**`).
+2. **Fase 1: Pruebas (Test)**: Instala dependencias, ejecuta `php artisan test`.
+3. **Fase 2: Despliegue (Deploy)**:
+    - Se conecta al corredor (runner) autoalojado.
+    - Descarga el código más reciente.
+    - Reconstruye el contenedor (`COMPOSE_PROFILES=app`).
+    - Ejecuta `migrate --force`.
+    - Limpia y reconstruye las cachés (`config`, `route`).
 
-## Scalability & Availability
-- **RDS Multi-AZ**: High availability and failover for the data layer.
-- **Docker Isolation**: Each service runs in its own bounded container.
-- **Profiles**: Allows granular scaling of frontend vs backend components.
+### Pipeline del Frontend (`frontend-deploy.yml`)
+
+1. **Activador (Trigger)**: Push a `main` dentro de `frontend/`.
+2. **Fase 1: Construcción y Despliegue (Build & Deploy)**:
+    - Se conecta al corredor (runner) autoalojado.
+    - Reconstruye el contenedor del frontend (`COMPOSE_PROFILES=frontend`).
+    - Nginx dentro del contenedor sirve los activos estáticos optimizados.
+
+## Escalabilidad y Disponibilidad
+
+- **RDS Multi-AZ**: Alta disponibilidad y conmutación por error (failover) para la capa de datos.
+- **Aislamiento Docker**: Cada servicio se ejecuta en su propio contenedor delimitado.
+- **Perfiles**: Permite un escalado granular de los componentes del frontend frente a los del backend.

@@ -1,47 +1,49 @@
-# Frontend Documentation - J&A Sports
+# Documentación del Frontend - J&A Sports
 
-## Architecture
-The frontend is a **Single Page Application (SPA)** built with **Vue 3** and the **Composition API**. It communicates with the Laravel Backend via a RESTful API.
+## Arquitectura
+El frontend es una **Single Page Application (SPA)** construida con **Vue 3** y la **Composition API**. Se comunica con el Backend de Laravel a través de una API RESTful.
 
-## Tech Stack
+## Stack Tecnológico
 - **Framework**: Vue 3
-- **Build Tool**: Vite
-- **State Management**: Pinia
-- **Routing**: Vue Router
-- **Styling**: Bootstrap 5 + Sass
-- **Validation**: Vee-Validate + Yup
-- **HTTP Client**: Axios
+- **Herramienta de Construcción**: Vite
+- **Gestión de Estado**: Pinia
+- **Enrutamiento**: Vue Router
+- **Estilos**: Bootstrap 5
+- **Validación**: Vee-Validate + Yup
+- **Cliente HTTP**: Axios
 
-## Project Structure
-- `src/components`: Reusable UI components (Nav, Footer, Cards).
-- `src/views`: Page-level components mapped to routes.
-- `src/stores`: Pinia stores for `auth`, `cart`, and `products`.
-- `src/services`: API abstraction layer.
-- `src/router`: Route definitions and navigation guards.
+## Estructura del Proyecto
+- `src/components`: Componentes de interfaz de usuario reutilizables (Nav, Footer, Cards).
+- `src/views`: Componentes a nivel de página mapeados a rutas.
+- `src/stores`: Almacenes de Pinia para `auth`, `cart` y `products`.
+- `src/services`: Capa de abstracción de la API.
+- `src/router`: Definiciones de rutas y protectores de navegación (guards).
 
-## Execution in Development
-1. Navigate to the `frontend` directory.
-2. Install dependencies: `npm install`.
-3. Start the dev server: `npm run dev`.
-4. Open the URL provided in the console (usually `http://localhost:5173`).
+## Ejecución en Desarrollo
+1. Navega al directorio `frontend`.
+2. Instala las dependencias: `npm install`.
+3. Inicia el servidor de desarrollo: `npm run dev`.
+4. Abre la URL proporcionada en la consola (usualmente `http://localhost:5173`).
 
-## Build Process
-To generate a production-ready bundle:
+NOTA: todos estos pasos los realiza automaticamente el comando make setup en un rama de desarrollo
+
+## Proceso de Construcción (Build)
+Para generar un paquete listo para producción:
 ```bash
 npm run build
 ```
-The output will be in the `dist/` directory.
+La salida estará en el directorio `dist/`.
 
-## Deployment Particularities
-In production, the frontend is served as static assets by a web server (Nginx/Apache). It is optimized using Vite's bundling process, which includes:
+## Particularidades del Despliegue
+En producción, el frontend se sirve como activos estáticos por un servidor web (Nginx/Apache). Está optimizado utilizando el proceso de empaquetado de Vite, que incluye:
 - Tree-shaking.
-- Code splitting.
-- Asset compression (WebP/AVIF images).
-- Lazy loading for routes and images.
+- División de código (Code splitting).
+- Compresión de activos (imágenes WebP/AVIF).
+- Carga perezosa (Lazy loading) para rutas e imágenes.
 
-## Contextual Help
-The application includes several accessibility and help features:
-- **Tooltips**: Applied to icons and complex buttons.
-- **Form Feedback**: Real-time validation messages for all input fields.
-- **Checkout Guides**: Clear steps and visual summaries during the purchase process.
-- **Eco-labels**: Visual indicators for sustainable products.
+## Ayuda Contextual
+La aplicación incluye varias funciones de accesibilidad y ayuda:
+- **Tooltips**: Aplicados a iconos y botones complejos.
+- **Retroalimentación de Formularios**: Mensajes de validación en tiempo real para todos los campos de entrada.
+- **Guías de Pago**: Pasos claros y resúmenes visuales durante el proceso de compra.
+- **Eco-etiquetas**: Indicadores visuales para productos sostenibles.

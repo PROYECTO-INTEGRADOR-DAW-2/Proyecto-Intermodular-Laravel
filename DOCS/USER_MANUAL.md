@@ -1,36 +1,36 @@
-# User Manual - J&A Sports
+# Manual de Usuario - J&A Sports
 
-## 1. Getting Started
-To use the application, navigate to `http://localhost` (local) or `https://app.projectegrupb.es` (production).
+## 1. Introducción
+Para usar la aplicación, navega a `http://localhost` (local) o `https://app.projectegrupb.es` (producción).
 
-### Registration & Login
-- **Standard**: Register with your email and a secure password in the "Acceder" section.
-- **Social Login**: You can use your **Google Account** for a faster and more secure experience. Your data is protected and used only for authentication.
+### Registro e Inicio de Sesión
+- **Estándar**: Regístrate con tu correo electrónico y una contraseña segura en la sección "Acceder".
+- **Inicio de Sesión Social**: Puedes usar tu **Cuenta de Google** para una experiencia más rápida y segura. Tus datos están protegidos y se usan solo para la autenticación.
 
-## 2. Browsing the Catalog
-- **Global Filters**: Use the top navigation bar to filter by categories like "Hombre" or "Mujer".
-- **Search**: Use the search icon in the menu to find specific products by name.
-- **Product Details**: Click on a product to view detailed information, high-quality images, and available sizes.
+## 2. Navegación por el Catálogo
+- **Filtros Globales**: Usa la barra de navegación superior para filtrar por categorías como "Hombre" o "Mujer".
+- **Búsqueda**: Usa el icono de búsqueda en el menú para encontrar productos específicos por nombre.
+- **Detalles del Producto**: Haz clic en un producto para ver información detallada, imágenes de alta calidad y tallas disponibles.
 
-## 3. Shopping Experience
-- **Cart**: Add products to your cart by selecting a size and quantity.
-- **Checkout**: Review your items in the "Cesta" section. Follow the steps to complete your order.
-- **Notifications**: Once your order is placed, you will receive an aesthetic confirmation email with your order details.
+## 3. Experiencia de Compra
+- **Carrito**: Añade productos a tu carrito seleccionando una talla y cantidad.
+- **Pago (Checkout)**: Revisa tus artículos en la sección "Cesta". Sigue los pasos para completar tu pedido.
+- **Notificaciones**: Una vez realizado el pedido, recibirás un correo electrónico de confirmación estético con los detalles de tu pedido.
 
-## 4. Administration Features (Staff Only)
-Users with the **Admin** role have access to the "Panel Admin":
-- **Analytics**: View store summaries and traffic data.
-- **Orders**: Manage order statuses (Ready to ship, Cancelled, Completed).
-- **Users**: Manage user roles and permissions.
-- **Products**: Import products from Excel/CSV files and manage the inventory.
+## 4. Funciones de Administración (Solo Personal)
+Los usuarios con el rol **Admin** tienen acceso al "Panel Admin":
+- **Analíticas**: Visualiza resúmenes de la tienda y datos de tráfico.
+- **Pedidos**: Gestiona los estados de los pedidos (Listo para enviar, Cancelado, Completado).
+- **Usuarios**: Gestiona roles y permisos de usuarios.
+- **Productos**: Importa productos desde archivos Excel/CSV y gestiona el inventario.
 
-## 5. FAQ & Support
-- **Issue Reporting**: Use the "Ayuda" link in the footer to send technical issues or questions to our support team.
-- **Common Issues**:
-    - *Can't log in with Google?* Ensure you are logged into your Google account in the browser.
-    - *Order not showing?* Check your "User Reviews" or "Orders" section in your profile.
+## 5. Preguntas Frecuentes y Soporte
+- **Reporte de Problemas**: Usa el enlace "Ayuda" en el pie de página para enviar problemas técnicos o preguntas a nuestro equipo de soporte.
+- **Problemas Comunes**:
+    - *¿No puedes iniciar sesión con Google?* Asegúrate de haber iniciado sesión en tu cuenta de Google en el navegador.
+    - *¿No aparece el pedido?* Revisa la sección "Mis Reseñas" o "Pedidos" en tu perfil.
 
-## 6. Test Credentials
-The following accounts are available for system validation (do not use for personal data):
+## 6. Credenciales de Prueba
+Las siguientes cuentas están disponibles para la validación del sistema (no las uses para datos personales):
 - **Admin**: `admin@test.com` / `passadmin`
-- **Customer**: `user@test.com` / `passuser`
+- **Cliente**: `user@test.com` / `passuser`
