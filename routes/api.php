@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Api\ReviewController;
+
 use App\Http\Controllers\Api\ProductController as ApiProductController;
 use App\Http\Controllers\Api\ProductImportController;
 
@@ -31,6 +33,10 @@ Route::name('api.')->group(function () {
             // Endpoints de actualizacion de perfil de usuario
             Route::put('/update-profile', [ProfileController::class, 'update'])->name('user.update-profile');
             Route::put('/update-password', [PasswordController::class, 'update'])->name('user.update-password');
+
+            Route::get('/reviews/products/{product}', [ReviewController::class, 'getRewiewsFromProduct'])->name('reviews.from-product');
+            Route::post('/reviews/products/{product}', [ReviewController::class, 'addRewiew'])->name('reviews.add');
+            
         }
         );
 

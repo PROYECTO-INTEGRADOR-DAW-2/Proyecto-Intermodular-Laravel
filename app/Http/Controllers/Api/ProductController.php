@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Api;
-
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\BaseController;
 use App\Http\Requests\ProductRequest;
 use App\Http\Resources\ProductResource;
 use Illuminate\Http\Request;
@@ -10,13 +9,12 @@ use App\Models\Product;
 
 
 
-class ProductController extends Controller
+class ProductController extends BaseController
 {
     public function index(Request $request)
     {
         
         $query = Product::query();
-
     
         // 1. Para el nombre (string)
         $query->when($request->input('nombre'), function ($q, $input) {
@@ -82,8 +80,6 @@ class ProductController extends Controller
     public function getMostPurchasedProducts() {
 
         
-
-
     }
 
     public function show(Product $product)

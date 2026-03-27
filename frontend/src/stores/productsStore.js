@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
-import { fetchProducts, fetchMostPurchasedProducts } from '../services/api.js'
+import { fetchProducts, fetchProduct, fetchMostPurchasedProducts } from '../services/api.js';
+import { useMessageStore} from '../stores/messageStore.js';
+
 
 export const useProductsStore = defineStore('products', {
     state: () => ({
         mostPurchasedProducts: [],
         products: [],
         meta: null,
-        messages: [],
         debug: true
     }),
     actions: {
@@ -14,14 +15,25 @@ export const useProductsStore = defineStore('products', {
             const response = await fetchProducts(query);
 
             if (response.success) {
-                this.addMensajeAction("success", response.message)
+                this.addMessageAction("success", response.message)
                 const payload = response.data.data;
                 this.products = payload.data || payload;
                 this.meta = response.data.meta || payload.meta || null;
                 return response;
             } else {
-                this.addMensajeAction("error", response.message)
+                this.addMessageAction("error", response.message)
                 return false;
+            }
+        },
+
+        async getProduct(id) {
+            const response = await fetchProduct(id);
+
+            if (response.success) {
+                return response.data;
+            } else {
+                this.addMessageAction('error', response.data);
+                return response;
             }
         },
 
@@ -29,23 +41,16 @@ export const useProductsStore = defineStore('products', {
             const response = await fetchMostPurchasedProducts();
 
             if (response.success) {
-                this.debug && this.addMensajeAction("success", response.message) 
+                this.debug && this.addMessageAction("success", response.message) 
                 return response
             } else {
-                this.debug && this.addMensajeAction("")
+                this.debug && this.addMessageAction("error", response.message)
             }
         },
 
-        addMensajeAction(type, message) {
-            switch (type) {
-                case "success":
-                    this.messages.push({type, message})
-                    break;
-            
-                case "error":
-                    this.messages.push({type, message})
-                    break;
-            }
+        addMessageAction(type, message) {
+            const messageStore = useMessageStore();
+            messageStore.addMessage({ type, message });
         }
     }
 })

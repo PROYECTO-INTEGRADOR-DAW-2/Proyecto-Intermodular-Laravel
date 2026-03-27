@@ -68,6 +68,39 @@ const fetchProducts = async (query = {}) => {
     }
 }
 
+const fetchProduct = async (id) => {
+    try {
+        console.log(`Axios: Fetching product with id: ${id}`);
+        const response = await publicApi.get(`products/${id}`)
+
+        
+        console.log("Axios: Response received:", response.data);
+
+        return {
+            success: true,
+            data: response.data,
+            message: "Producto cargado correctamente"
+        }
+
+    } catch (error) {
+        console.error("Axios: Error in fetchProduct:", error);
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al cargar los productos"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
 const fetchMostPurchasedProducts = async () => {
     try {
         const response = await publicApi.get('/most-purchased');
@@ -144,17 +177,18 @@ const register = async (data) => {
             message: "Se ha registrado correctamente"
         }
     } catch (error) {
-        if (error.response || error.statusText) {
+        if (error.response) {
             return {
                 success: false,
-                data: `Error ${error.response.status || 'Tipo sin especificar'} : ${error.statusText || 'Descripcion sin especificar'}`,
-                message: "Ha habido un error al registrarse"
+                data: error.response.data,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response.data.message || "Ha habido un error al actualizar el perfil"
             }
         } else {
             return {
                 success: false,
                 data: error.message || 'Sin descripcion de error',
-                message: "Ha habido un error al intentar registrarse"
+                message: "Ha habido un error al intentar actualizar el perfil"
             }
         }
     }
@@ -171,10 +205,11 @@ const updateProfile = async (data) => {
         }
 
     } catch (error) {
-        if (error.response || error.statusText) {
+        if (error.response) {
             return {
                 success: false,
-                data: `Error ${error.response.status || 'Tipo sin especificar'} : ${error.statusText || 'Descripcion sin especificar'}`,
+                data: `Error ${error.response.status || 'Tipo sin especificar'}`,
+                info: error.response.data.info || 'Sin informacion',
                 message: "Ha habido un error al registrarse"
             }
         } else {
@@ -199,19 +234,18 @@ const updatePassword = async (data) => {
         }
 
     } catch (error) {
-        console.log(error)
-
-        if (error.response || error.statusText) {
+        if (error.response) {
             return {
                 success: false,
-                data: `Error ${error.response.status || 'Tipo sin especificar'} : ${error.statusText || 'Descripcion sin especificar'}`,
-                message: "Ha habido un error al registrarse"
+                data: error.response.data,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response.data.message || "Ha habido un error al cambiar la contraseña"
             }
         } else {
             return {
                 success: false,
                 data: error.message || 'Sin descripcion de error',
-                message: "Ha habido un error al intentar registrarse"
+                message: "Ha habido un error al intentar cambiar la contraseña"
             }
         }
     }
@@ -237,6 +271,7 @@ const fetchUser = async () => {
 
 export {
     fetchProducts,
+    fetchProduct,
     fetchMostPurchasedProducts,
     login,
     register,

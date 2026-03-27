@@ -8,8 +8,7 @@
     const authStore = useAuthStore();
     const route = useRoute();
     
-    // 1. Usamos una constante reactiva o directamente el store
-    // Importante: El nombre de las llaves debe coincidir con el 'name' de los <Field>
+
     const initialData = {
         nombre: authStore.user?.nombre || '',
         apellidos: authStore.user?.apellidos || '',
@@ -25,16 +24,31 @@
     });
 
     const schemaPassword = yup.object({
-        contraseña_actual: yup.string().required('La contraseña antigua es obligatoria'),
+        contraseña_actual: yup.string().required('La contraseña antigua es obligatoria').min(8, 'Debe tener al menos 8 caracteres'),
         contraseña_nueva: yup.string().required('La contraseña nueva es obligatoria')
+        .matches(/[A-Z]/, 'Debe tener al menos una letra mayuscula')
+        .matches(/[a-z]/, 'Debe contener al menos una letra minúscula')
+        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Debe contener al menos un símbolo (!@#$%^&...)')
     });
 
-    const onSubmitProfile = (values) => {
-        authStore.updateProfileAction(values);
+    const onSubmitProfile = async (values, { setFieldError }) => {
+        const response = await authStore.updateProfileAction(values);
+        
+        if (!response.success && response.info) {
+             Object.entries(response.info).forEach(([field, messages]) => {
+                setFieldError(field, messages[0]);
+            });
+        }
     };
 
-    const onSubmitPassword = (values) => {
-        authStore.updatePasswordAction(values);
+    const onSubmitPassword = async (values, { setFieldError }) => {
+        const response = await authStore.updatePasswordAction(values);
+
+        if (!response.success && response.info) {
+             Object.entries(response.info).forEach(([field, messages]) => {
+                setFieldError(field, messages[0]);
+            });
+        }
     }
 
     let currentTab = "#datos-personales";

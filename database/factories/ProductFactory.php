@@ -35,7 +35,7 @@ class ProductFactory extends Factory
             'deporte' => fake()->randomElement(["Trail"]),
             'oferta' => fake()->boolean(),
             'novedad' => fake()->boolean(),
-            'img' => fake()->imageUrl(),
+            'img' => "",
         ];
     }
 }

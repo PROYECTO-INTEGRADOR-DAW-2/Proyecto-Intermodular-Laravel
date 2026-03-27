@@ -26,7 +26,7 @@
 
     //Funcion para generar URL de la imagen
     const getProductImgUrl = (product) => {
-        if (!product?.marca || !product?.categoria || !product?.img) return '/img/placeholder.png';
+        if (!product?.marca || !product?.categoria || !product?.img ) return '/img/no-image.png';
         
         try {
             const productBrand = product.marca.charAt(0).toUpperCase() + product.marca.slice(1);
@@ -103,6 +103,7 @@
 
 <style scoped>
     .main-container {
+        margin-top: 5em;
         display: grid;
         grid-template-areas: "filter products";
         grid-template-columns: 0.5fr 3fr;
@@ -111,11 +112,12 @@
     .products-container {
         grid-area: products;
         width: 90%;
-        gap: 10px 10px;
+        gap: 40px 40px;
         justify-self: center;
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(4, 1fr);
+        
     }
 
     .product {
@@ -125,6 +127,7 @@
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: 1fr;
+        gap: 20px 0;
     }
 
     .product-img-container {
@@ -132,9 +135,10 @@
     }
 
     .product-img {
-        width: 300px;
+        width: 100%;
         height: 300px;
     }
+
 
     .product-name {
         font-size: 20px;
@@ -143,5 +147,7 @@
     .product-price {
         font-size: 18px;
     }
+
+
 
 </style>
