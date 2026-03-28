@@ -13,6 +13,7 @@ services:
     container_name: app
     ports:
       - "8000:80"
+      - "443:443"
     volumes:
       - ./:/home/app/ftp
       - ./public:/home/app/ftp/www
@@ -22,13 +23,14 @@ services:
       APP_ENV: ${APP_ENV:-local}
       APP_DEBUG: "${APP_DEBUG:-true}"
       APP_URL: ${APP_URL:-https://app.projectegrupb.es}
-      DB_HOST: ${DB_HOST:-database-cpr.cluster-cqe0droetm2x.us-east-1.rds.amazonaws.com}
-      DB_PORT: ${DB_PORT:-3306}
+      DB_HOST: db
       DB_DATABASE: ${DB_DATABASE:-laravel}
-      DB_USERNAME: ${DB_USERNAME:-admin}
-      DB_PASSWORD: ${DB_PASSWORD:-passadmin}
+      DB_USERNAME: ${DB_USERNAME:-laravel}
+      DB_PASSWORD: ${DB_PASSWORD:-laravel}
       REDIS_HOST: redis
     depends_on:
+      db:
+        condition: service_healthy
       redis:
         condition: service_started
 
@@ -56,22 +58,25 @@ services:
       DB_DATABASE: ${DB_DATABASE:-laravel}
       DB_USERNAME: ${DB_USERNAME:-laravel}
       DB_PASSWORD: ${DB_PASSWORD:-laravel}
-    # removed depends_on: db as it is missing from this file
+    depends_on:
+      db:
+        condition: service_healthy
 
   frontend:
     profiles: ["frontend"]
     networks:
       - laravel-network
     build:
-      context: .
-      dockerfile: docker/frontend/Dockerfile
-      target: production-stage
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile
     container_name: frontend
     ports:
-      - "80:80"
-      - "443:443"
+      - "5173:5173"
     volumes:
-      - ./backups:/home/backupuser/ftp/fitxers:ro
+      - ./frontend:/app
+      - /app/node_modules # Map a volume to node_modules to avoid host system conflicts
+    environment:
+      - HOST=0.0.0.0
     restart: always
   ftp:
     networks:
@@ -93,6 +98,25 @@ services:
       - MAX_PORT=30050
     restart: always
 
+  db:
+    networks:
+      - laravel-network
+    image: mysql:8.4
+    container_name: db
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}" ]
+      retries: 3
+      timeout: 5s
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-laravel}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
   redis:
     networks:
       - laravel-network
@@ -102,21 +126,23 @@ services:
       - "6379:6379"
 
   phpmyadmin:
+    networks:
+      - laravel-network
     image: phpmyadmin:latest
     container_name: phpmyadmin
     environment:
-      PMA_HOST: database-cpr.cluster-cqe0droetm2x.us-east-1.rds.amazonaws.com
-      PMA_PORT: 3306
-      PMA_USER: admin
-      PMA_PASSWORD: passadmin
-      PMA_ABSOLUTE_URL: https://Balanceador-CPR-190026219.us-east-1.elb.amazonaws.com/phpmyadmin
+      PMA_HOST: db
+      PMA_USER: ${DB_USERNAME:-laravel}
+      PMA_PASSWORD: ${DB_PASSWORD:-laravel}
     ports:
       - "8080:80"
-    networks:
-      - laravel-network
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
+
 
 networks:
   laravel-network:

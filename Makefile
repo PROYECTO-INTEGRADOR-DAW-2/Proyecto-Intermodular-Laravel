@@ -1,67 +1,59 @@
-# Variables
-DOCKER_COMPOSE = docker compose --profile app --profile frontend
-EXEC_APP = $(DOCKER_COMPOSE) exec -u www-data app
+SHELL := /bin/bash
 
-.PHONY: up down reset sh logs setup migrate test artisan composer npm build dev
-
-# Archivo de entorno (se crea si no existe)
-.env:
-	@echo "Configurando archivo .env..."
-	@copy .env.example .env 2>nul || cp .env.example .env 2>nul || echo ".env ya existe o error al copiar"
-
-# Comando principal de inicio: Construye, levanta y configura todo
-setup: .env
-	@echo "Iniciando configuracion de la aplicacion..."
-	$(DOCKER_COMPOSE) up -d --build
-	@echo "Ajustando permisos y configuracion de Git..."
-	@$(DOCKER_COMPOSE) exec -u root app chown -R www-data:www-data /home/app/ftp
-	@$(DOCKER_COMPOSE) exec -u root app git config --system --add safe.directory /home/app/ftp
-	@echo "Instalando dependencias de PHP (esto puede tardar la primera vez)..."
-	$(EXEC_APP) composer install --no-scripts --no-interaction
-	@echo "Generando clave de aplicacion..."
-	$(EXEC_APP) php artisan key:generate --ansi
-	@echo "Actualizando paquetes de Laravel..."
-	$(EXEC_APP) php artisan package:discover --ansi
-	@echo "Creando enlaces de almacenamiento (storage)..."
-	$(EXEC_APP) php artisan storage:link
-	@echo "Ejecutando migraciones de base de datos..."
-	$(EXEC_APP) php artisan migrate --force
-	@echo "Aplicacion lista en: https://app.projectegrupb.es"
+.PHONY: up down reset sh logs install migrate test artisan
 
 up:
-	$(DOCKER_COMPOSE) up -d
+	docker compose up -d --build
 
 down:
-	$(DOCKER_COMPOSE) down --remove-orphans
+	docker compose down
 
 reset:
-	$(DOCKER_COMPOSE) down -v --remove-orphans
+	docker compose down -v
 	rm -rf vendor node_modules bootstrap/cache/*.php public/storage
-	@echo "✅ Entorno limpiado. Ejecuta 'make setup' para empezar de cero."
+	rm -f .env
+
 
 sh:
-	$(EXEC_APP) bash
+	docker compose exec -u www-data app bash
 
 logs:
-	$(DOCKER_COMPOSE) logs -f --tail=100
+	docker compose logs -f --tail=100
+
+install:
+	# Crea Laravel solo si no existe (no pisa nada)
+	if [ ! -f artisan ]; then \
+		docker compose run --rm -u www-data app bash -lc 'set -e; \
+		  composer create-project laravel/laravel /tmp/laravel; \
+		  shopt -s dotglob; \
+		  cp -an /tmp/laravel/* /home/app/ftp/'; \
+	fi
+	cp -n .env.example .env || true
+	docker compose run --rm -u www-data app php artisan key:generate
+	docker compose run --rm -u www-data app php artisan storage:link
 
 migrate:
-	$(EXEC_APP) php artisan migrate
+	docker compose run --rm -u www-data app php artisan migrate
 
 test:
-	$(EXEC_APP) php artisan test -q
+	docker compose run --rm -u www-data app php artisan test -q
 
 artisan:
-	@$(EXEC_APP) php artisan $(CMD)
-
+	@docker compose run --rm -u www-data app php artisan $(CMD)
+	@true
+	
 composer:
-	@$(EXEC_APP) composer $(CMD)
+	@docker compose run --rm -u www-data app composer $(CMD)
+	@true
 
 npm:
-	@$(EXEC_APP) npm $(CMD)
+	@docker compose run --rm -u www-data app npm $(CMD)
+	@true
 
 build:
-	@$(EXEC_APP) bash -c "npm install && npm run build"
+	@docker compose run --rm -u www-data app bash -c "npm install && npm run build"
+	@true
 
 dev:
-	@$(EXEC_APP) npm run dev
+	@docker compose run --rm -u www-data app npm run dev
+	@true
