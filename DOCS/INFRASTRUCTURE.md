@@ -29,9 +29,8 @@
 graph LR
     Internet((Internet)) -->|Puerto 443| ALB[Application Load Balancer]
     ALB -->|Puerto 80| Nginx[Proxy/Contenedor Nginx]
-    Nginx -->|FastCGI| App[Contenedor Laravel]
-    App -->|Puerto 3306| RDS[(Cluster AWS RDS)]
-    App -->|Puerto 6379| Redis[(Redis)]
+    Nginx -->|Proxy| App[Contenedor Laravel]
+    App -->|Puerto 3306| RDS[(AWS RDS)]
 ```
 
 ## Pipelines de CI/CD (GitHub Actions)
