@@ -2,6 +2,7 @@
 # Stage 1: Build stage
 FROM node:20-alpine as build-stage
 WORKDIR /app
+ENV NODE_OPTIONS=--max-old-space-size=4096
 COPY frontend/package*.json ./
 RUN npm install
 COPY frontend/ .
