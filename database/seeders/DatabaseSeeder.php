@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
          'name' => 'Test User',
          'email' => 'test@example.com',
          ]);*/
-        //Comentario para workflow backend
+
         $this->call([
             ProductSeeder::class ,
             RoleSeeder::class ,
