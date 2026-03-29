@@ -1,1 +1,0 @@
-import{_ as o,c as s,a,o as t}from"./index-C0QsT7GH.js";const r={},n={class:"about"};function c(d,e){return t(),s("div",n,[...e[0]||(e[0]=[a("h1",null,"Página Sobre Nosotros",-1),a("p",null,"Esta es una ruta cargada de forma perezosa (lazy-loaded).",-1)])])}const _=o(r,[["render",c],["__scopeId","data-v-e74ef5fa"]]);export{_ as default};
