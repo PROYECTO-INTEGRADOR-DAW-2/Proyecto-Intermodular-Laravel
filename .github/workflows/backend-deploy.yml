@@ -39,6 +39,7 @@ jobs:
       - name: Deploy to Production
         run: |
           cd ${{ secrets.PROD_PATH }}
+          git config --global --add safe.directory ${{ secrets.PROD_PATH }}
           git pull origin main
           # Hem tret el guionet de docker-compose
           COMPOSE_PROFILES=app docker compose up -d --build app
