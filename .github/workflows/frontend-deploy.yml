@@ -1,4 +1,4 @@
-name: Frontend CI/CD (Optimizado)
+name: Frontend CI/CD (Optimizado v2)
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest # <--- Compilamos en GitHub (RAM de sobra)
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
@@ -28,16 +28,25 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: self-hosted # <--- Solo desplegamos en tu servidor
+    runs-on: self-hosted
     steps:
+      # 1. ACTUALIZAR CÓDIGO Y LIMPIAR EL SERVIDOR (EVITA EL ERROR DE PERMISOS/MERGE)
+      - name: Update code and Reset
+        run: |
+          cd ${{ secrets.PROD_PATH }}
+          git config --global --add safe.directory ${{ secrets.PROD_PATH }}
+          git reset --hard
+          git pull origin main --no-edit
+
+      # 2. DESCARGAR EL BUILD DESDE GITHUB (Sustituye la carpeta dist por la fresca del build)
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-dist
           path: ${{ secrets.PROD_PATH }}/frontend/dist
+
+      # 3. REINICIAR DOCKER
       - name: Restart Frontend Container
         run: |
           cd ${{ secrets.PROD_PATH }}
-          git config --global --add safe.directory ${{ secrets.PROD_PATH }}
-          git pull origin main --no-edit
           COMPOSE_PROFILES=frontend docker compose up -d --build frontend
