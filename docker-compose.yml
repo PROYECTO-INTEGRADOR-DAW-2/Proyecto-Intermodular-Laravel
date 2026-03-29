@@ -22,7 +22,7 @@ services:
       APP_ENV: ${APP_ENV:-local}
       APP_DEBUG: "${APP_DEBUG:-true}"
       APP_URL: ${APP_URL:-https://app.projectegrupb.es}
-      DB_HOST: ${DB_HOST:-database-cpr.cluster-cqe0droetm2x.us-east-1.rds.amazonaws.com}
+      DB_HOST: ${DB_HOST:-database-1-cluster.cluster-c5e80iwyusdr.us-east-1.rds.amazonaws.com}
       DB_PORT: ${DB_PORT:-3306}
       DB_DATABASE: ${DB_DATABASE:-laravel}
       DB_USERNAME: ${DB_USERNAME:-admin}
@@ -105,11 +105,11 @@ services:
     image: phpmyadmin:latest
     container_name: phpmyadmin
     environment:
-      PMA_HOST: database-cpr.cluster-cqe0droetm2x.us-east-1.rds.amazonaws.com
+      PMA_HOST: database-1-cluster.cluster-c5e80iwyusdr.us-east-1.rds.amazonaws.com
       PMA_PORT: 3306
       PMA_USER: admin
       PMA_PASSWORD: passadmin
-      PMA_ABSOLUTE_URL: https://Balanceador-CPR-190026219.us-east-1.elb.amazonaws.com/phpmyadmin
+      PMA_ABSOLUTE_URL: https://alb-pi-367108852.us-east-1.elb.amazonaws.com/phpmyadmin
     ports:
       - "8080:80"
     networks:
