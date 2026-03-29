@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: Frontend CI/CD (Optimizado)
 
 on:
   push:
@@ -7,20 +7,37 @@ on:
       - "frontend/**"
 
 jobs:
-  build-and-deploy:
-    runs-on: self-hosted # <--- EL TEU RUNNER!
+  build:
+    runs-on: ubuntu-latest # <--- Compilamos en GitHub (RAM de sobra)
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
+      - uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          
-      - name: Build and Restart
+      - name: Build
+        run: |
+          cd frontend
+          npm install
+          npm run build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+
+  deploy:
+    needs: build
+    runs-on: self-hosted # <--- Solo desplegamos en tu servidor
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: ${{ secrets.PROD_PATH }}/frontend/dist
+      - name: Restart Frontend Container
         run: |
           cd ${{ secrets.PROD_PATH }}
           git config --global --add safe.directory ${{ secrets.PROD_PATH }}
-          git pull origin main
+          git pull origin main --no-edit
           COMPOSE_PROFILES=frontend docker compose up -d --build frontend
