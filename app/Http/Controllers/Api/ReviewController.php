@@ -9,29 +9,36 @@ use App\Models\Review;
 
 class ReviewController extends Controller
 {
-    public function store(Request $request, $productId)
+    public function store(Request $request, Product $product)
     {
         try {
-            $product = Product::findOrFail($productId);
-            
             $validated = $request->validate([
                 'rating' => 'required|integer|min:1|max:5',
                 'comment' => 'required|string|max:1000',
             ]);
 
-            \Illuminate\Support\Facades\Log::info('Creating review', ['user' => $request->user()->id, 'product' => $productId]);
+            $userId = $request->user()->id;
+
+            \Illuminate\Support\Facades\Log::info('Creating review', [
+                'user_id' => $userId,
+                'product_id' => $product->id
+            ]);
 
             $review = Review::create([
-                'user_id' => $request->user()->id,
-                'product_id' => $productId,
+                'user_id' => $userId,
+                'product_id' => $product->id,
                 'rating' => $validated['rating'],
                 'comment' => $validated['comment'],
             ]);
 
             return response()->json($review->load('user'), 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['error' => 'Validación fallida', 'messages' => $e->errors()], 422);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Review error: ' . $e->getMessage());
-            return response()->json(['error' => 'Server Error: ' . $e->getMessage()], 500);
+            \Illuminate\Support\Facades\Log::error('Review error: ' . $e->getMessage(), [
+                'stack' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Error al guardar la valoración: ' . $e->getMessage()], 500);
         }
     }
 
