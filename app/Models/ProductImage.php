@@ -49,8 +49,9 @@ class ProductImage extends Model
             $categoryFolder = strtolower($product->categoria);
             $pathWithCategory = $folder . '/' . $categoryFolder . '/' . $value;
             
-            // Check existence in public folder
-            if (file_exists(public_path($pathWithCategory))) {
+            // Check existence in frontend/public (where Vue assets live)
+            $frontendPublicPath = base_path('frontend/public/' . $pathWithCategory);
+            if (file_exists($frontendPublicPath)) {
                 return asset($pathWithCategory);
             }
         }

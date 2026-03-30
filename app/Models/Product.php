@@ -50,18 +50,19 @@ class Product extends Model
             $folder = 'imgAsics';
         }
 
-        // Check if image exists in category subfolder
+        // Build path with category subfolder
         if ($this->categoria) {
             $categoryFolder = strtolower($this->categoria);
             $pathWithCategory = $folder . '/' . $categoryFolder . '/' . $this->img;
-            
-            // Check existence in public folder
-            if (file_exists(public_path($pathWithCategory))) {
+
+            // Check existence in frontend/public (where Vue assets live)
+            $frontendPublicPath = base_path('frontend/public/' . $pathWithCategory);
+            if (file_exists($frontendPublicPath)) {
                 return asset($pathWithCategory);
             }
         }
 
-        // Fallback to brand folder
+        // Fallback to brand folder (without category subfolder)
         return asset($folder . '/' . $this->img);
     }
 }
