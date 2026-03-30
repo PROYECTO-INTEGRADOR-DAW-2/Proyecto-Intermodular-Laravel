@@ -2,7 +2,8 @@
 
 ## 1. Introducción
 
-Para usar la aplicación, navega a `http://localhost` (local) o `https://app.projectegrupb.es` (producción).
+Para usar la aplicación, navega a `http://localhost` (local) o `http://app.projectegrupb.es` (producción).
+NOTA: Debe de añadir en el archivo hosts de su sistema un registro nuevo 54.242.236.242 app.projectegrupb.es debido a que el dominio no esta comprado
 
 ### Registro e Inicio de Sesión
 
@@ -41,5 +42,5 @@ Los usuarios con el rol **Admin** tienen acceso al "Panel Admin":
 
 Las siguientes cuentas están disponibles para la validación del sistema (no las uses para datos personales):
 
-- **Admin**: `admin@test.com` / `passadmin`
-- **Cliente**: `user@test.com` / `passuser`
+- **Admin**: `jorgevidalgisbert@gmail.com` / `123456789`
+- **Cliente**: `albertdangavicol@gmail.com` / `123456789`
