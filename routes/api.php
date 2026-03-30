@@ -15,6 +15,7 @@ Route::get('oauth/google/callback', [SocialAuthController::class , 'callback']);
 Route::get('/user', function (Request $request) {
     $user = $request->user()->load('roles');
     return response()->json([
+        'id'    => $user->id,
         'name'  => $user->nombre,
         'email' => $user->email,
         'role'  => $user->role,
