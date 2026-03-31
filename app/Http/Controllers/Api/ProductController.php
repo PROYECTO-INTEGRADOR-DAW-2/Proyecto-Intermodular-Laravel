@@ -1,11 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\Api;
+
 use App\Http\Controllers\Api\BaseController;
-use App\Http\Requests\ProductRequest;
-use App\Http\Resources\ProductResource;
-use Illuminate\Http\Request;
+
 use App\Models\Product;
+
+use App\Http\Resources\ProductResource;
+
+use Illuminate\Http\Request;
+use App\Http\Requests\ProductRequest;
 
 
 

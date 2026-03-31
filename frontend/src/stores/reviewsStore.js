@@ -1,16 +1,16 @@
 import { defineStore } from 'pinia'
-import { fetchReviewsFromProduct, addReview } from '../services/api.js';
+import { fetchReviewsFromProduct } from '../services/api.js';
 import { useMessageStore} from '../stores/messageStore.js';
 
 
 
-const useReviewsStore = defineStore('reviews', {
+export const useReviewsStore = defineStore('reviews', {
     state : () => ({
         reviews: []
     }),
     actions: {
         async getReviewsFromProduct(id) {
-            const response = fetchReviewsFromProduct(id);
+            const response = await fetchReviewsFromProduct(id);
 
             if (response.success) {
                 this.addMessageAction("success", response.message)
@@ -20,7 +20,9 @@ const useReviewsStore = defineStore('reviews', {
                 return response
             }
         },
-
+        async addReviewAction(data, productid) {
+            // const response = addReview()
+        },
         async addMessageAction(type, message) {
             const messageStore = useMessageStore();
             messageStore.addMessage({ type, message });

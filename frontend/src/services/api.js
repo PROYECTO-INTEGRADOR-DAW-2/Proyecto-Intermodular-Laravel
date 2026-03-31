@@ -26,6 +26,8 @@ privateApi.interceptors.request.use(config => {
     return config;
 });
 
+// PRODUCT METHODS
+
 const fetchProducts = async (query = {}) => {
     try {
         console.log("Axios: Fetching products with query:", query);
@@ -123,6 +125,38 @@ const fetchMostPurchasedProducts = async () => {
                 success: false,
                 data: error.message || 'Sin descripcion de error',
                 message: "Ha habido un error al cargar los productos"
+            }
+        }
+    }
+}
+
+// REVIEW METHODS
+
+const fetchReviewsFromProduct = async (product) => {
+    try {
+        const response = await publicApi.get(`/products/${product}/reviews`)
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message
+        }
+
+    } catch (error) {
+        console.error("Axios: Error in fetchReviewsFromProduct:", error);
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al cargar los productos"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
             }
         }
     }
@@ -273,6 +307,7 @@ export {
     fetchProducts,
     fetchProduct,
     fetchMostPurchasedProducts,
+    fetchReviewsFromProduct,
     login,
     register,
     updateProfile,

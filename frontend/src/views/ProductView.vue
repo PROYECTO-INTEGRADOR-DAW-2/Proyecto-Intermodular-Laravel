@@ -4,6 +4,8 @@
     import { useMessageStore } from '../stores/messageStore';
     import { useProductsStore } from '../stores/productsStore';
     import { RouterLink } from 'vue-router';
+    import Reviews from '../components/Reviews.vue';
+    import { useAuthStore } from '../stores/authStore';
 
     const route = useRoute();
     const messageStore = useMessageStore();
@@ -77,7 +79,7 @@
 
                 <button class="add-to-cart-btn">Añadir al carrito</button>
 
-                <div v-if="product.novedad" class="new-badge">Novedad</div>
+                <div v-if="product" class="new-badge">Novedad</div>
             </div>
         </div>
     </div>
@@ -87,6 +89,9 @@
         <p>No pudimos encontrar el producto que buscas.</p>
         <router-link to="/products" class="back-link">Volver al catálogo de productos</router-link>
     </div>
+
+    <Reviews v-if="product" :productId="product.id"></Reviews>
+
 </template>
 
 <style scoped>

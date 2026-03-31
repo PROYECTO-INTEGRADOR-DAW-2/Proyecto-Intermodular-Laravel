@@ -34,11 +34,13 @@ Route::name('api.')->group(function () {
             Route::put('/update-profile', [ProfileController::class, 'update'])->name('user.update-profile');
             Route::put('/update-password', [PasswordController::class, 'update'])->name('user.update-password');
 
-            Route::get('/reviews/products/{product}', [ReviewController::class, 'getRewiewsFromProduct'])->name('reviews.from-product');
-            Route::post('/reviews/products/{product}', [ReviewController::class, 'addRewiew'])->name('reviews.add');
+            
+            Route::post('/products/${product}/reviews', [ReviewController::class, 'addRewiew'])->name('reviews.add');
             
         }
         );
+
+        Route::get('/products/{product}/reviews', [ReviewController::class, 'getReviewsFromProduct'])->name('reviews.from-product');
 
         Route::get('/health', function () {
             return response()->json([

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Resources\ReviewResource;
-
 use App\Models\Review;
 use Illuminate\Http\Request;
 use App\Http\Requests\ReviewRequest;
@@ -15,9 +14,9 @@ use App\Http\Requests\ReviewRequest;
 class ReviewController extends BaseController {
 
 
-    public function getRewiewsFromProduct(Request $request) {
+    public function getReviewsFromProduct(Request $request, $product) {
 
-        $reviews = Review::where('product_id', $request->integer('product_id'));
+        $reviews = Review::where('product_id', $product)->get();
 
         return ReviewResource::collection($reviews);
     }
