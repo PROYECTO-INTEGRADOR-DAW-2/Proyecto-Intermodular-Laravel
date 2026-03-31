@@ -469,7 +469,7 @@ onMounted(async () => {
                             <tbody>
                                 <tr v-for="product in filteredProducts" :key="product.id">
                                     <td class="ps-3">
-                                        <img :src="product.img || product.image_url || '/img/placeholder.png'"
+                                        <img :src="product.image_url || '/img/placeholder.png'"
                                             :alt="product.nombre" width="48" height="48"
                                             class="rounded object-fit-cover" style="object-fit:cover;">
                                     </td>
