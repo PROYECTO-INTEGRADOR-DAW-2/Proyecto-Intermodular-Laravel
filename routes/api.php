@@ -78,6 +78,10 @@ Route::name('api.')->group(function () {
             // Product management (admin)
             Route::post('products/import', [\App\Http\Controllers\ProductImportController::class, 'store']);
             
+
+            Route::post('products/{product}', [ProductController::class, 'store']);
+            Route::put('products/{product}', [ProductController::class, 'update']);
+            Route::delete('products/{product}', [ProductController::class, 'delete']);
             // Admin can do everything with products (usually)
             // But we already have the general products resource above.
             // If admin needs specific overrides, they go here.
