@@ -79,7 +79,7 @@ Route::name('api.')->group(function () {
             Route::post('products/import', [\App\Http\Controllers\ProductImportController::class, 'store']);
             
 
-            Route::post('products/{product}', [ProductController::class, 'store']);
+            Route::post('products/', [ProductController::class, 'store']);
             Route::put('products/{product}', [ProductController::class, 'update']);
             Route::delete('products/{product}', [ProductController::class, 'delete']);
             // Admin can do everything with products (usually)
