@@ -17,4 +17,8 @@ class Product extends Model
         'novedad' => 'boolean',
     ];
 
+    public function reviews() {
+        return $this->hasMany(Review::class);
+    }
+
 }

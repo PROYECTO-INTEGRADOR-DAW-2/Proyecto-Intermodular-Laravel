@@ -3,22 +3,33 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\BaseController;
+
 use App\Http\Resources\ReviewResource;
-use App\Models\Review;
+
 use Illuminate\Http\Request;
 use App\Http\Requests\ReviewRequest;
 
-
-
+use App\Models\Product;
+use App\Models\Review;
 
 class ReviewController extends BaseController {
 
 
     public function getReviewsFromProduct(Request $request, $product) {
 
-        $reviews = Review::where('product_id', $product)->get();
+        $productFinded = Product::find($product);
 
-        return ReviewResource::collection($reviews);
+        if (!$productFinded) {
+            return $this->sendError('Producto no encontrado', [], 404);
+        }
+
+        // Forma 1 de hacerlo | $reviews = Review::where('product_id', $product)->get();
+
+        $reviews = $productFinded->reviews()->with('user')->get();
+
+        $result = ReviewResource::collection($reviews);
+
+        return $this->sendResponse($result, 'Reseñas obtenidas con exito');
     }
 
 
@@ -27,8 +38,16 @@ class ReviewController extends BaseController {
 
     }
 
-    public function addRewiew(ReviewRequest $request) {
+    public function addReview(ReviewRequest $request, $product) {
+        $productFinded = Product::find($product);
+
+        if (!$productFinded) {
+            return $this->sendError('Producto no encontrado', [], 404);
+        }
+
         $validated = $request->validated();
+        $validated['product_id'] = $product;
+        $validated['user_id'] = $request->user()->id;
 
         Review::create($validated);
 

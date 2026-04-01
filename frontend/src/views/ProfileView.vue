@@ -31,12 +31,12 @@
         .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Debe contener al menos un símbolo (!@#$%^&...)')
     });
 
-    const onSubmitProfile = async (values, { setFieldError }) => {
+    const onSubmitProfile = async (values, actions) => {
         const response = await authStore.updateProfileAction(values);
         
         if (!response.success && response.info) {
              Object.entries(response.info).forEach(([field, messages]) => {
-                setFieldError(field, messages[0]);
+                actions.setFieldError(field, messages[0]);
             });
         }
     };
@@ -49,6 +49,7 @@
                 setFieldError(field, messages[0]);
             });
         }
+
     }
 
     let currentTab = "#datos-personales";

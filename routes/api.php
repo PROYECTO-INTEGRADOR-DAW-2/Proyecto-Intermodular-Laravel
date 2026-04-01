@@ -35,7 +35,7 @@ Route::name('api.')->group(function () {
             Route::put('/update-password', [PasswordController::class, 'update'])->name('user.update-password');
 
             
-            Route::post('/products/${product}/reviews', [ReviewController::class, 'addRewiew'])->name('reviews.add');
+            Route::post('/products/{product}/reviews', [ReviewController::class, 'addReview'])->name('reviews.add');
             
         }
         );

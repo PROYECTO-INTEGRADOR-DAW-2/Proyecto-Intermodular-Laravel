@@ -101,7 +101,7 @@ export const useAuthStore = defineStore('auth', {
             localStorage.removeItem('token');
         },
 
-        addMensajeAction(type, message) {
+        addMessageAction(type, message) {
             const messageStore = useMessageStore();
             messageStore.addMessage({ type, message });
         }

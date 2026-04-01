@@ -44,7 +44,7 @@
         <p>Cargando producto...</p>
     </div>
 
-    <div v-else-if="product" class="product-page">
+    <div v-else-if="product">
         <div class="product-container">
             <div class="product-image-section">
                 <img :src="product.img || 'https://via.placeholder.com/600'" :alt="product.nombre" class="main-image">
@@ -108,7 +108,6 @@
         background: white;
         padding: 30px;
         border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     }
 
     .product-image-section {

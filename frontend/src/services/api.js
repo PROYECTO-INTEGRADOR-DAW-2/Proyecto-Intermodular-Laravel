@@ -162,6 +162,36 @@ const fetchReviewsFromProduct = async (product) => {
     }
 }
 
+const addReview = async (data, product) => {
+    try {
+        const response = await privateApi.post(`/products/${product}/reviews`, data);
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message
+        }
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al cargar los productos"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+
+
 // AUTH METHODS
 
 const login = async (data) => {
@@ -308,6 +338,7 @@ export {
     fetchProduct,
     fetchMostPurchasedProducts,
     fetchReviewsFromProduct,
+    addReview,
     login,
     register,
     updateProfile,

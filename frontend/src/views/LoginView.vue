@@ -1,13 +1,25 @@
 <script setup>
     import { ref } from 'vue';
     import { useAuthStore } from '../stores/authStore';
+    import { Form, ErrorMessage, Field } from 'vee-validate';
+    import * as yup from 'yup';
 
     const authStore = useAuthStore();
 
-    const userData = ref({
-        nombre_usuario: "",
-        contraseña: ""
-    });
+    const schemaLogin = yup.object({
+        nombre_usuario: yup.string().required("Nombre de usuario obligatorio"),
+        contraseña: yup.string().required("Contraseña obligatoria"),
+    })
+
+    const onSumbitLogin = async (values, actions) => {
+        const response = await authStore.loginAction(values);
+
+        if (!response.success && response.info) {
+            Object.entries(response.info).forEach(([field, messages]) => {
+                actions.setFieldError(field, messages[0]);
+            })
+        }
+    } 
 
 
 </script>
@@ -16,13 +28,15 @@
     <div class="form-container">
         <div class="login-container">
             <h1 style="justify-self: center;">Inicia sesion</h1>
-            <form @submit.prevent="authStore.loginAction(userData)">
+            <Form :validation-schema="schemaLogin" @submit="authStore.onSumbitLogin">
                 <div class="form-group">
-                    <input type="text" name="nombre_usuario" id="nombre_usuario" placeholder="Usuario" v-model="userData.nombre_usuario">
+                    <Field type="text" name="nombre_usuario" id="nombre_usuario" placeholder="Usuario"></Field>
+                    <ErrorMessage name="nombre_usuario" class="error-msg"></ErrorMessage>
                 </div>
 
                 <div class="form-group">
-                    <input type="password" name="contraseña" id="contraseña" placeholder="Contraseña" v-model="userData.contraseña">
+                    <Field type="password" name="contraseña" id="contraseña" placeholder="Contraseña"></Field>
+                    <ErrorMessage name="contraseña" class="error-msg"></ErrorMessage>
                 </div>
 
                 <div class="form-group">
