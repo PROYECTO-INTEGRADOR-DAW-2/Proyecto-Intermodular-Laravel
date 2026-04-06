@@ -62,12 +62,11 @@
 
         if (newQuery) {
             query.value = { ...query.value, ...newQuery };
-            emit('filter', query.value);
         }
 
-    }, { deep: true , immediate:true});
+    }, { deep: true , immediate: true});
 
-   
+
 
 
 </script>

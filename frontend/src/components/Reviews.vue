@@ -15,7 +15,6 @@
     })
 
     const newReview = ref(null);
-
     let selectedReview = ref(null);
 
 
@@ -29,17 +28,27 @@
     }
 
     const onSubmitUpdateReview = async (values) => {
-
+        console.log(values)
+        await reviewsStore.updateReviewAction(values, values.product_id, values.id);
     }
 
-    onMounted(async () => {
-        if (props?.productId) await reviewsStore.getReviewsFromProduct(props.productId)
-    })
+    const onDeleteReview = async (values) => {
+        console.log(values)
+        if(confirm("Esta seguro de eliminar la valoracion")) await reviewsStore.deleteReviewAction(values.product_id, values.id);
+    }
+
 
     const isReviewFromUser = (review) => {
+
+        if (!authStore.isAuthenticated) return
+
         return review.user_id == authStore.user.id;
         
     }
+
+    onMounted(async () => {
+        if (props?.productId) await reviewsStore.getReviewsFromProduct(props.productId);
+    })
 
 
     
@@ -73,7 +82,7 @@
                             <i class="bi bi-pencil"></i>
                         </button>
                         
-                        <button type="button" class="btn btn-danger">
+                        <button type="button" class="btn btn-danger" @click="onDeleteReview(review)">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
@@ -105,7 +114,7 @@
 
         <div class="add-review-container">
             <h1 style=" margin-bottom: 20px;">¡Tu valoracion importa mucho!</h1>
-            <Form v-if="authStore.isAuthenticated" v-slot="{ values, errors, setFieldValue }" :initial-values="{valoracion: 0, comentario: ''}"  :validation-schema="schemaReview" @submit.prevent="onSubmitAddReview" class="add-review-form">
+            <Form v-if="authStore.isAuthenticated" v-slot="{ values, errors, setFieldValue }" :initial-values="{valoracion: 0, comentario: ''}"  :validation-schema="schemaReview" @submit="onSubmitAddReview" class="add-review-form">
                 <div class="form-group">
                     <label>Valoracion:</label>
                     <div class="stars-container">

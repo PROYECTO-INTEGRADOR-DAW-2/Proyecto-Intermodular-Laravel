@@ -3,6 +3,7 @@
     import { ref, onMounted } from 'vue';
     import { useMessageStore } from '../stores/messageStore';
     import { useProductsStore } from '../stores/productsStore';
+    import { useCartStore } from '../stores/cartStore';
     import { RouterLink } from 'vue-router';
     import Reviews from '../components/Reviews.vue';
     import { useAuthStore } from '../stores/authStore';
@@ -10,6 +11,7 @@
     const route = useRoute();
     const messageStore = useMessageStore();
     const productStore = useProductsStore();
+    const cartStore = useCartStore();
 
     const product = ref(null);
     const loading = ref(true);
@@ -35,6 +37,8 @@
             loading.value = false;
         }
     });
+
+    const addToCartFormQuantity = ref(1)
 
 </script>
 
@@ -77,7 +81,12 @@
                     <p>{{ product.descripcion }}</p>
                 </div>
 
-                <button class="add-to-cart-btn">Añadir al carrito</button>
+                
+                <div class="add-to-cart-container">
+                    <input type="number" min="1" :max="product.stock" value="1" name="quantity" id="quantity" v-model.number="addToCartFormQuantity">
+                    <button class="add-to-cart-btn" @click="cartStore.addToCart(product, addToCartFormQuantity)">Añadir al carrito</button>
+                </div>
+                
 
                 <div v-if="product" class="new-badge">Novedad</div>
             </div>
@@ -217,6 +226,16 @@
         background: #D72631;
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(215, 38, 49, 0.3);
+    }
+
+    .add-to-cart-container {
+        display: grid; 
+        grid-template-columns: auto 1fr; 
+        column-gap: 5px;
+    }
+    
+    .add-to-cart-container input[type="number"]{
+        border-radius: 8px;
     }
 
     .new-badge {

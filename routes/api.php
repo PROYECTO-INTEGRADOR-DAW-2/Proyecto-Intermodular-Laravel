@@ -36,6 +36,8 @@ Route::name('api.')->group(function () {
 
             
             Route::post('/products/{product}/reviews', [ReviewController::class, 'addReview'])->name('reviews.add');
+            Route::put('/products/{product}/reviews/{review}', [ReviewController::class, 'updateReview'])->name('reviews.add');
+            Route::delete('/products/{product}/reviews/{review}', [ReviewController::class, 'deleteReview'])->name('reviews.delete');
             
         }
         );

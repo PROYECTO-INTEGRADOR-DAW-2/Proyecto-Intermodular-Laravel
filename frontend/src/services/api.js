@@ -41,7 +41,8 @@ const fetchProducts = async (query = {}) => {
                 sexo: query?.sexo,
                 precio_max: query?.precio_max,
                 novedades: query?.novedades,
-                ofertas: query?.ofertas
+                ofertas: query?.ofertas,
+                page: query?.page
             }
         });
         
@@ -178,7 +179,63 @@ const addReview = async (data, product) => {
                 success: false,
                 data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
                 info: error.response?.info || 'Sin informacion del error',
-                message: error.response?.message || "Ha habido un error al cargar los productos"
+                message: error.response?.message || "Ha habido un error al añadir la valoracion"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const updateReview = async (data, product, review) => {
+    try {
+        const response = await privateApi.put(`/products/${product}/reviews/${review}`, data);
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message
+        }
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al actualizar la valoracion"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const deleteReview = async (product, review) => {
+    try {
+        const response = await privateApi.delete(`/products/${product}/reviews/${review}`);
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message
+        }
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al eliminar la valoracion"
             }
         } else {
             return {
@@ -339,6 +396,8 @@ export {
     fetchMostPurchasedProducts,
     fetchReviewsFromProduct,
     addReview,
+    updateReview,
+    deleteReview,
     login,
     register,
     updateProfile,
