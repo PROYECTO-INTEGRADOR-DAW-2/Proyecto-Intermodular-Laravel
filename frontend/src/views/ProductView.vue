@@ -7,6 +7,7 @@
     import { RouterLink } from 'vue-router';
     import Reviews from '../components/Reviews.vue';
     import { useAuthStore } from '../stores/authStore';
+    import { useWishlistStore } from '../stores/authStore';
 
     const route = useRoute();
     const messageStore = useMessageStore();
@@ -85,6 +86,7 @@
                 <div class="add-to-cart-container">
                     <input type="number" min="1" :max="product.stock" value="1" name="quantity" id="quantity" v-model.number="addToCartFormQuantity">
                     <button class="add-to-cart-btn" @click="cartStore.addToCart(product, addToCartFormQuantity)">Añadir al carrito</button>
+                    <button class="wishlist-button" @click=""></button>
                 </div>
                 
 

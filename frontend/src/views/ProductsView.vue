@@ -81,7 +81,6 @@
 
     onMounted(() => {
         if(Object.keys(route.query).length === 0) fetchProducts();
-
     })
 
 </script>

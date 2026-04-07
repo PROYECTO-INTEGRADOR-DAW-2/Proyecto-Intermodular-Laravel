@@ -169,6 +169,7 @@
         gap: 20px;
         overflow-y: auto;
         position: relative;
+        justify-items: center;
     }
 
     .review {
@@ -176,6 +177,7 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         padding: 10px 20px;
         color: black;
+        width: 90%;
     }
 
     .review-content * {

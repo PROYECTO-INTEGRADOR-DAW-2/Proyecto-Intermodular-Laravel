@@ -1,8 +1,10 @@
 <script setup>
     import { RouterLink } from 'vue-router';
-    import {useAuthStore} from '../stores/authStore.js';
+    import { useAuthStore } from '../stores/authStore.js';
+    import { useCartStore } from '../stores/cartStore.js';
 
     const authStore = useAuthStore();
+    const cartStore = useCartStore();
 
 
 </script>
@@ -87,8 +89,9 @@
                                     </router-link>
                                 </li>
                             <li>
-                                <router-link to="/cart">
-                                    <img src="/img/carrito.png" alt="Icono del carrito">
+                                <router-link to="/cart" class="cartIcon">
+                                    <img  src="/img/carrito.png" alt="Icono del carrito">
+                                    <div v-if="cartStore.countItems" class="cart-items-number">{{ cartStore.countItems }}</div>
                                 </router-link>
                             </li>
                         </ul>
@@ -99,4 +102,25 @@
     </nav>
 
 </template>
+
+<style scoped>
+    .cart-items-number {
+        text-align: center;
+        color: white;
+        width: 25px;
+        height: 25px;
+        border-radius: 100%;
+        background-color: red;
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+
+    .cartIcon {
+        position: relative;
+    }
+
+    
+
+</style>
 
