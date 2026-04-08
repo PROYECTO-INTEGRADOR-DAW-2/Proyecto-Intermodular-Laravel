@@ -282,10 +282,10 @@ const fetchWishlist = async () => {
 
 }
 
-const deleteWishlistItem = async (product) => {
+const toggleWishlistItem = async (idItem) => {
 
     try {
-        const response = privateApi.delete(`/wishlist/${product}`);
+        const response = privateApi.post(`/wishlist`, {product_id: idItem});
         console.log("Axios: Response received:", response.data)
 
         return {
@@ -313,36 +313,6 @@ const deleteWishlistItem = async (product) => {
 
 }
 
-const addWishlistItem = async (product) => {
-
-    try {
-        const response = privateApi.post(`/wishlist`, product);
-        console.log("Axios: Response received:", response.data)
-
-        return {
-            success: true,
-            data: response.data,
-            message: response.message
-        }
-
-    } catch (error) {
-        if (error.response) {
-            return {
-                success: false,
-                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
-                info: error.response?.info || 'Sin informacion del error',
-                message: error.response?.message || "Ha habido un error al eliminar el producto de la lista de deseos" 
-            }
-        } else {
-            return {
-                success: false,
-                data: error.message || 'Sin descripcion de error',
-                message: error.message
-            }
-        }
-    }
-
-}
 
 
 // AUTH METHODS
@@ -495,8 +465,7 @@ export {
     updateReview,
     deleteReview,
     fetchWishlist,
-    addWishlistItem,
-    deleteWishlistItem,
+    toggleWishlistItem,
     login,
     register,
     updateProfile,

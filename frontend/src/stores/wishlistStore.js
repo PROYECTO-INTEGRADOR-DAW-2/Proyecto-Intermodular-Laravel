@@ -19,20 +19,8 @@ export const useWishlistStore = defineStore('wishlist', {
             }
         },
 
-        async deleteWishlistItemAction(idItem) {
-            const response = await deleteWishlistItem(idItem);
-
-            if (response.success) {
-                this.addMessageAction("success", response.message);
-                this.getWishlistAction();
-            } else {
-                this.addMessageAction("error", response.message);
-                return response
-            }
-        },
-
-        async addWishlistItemAction(product) {
-            const response = await addWishlistItem(product);
+        async toggleWishlistItemAction(idItem) {
+            const response = await toggleWishlistItem(idItem);
 
             if (response.success) {
                 this.addMessageAction("success", response.message);
@@ -46,6 +34,11 @@ export const useWishlistStore = defineStore('wishlist', {
         addMessageAction(type, message) {
             const messageStore = useMessageStore();
             messageStore.addMessage({ type, message });
-        }
+        },
+
+        
+    },
+    getters: {
+        isInWishlist: (state) => (productId) => state.items.some(item => item.id === productId)
     }
 });

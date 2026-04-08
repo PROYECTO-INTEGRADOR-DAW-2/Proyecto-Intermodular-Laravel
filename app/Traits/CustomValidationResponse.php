@@ -6,8 +6,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait CustomValidationResponse
 {
-    protected function failedValidation(Validator $validator)
-    {
+    protected function failedValidation(Validator $validator){
         throw new HttpResponseException(response()->json([
             'success' => false,
             'message' => 'Los datos enviados no son válidos',
