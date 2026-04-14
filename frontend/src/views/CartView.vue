@@ -2,7 +2,7 @@
     import { useAuthStore } from '../stores/authStore';
     import { useCartStore } from '../stores/cartStore';
     import { useWishlistStore } from '../stores/wishlistStore';
-    import { computed, onMounted, watch } from 'vue';
+    import { computed, onMounted, watch, ref } from 'vue';
     
     const cartStore = useCartStore();
     const wishlistStore = useWishlistStore();
@@ -10,6 +10,17 @@
     
     const cart = computed(() => cartStore.items);
     const wishlist = computed(() => wishlistStore.wishlistItems);
+
+    const carousel = ref(null)
+
+    const scroll = (direction) => {
+        const scrollAmount = 350; 
+        if (direction === 'left') {
+            carousel.value.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        } else {
+            carousel.value.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    };
     
     const getProductImgUrl = (product) => {
         if (!product?.marca || !product?.categoria || !product?.img ) return '/img/no-image.png';
@@ -33,9 +44,7 @@
         if(authStore.isAuthenticated) await wishlistStore.getWishlistAction();
     })
 
-    watch(() => authStore.isAuthenticated, () => {
-
-    })
+    
     
 
 </script>
@@ -84,6 +93,7 @@
 
             <div class="cart-summary">
                 <strong>Total: <span style="color: green;">{{ Number(cartStore.totalCart).toFixed(2) }}</span></strong>
+                <router-link class="purchase-cart" to="/checkout">Proceder al pago</router-link>
             </div>
         </div>
 
@@ -107,10 +117,28 @@
                 <router-link to="/products" class="back-to-products-link" style="width: 60%; ">Busca productos que deseas comprar</router-link>
             </div>
 
-            <div v-else class="wishlist-products">
-                <div v-for="(wishlistItem, index) in wishlist" class="wishlistItem">
-                    {{ wishlistItem.nombre }}
+            <div v-else class="wishlist-products" ref="carousel">
+                <div class="product" v-for="(wishlistItem, index) in wishlist" :key="index" > 
+                    <button class="delete-from-wishlist-button" @click="wishlistStore.toggleWishlistItemAction(wishlistItem.id)">x</button>
+                    <div class="product-img-container">
+                        <img :src="getProductImgUrl(wishlistItem)" class="product-img" alt="img product">
+                        <p v-if="wishlistItem.oferta" class="oferta-badge">Oferta</p>
+                    </div>
+                    <div class="product-badges">
+                        <p>{{ wishlistItem.sexo }}</p>
+                        <p>{{ wishlistItem.categoria }}</p>
+                    </div>
+                    <div class="product-details-container">
+                        <p class="product-name"> {{ wishlistItem.nombre }} </p>
+                        <p class="product-price"> {{ wishlistItem.precio }} €</p>
+                    </div>
+                    <router-link :to="{ name: 'product-details', params: { id: wishlistItem.id } }" class="button">Ver producto</router-link>
                 </div>
+            </div>
+
+            <div class="carousel-controls">
+                <button @click="scroll('left')"><i class="bi bi-chevron-left"></i></button>
+                <button @click="scroll('right')"><i class="bi bi-chevron-right"></i></button>
             </div>
 
             
@@ -176,11 +204,26 @@
 
 
 .cart-summary {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center;
     color: white;
     background-color: #1F1F1F;
     padding: 20px;
     position: sticky;
     bottom: 0;
+}
+
+.purchase-cart {
+    border: none;
+    background-color: #D72631;
+    color: white;
+    width: auto;
+    font-size: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    text-decoration: none;
 }
 
 .cart-summary *{
@@ -204,13 +247,127 @@
     text-align: center;
 }
 
-.wishlist-container{
+.wishlist-container {
     margin-bottom: 5em;
+    width: 100%;       /* Asegura que ocupe todo el ancho disponible */
+    min-width: 0;      /* CRÍTICO: permite que los hijos desborden sin empujar el contenedor */
+    overflow: hidden;  /* Evita que el contenedor entero crezca */
 }
 
 .wishlist-container > h2{
     font-size: 50px;
 }
+
+.wishlist-products {
+    padding: 30px;
+    display: grid;
+    grid-auto-flow: column;     
+    grid-auto-columns: 350px;   
+    gap: 30px;
+    overflow-x: auto;           
+    width: 100%; 
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+}
+
+.carousel-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+.carousel-controls button {
+    background: #1F1F1F;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.carousel-controls button:hover {
+    background: #D72631; /* Un color de acento */
+}
+
+
+    .product {
+        scroll-snap-align: start;
+        border-radius: 10px;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+        gap: 20px 0;
+        transition: all 0.3s ease;
+        padding: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .delete-from-wishlist-button {
+        z-index: 1;
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        border: none;
+        border-radius: 50%;
+        height: 30px;
+        width: 30px;
+        background-color: #D72631;
+        color: white;
+    }
+
+    .product:hover {
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        transform: translateY(-5px);
+    }
+
+    .product-img-container {
+        text-align: center;
+        position: relative;
+    }
+
+    .oferta-badge {
+        position: absolute;
+        top: 5%;
+        right: 5%;
+        background-color: red;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 8px;
+    }
+
+    .product-img {
+        width: 100%;
+        height: 300px;
+    }
+
+    .product-badges {
+        display: grid;
+        grid-template-columns: auto auto;
+        column-gap: 5px;
+        width: 50%;
+    }
+
+    .product-badges p {
+        margin: 0;
+        text-align: center;
+        background-color: rgba(128, 128, 128, 0.425);
+        border: 2px solid grey;
+        border-radius: 8px;
+    }
+
+
+    .product-name {
+        font-size: 20px;
+    }
+
+    .product-price {
+        font-size: 18px;
+    }
 
 .no-logued-container {
     margin: 5em;
@@ -238,14 +395,6 @@
 
 .no-wishlist-container p{
     margin: 0;
-}
-
-.wishlist-products {
-    display: grid;
-    grid-template-columns: auto;
-    grid-template-rows: 1fr;
-    column-gap: 40px;
-    overflow-x: auto;
 }
 
 

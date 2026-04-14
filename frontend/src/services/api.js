@@ -141,7 +141,7 @@ const fetchReviewsFromProduct = async (product) => {
         return {
             success: true,
             data: response.data,
-            message: response.message
+            message: response.data.message
         }
 
     } catch (error) {
@@ -171,7 +171,7 @@ const addReview = async (data, product) => {
         return {
             success: true,
             data: response.data,
-            message: response.message
+            message: response.data.message
         }
     } catch (error) {
         if (error.response) {
@@ -199,7 +199,7 @@ const updateReview = async (data, product, review) => {
         return {
             success: true,
             data: response.data,
-            message: response.message
+            message: response.data.message
         }
     } catch (error) {
         if (error.response) {
@@ -227,7 +227,7 @@ const deleteReview = async (product, review) => {
         return {
             success: true,
             data: response.data,
-            message: response.message
+            message: response.data.message
         }
     } catch (error) {
         if (error.response) {
@@ -259,7 +259,7 @@ const fetchWishlist = async () => {
         return {
             success: true,
             data: response.data,
-            message: response.message,
+            message: response.data.message,
         }
 
 
@@ -291,7 +291,7 @@ const toggleWishlistItem = async (idItem) => {
         return {
             success: true,
             data: response.data,
-            message: response.message
+            message: response.data.message
         }
 
     } catch (error) {
@@ -417,7 +417,7 @@ const updatePassword = async (data) => {
         return {
             success: true,
             data: response.data,
-            message: response.message
+            message: response.data.message
         }
 
     } catch (error) {

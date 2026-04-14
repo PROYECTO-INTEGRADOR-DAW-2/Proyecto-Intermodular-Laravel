@@ -12,7 +12,7 @@ export const useWishlistStore = defineStore('wishlist', {
 
             if (response.success) {
                 this.addMessageAction("success", response.message);
-                this.wishlistItems = response.data;
+                this.wishlistItems = response.data.data;
             } else {
                 this.addMessageAction("error", response.message)
                 return response;
