@@ -1,8 +1,8 @@
 <script setup>
     import { useAuthStore } from '../stores/authStore';
-import { useCartStore } from '../stores/cartStore';
+    import { useCartStore } from '../stores/cartStore';
     import { useWishlistStore } from '../stores/wishlistStore';
-    import { computed, onMounted } from 'vue';
+    import { computed, onMounted, watch } from 'vue';
     
     const cartStore = useCartStore();
     const wishlistStore = useWishlistStore();
@@ -30,7 +30,11 @@ import { useCartStore } from '../stores/cartStore';
     }
 
     onMounted(async () => {
-        if(authStore.isAuthenticated) await wishlist.getWishlistAction();
+        if(authStore.isAuthenticated) await wishlistStore.getWishlistAction();
+    })
+
+    watch(() => authStore.isAuthenticated, () => {
+
     })
     
 
@@ -105,7 +109,7 @@ import { useCartStore } from '../stores/cartStore';
 
             <div v-else class="wishlist-products">
                 <div v-for="(wishlistItem, index) in wishlist" class="wishlistItem">
-
+                    {{ wishlistItem.nombre }}
                 </div>
             </div>
 

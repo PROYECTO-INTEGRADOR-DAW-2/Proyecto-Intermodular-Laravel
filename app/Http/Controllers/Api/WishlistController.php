@@ -4,17 +4,20 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\BaseController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ProductResource;
 
 
-class ProfileController extends BaseController{
+
+class WishlistController extends BaseController{
 
     public function getWishlistFromUser(Request $request) {
 
         $user = $request->user();
 
         if($user) {
-            $wishlist = $user->wishlist();
+            $wishlist = $user->wishlist;
+
+            $wishlist = ProductResource::collection($wishlist);
 
             return $this->sendResponse($wishlist, "La lista de deseos se ha obtenido", 200);
             
@@ -26,7 +29,7 @@ class ProfileController extends BaseController{
 
     public function toggle(Request $request) {
         $user = $request->user();
-        $productId = $request->product_id;
+        $productId = $request->input("product_id");
 
 
         if (!$productId) {

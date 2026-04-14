@@ -253,7 +253,7 @@ const deleteReview = async (product, review) => {
 const fetchWishlist = async () => {
 
     try {
-        const response = privateApi.get('/wishlist');
+        const response = await privateApi.get('/wishlist');
         console.log("Axios: Response received:", response.data)
 
         return {
@@ -285,7 +285,7 @@ const fetchWishlist = async () => {
 const toggleWishlistItem = async (idItem) => {
 
     try {
-        const response = privateApi.post(`/wishlist`, {product_id: idItem});
+        const response = await privateApi.post(`/wishlist`, {product_id: idItem});
         console.log("Axios: Response received:", response.data)
 
         return {

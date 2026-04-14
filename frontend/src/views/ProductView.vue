@@ -44,11 +44,11 @@
 
     const addToCartFormQuantity = ref(1)
 
-    const handleToggleWishlist = () => {
+    const handleToggleWishlist = async () => {
         if (authStore.isAuthenticated) {
-            wishlist.toggleWishlistItemAction(product.id);
+            await wishlist.toggleWishlistItemAction(product.value.id);
         } else {
-            messageStore.addMessage("error", "Debes iniciar sesion para realizar esta accion")
+            messageStore.addMessage({type: "error", message: "Debes iniciar sesion para realizar esta accion"})
         }
     }
 
@@ -97,7 +97,7 @@
                 <div class="add-to-cart-container">
                     <input type="number" min="1" :max="product.stock" value="1" name="quantity" id="quantity" v-model.number="addToCartFormQuantity">
                     <button class="add-to-cart-btn" @click="cartStore.addToCart(product, addToCartFormQuantity)">Añadir al carrito</button>
-                    <button class="wishlist-button" @click="handleToggleWishlist"></button>
+                    <button class="wishlist-button" @click="handleToggleWishlist"><i :class="['bi', wishlist.isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart']"></i></button>
                 </div>
                 
 
@@ -243,13 +243,25 @@
 
     .add-to-cart-container {
         display: grid; 
-        grid-template-columns: auto 1fr; 
+        grid-template-columns: auto 1fr auto; 
         column-gap: 5px;
     }
     
     .add-to-cart-container input[type="number"]{
         border-radius: 8px;
     }
+
+    .wishlist-button {
+        height: auto;
+        width: 50px;
+        background-color: white;
+        border: 2px solid #222;
+        border-radius: 8px;
+
+    }
+
+
+    
 
     .new-badge {
         position: absolute;

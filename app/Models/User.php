@@ -73,4 +73,14 @@ class User extends Authenticatable
     {
         return $this->contraseña;
     }
-}
+
+    public function wishlist()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists', 'user_id', 'product_id');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+}   

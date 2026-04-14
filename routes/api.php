@@ -13,6 +13,8 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PasswordController;
 
+use App\Http\Controllers\Api\WishlistController;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -34,6 +36,8 @@ Route::name('api.')->group(function () {
             Route::put('/update-profile', [ProfileController::class, 'update'])->name('user.update-profile');
             Route::put('/update-password', [PasswordController::class, 'update'])->name('user.update-password');
 
+            Route::get('/wishlist', [WishlistController::class, 'getWishlistFromUser'])->name('wishlist.get');
+            Route::post('/wishlist', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
             
             Route::post('/products/{product}/reviews', [ReviewController::class, 'addReview'])->name('reviews.add');
             Route::put('/products/{product}/reviews/{review}', [ReviewController::class, 'updateReview'])->name('reviews.add');

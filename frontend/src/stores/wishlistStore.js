@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { fetchWishlist, deleteWishlistItem, addWishlistItem } from '../services/api.js';
+import { fetchWishlist, toggleWishlistItem } from '../services/api.js';
 import { useMessageStore} from '../stores/messageStore.js';
 
 export const useWishlistStore = defineStore('wishlist', {
@@ -39,6 +39,6 @@ export const useWishlistStore = defineStore('wishlist', {
         
     },
     getters: {
-        isInWishlist: (state) => (productId) => state.items.some(item => item.id === productId)
+        isInWishlist: (state) => (productId) => state.wishlistItems.some(item => item.id === productId)
     }
 });
