@@ -19,7 +19,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ProductSeeder::class,
             OrdersSeeder::class,
-            ReviewSeeder::class
+            ReviewSeeder::class,
+            TallasSeeder::class
         ]);
     }
 }

@@ -21,4 +21,8 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function sizes() {
+        return $this->belongsToMany(Talla::class, 'producto_talla');
+    }
+
 }
