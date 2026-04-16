@@ -3,17 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class BaseController extends Controller
 {
-    protected function sendResponse($result, $message, $code = 200)
+    protected function sendResponse(mixed $result, $message, $code = 200)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $result,
-            'message' => $message,
-        ], $code);
+        if ($result instanceof JsonResource) {
+            return response()->json([
+                "success" => true,
+                "data" => $result->response()->getData(true)['data'],
+                "meta" => $result->response()->getData(true)['meta'] ?? [],
+                "message" => $message,
+            ], $code);
+        } else {
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+                'message' => $message,
+            ], $code);
+        }
     }
+
 
     protected function sendError($error, $info = [], $code = 400)
     {
@@ -29,7 +40,8 @@ class BaseController extends Controller
         return response()->json($payload, $code);
     }
 
-    protected function sendMessage($message, $code) {
+    protected function sendMessage($message, $code)
+    {
 
         $payload = [
             'success' => true,

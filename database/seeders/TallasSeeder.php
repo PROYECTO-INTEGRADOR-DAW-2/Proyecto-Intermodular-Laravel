@@ -17,7 +17,7 @@ class TallasSeeder extends Seeder
     {
         $listaCategoriasTallas = CategoriaTalla::cases();
         $listaTallasNumericas = [
-            'INFANTIL' => range(20,35),
+            'INFANTIL' => range(20, 35),
             'ADULTO' => range(36, 47)
         ];
 
@@ -46,7 +46,7 @@ class TallasSeeder extends Seeder
                 case 'INFANTIL':
 
                     foreach ($listaTallasNumericas[$segmento->name] as $tallaNumerica) {
-                        
+
                         Talla::create([
                             'nombre' => $tallaNumerica,
                             'segmento' => $segmento->name,
@@ -60,11 +60,11 @@ class TallasSeeder extends Seeder
                             'genero' => 'Niña',
                             'categoria' => 'Zapatillas Infantil'
                         ]);
-                        
+
                     }
 
                     foreach ($listaTallasPrendas[$segmento->name] as $tallaPrenda) {
-                        
+
                         Talla::create([
                             'nombre' => $tallaPrenda,
                             'segmento' => $segmento->name,
@@ -78,16 +78,16 @@ class TallasSeeder extends Seeder
                             'genero' => 'Niña',
                             'categoria' => 'Prendas Infantil'
                         ]);
-                        
+
                     }
-                    
+
                     break;
 
                 case 'ADULTO':
 
                     foreach ($listaTallasNumericas[$segmento->name] as $tallaNumerica) {
-                        
-                        
+
+
                         Talla::create([
                             'nombre' => $tallaNumerica,
                             'segmento' => $segmento->name,
@@ -101,12 +101,12 @@ class TallasSeeder extends Seeder
                             'genero' => 'Hombre',
                             'categoria' => 'Zapatillas Adulto'
                         ]);
-                        
+
                     }
 
                     foreach ($listaTallasPrendas[$segmento->name] as $tallaPrenda) {
-                        
-                        
+
+
                         Talla::create([
                             'nombre' => $tallaPrenda,
                             'segmento' => $segmento->name,
@@ -118,13 +118,13 @@ class TallasSeeder extends Seeder
                             'nombre' => $tallaPrenda,
                             'segmento' => $segmento->name,
                             'genero' => 'Hombre',
-                            'categoria' => 'Prendas Infantil'
+                            'categoria' => 'Prendas Adulto'
                         ]);
-                        
+
                     }
-                    
+
                     break;
-                
+
                 default:
                     # code...
                     break;
@@ -132,15 +132,15 @@ class TallasSeeder extends Seeder
 
         }
 
-    
-
-        
-
-        
 
 
-        
 
-       
+
+
+
+
+
+
+
     }
 }

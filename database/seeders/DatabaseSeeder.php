@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             OrdersSeeder::class,
             ReviewSeeder::class,
-            TallasSeeder::class
+            TallasSeeder::class,
+            ProductSizeSeeder::class
         ]);
     }
 }

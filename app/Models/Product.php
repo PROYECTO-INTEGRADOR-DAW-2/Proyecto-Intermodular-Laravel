@@ -22,7 +22,7 @@ class Product extends Model
     }
 
     public function sizes() {
-        return $this->belongsToMany(Talla::class, 'producto_talla');
+        return $this->belongsToMany(Talla::class, 'producto_tallas');
     }
 
 }

@@ -18,6 +18,7 @@
     const wishlist = useWishlistStore();
 
     const product = ref(null);
+    const meta = ref(null);
     const loading = ref(true);
 
     onMounted(async () => {
@@ -30,6 +31,7 @@
                     product.value = null;
                 } else {
                     product.value = response.data || response;
+                    meta.value = response.meta || response;
                 }
 
             } else {
@@ -91,6 +93,12 @@
                 <div class="description">
                     <h3>Descripción</h3>
                     <p>{{ product.descripcion }}</p>
+                </div>
+
+                <div v-if="meta.tallas_disponibles.length" class="sizes-container">
+                    <div v-for="(talla, index) in meta.tallas_disponibles" :key="index" class="size">
+                        {{ talla.nombre }}
+                    </div>
                 </div>
 
                 
@@ -220,6 +228,34 @@
     .description p {
         line-height: 1.6;
         color: #555;
+    }
+
+    .sizes-container {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 50px;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .size {
+        font-size: 30px;
+        width: 100%;
+        border-radius: 8px;
+        border: 2px solid #222;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .size:hover {
+        background-color: #222;
+        color: white;
+    }
+
+    .size-active {
+        background-color: #222;
+        color: white;
     }
 
     .add-to-cart-btn {

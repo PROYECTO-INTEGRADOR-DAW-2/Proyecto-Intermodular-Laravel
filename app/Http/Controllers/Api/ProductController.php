@@ -17,9 +17,9 @@ class ProductController extends BaseController
 {
     public function index(Request $request)
     {
-        
+
         $query = Product::query();
-    
+
         // 1. Para el nombre (string)
         $query->when($request->input('nombre'), function ($q, $input) {
             $q->where('nombre', 'like', '%' . $input . '%');
@@ -28,27 +28,27 @@ class ProductController extends BaseController
         // 2. Para la categoría (array)
         $query->when($request->input('categoria'), function ($q, $input) {
             // Importante: $input aquí ya es el array que viene del request
-            $q->whereIn('categoria', (array) $input); 
+            $q->whereIn('categoria', (array) $input);
         });
 
         $query->when($request->input('marca'), function ($q, $input) {
             // Importante: $input aquí ya es el array que viene del request
-            $q->whereIn('marca', (array) $input); 
+            $q->whereIn('marca', (array) $input);
         });
 
         $query->when($request->input('deporte'), function ($q, $input) {
             // Importante: $input aquí ya es el array que viene del request
-            $q->whereIn('deporte', (array) $input); 
+            $q->whereIn('deporte', (array) $input);
         });
 
         $query->when($request->input('altura'), function ($q, $input) {
             // Importante: $input aquí ya es el array que viene del request
-            $q->whereIn('altura', (array) $input); 
+            $q->whereIn('altura', (array) $input);
         });
 
         $query->when($request->input('sexo'), function ($q, $input) {
             // Importante: $input aquí ya es el array que viene del request
-            $q->whereIn('sexo', (array) $input); 
+            $q->whereIn('sexo', (array) $input);
         });
 
         $query->when($request->input('precio_max'), function ($q, $input) {
@@ -65,7 +65,7 @@ class ProductController extends BaseController
         });
 
         $maxPrice = $query->max('precio');
-        
+
         $productos = $query->paginate(10);
 
         return ProductResource::collection($productos)
@@ -81,14 +81,21 @@ class ProductController extends BaseController
 
 
     // FUNCION POR TERMINAR
-    public function getMostPurchasedProducts() {
+    public function getMostPurchasedProducts()
+    {
 
-        
+
     }
 
     public function show(Product $product)
     {
-        return new ProductResource($product);
+        $response = $this->sendResponse((new ProductResource($product))->additional([
+            'meta' => [
+                'tallas_disponibles' => $product->sizes
+            ]
+        ]), "Producto obtenido correctamente", 200);
+
+        return $response;
     }
 
     public function store(ProductRequest $request)

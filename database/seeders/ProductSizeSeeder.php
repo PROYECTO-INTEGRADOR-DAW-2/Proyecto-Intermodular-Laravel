@@ -17,51 +17,56 @@ class ProductSizeSeeder extends Seeder
     public function run(): void
     {
 
-       $productos = Product::all(['id', 'categoria', 'sexo']);
-       
-       foreach($productos as $producto) {
+        $productos = Product::all(['id', 'categoria', 'sexo']);
+
+        foreach ($productos as $producto) {
 
             //Segun la categoria y sexo del producto seleccionamos las tallas que pertenezcan a la categoria 
 
             $tallasDisponibles = Talla::where([
-                ['categoria', '=', $producto->categoria],
-                ['genero', '=', $this->getGenderColumnTallaValue($producto->sexo, $producto->categoria)]
-            ]);
+                ['categoria', '=', $this->getTallaCategory($producto->sexo, $producto->categoria)],
+                ['genero', '=', $producto->sexo]
+            ])->get();
 
-            $cantidadAEnlazar = rand(1,4);
+            if ($tallasDisponibles->isEmpty()) {
+                continue;
+            }
 
-            for ($i = 0; $i<=$cantidadAEnlazar; $i++) {
-                $tallaSeleccionada = $tallasDisponibles[rand(1, count($tallasDisponibles))];
+            $cantidadAEnlazar = 4;
+
+            for ($i = 0; $i <= $cantidadAEnlazar; $i++) {
+                $tallaSeleccionada = $tallasDisponibles->random();
 
                 ProductoTalla::create([
                     'product_id' => $producto->id,
-                    'talla_id' => $tallaSeleccionada
+                    'talla_id' => $tallaSeleccionada->id
                 ]);
 
 
             }
 
-       }
+        }
 
 
 
     }
 
     /**
-     * Obtiene el nombre de la columna a buscar segun el genero del producto
+     * Obtiene el nombre de la columna a buscar segun el genero del producto y la categoria del producto
      */
-    public function getGenderColumnTallaValue(string $productGender, string $productCategory) {
+    public function getTallaCategory(string $productGender, string $productCategory)
+    {
 
         $prendasCategories = ['Pantalones', 'Camisetas', 'Calcetines'];
-        
+
 
         switch ($productGender) {
             case 'Mujer':
             case 'Hombre':
                 if (in_array($productCategory, $prendasCategories)) {
-                    return 'Prendas Adultos';
+                    return 'Prendas Adulto';
                 } else {
-                    return 'Zapatillas Adultos';
+                    return 'Zapatillas Adulto';
                 }
                 break;
             case 'Niño':
@@ -71,7 +76,7 @@ class ProductSizeSeeder extends Seeder
                 } else {
                     return 'Zapatillas Infantil';
                 }
-            
+
         }
     }
 }
