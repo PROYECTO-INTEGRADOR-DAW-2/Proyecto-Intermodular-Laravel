@@ -28,7 +28,7 @@
     <div class="form-container">
         <div class="login-container">
             <h1 style="justify-self: center;">Inicia sesion</h1>
-            <Form :validation-schema="schemaLogin" @submit="authStore.onSumbitLogin">
+            <Form :validation-schema="schemaLogin" @submit="onSumbitLogin">
                 <div class="form-group">
                     <Field type="text" name="nombre_usuario" id="nombre_usuario" placeholder="Usuario"></Field>
                     <ErrorMessage name="nombre_usuario" class="error-msg"></ErrorMessage>

@@ -1,9 +1,9 @@
 <script setup>
     import { useCartStore } from '../stores/cartStore';
-    import { ref, onMounted} from 'vue';
+    import { ref, onMounted, computed} from 'vue';
     import { Field, Form, ErrorMessage } from 'vee-validate';
     import * as yup from 'yup'
-    import places from 'places.js';
+    //import places from 'places.js';
 
     const checkoutData = ref({
         customer: {
@@ -27,7 +27,15 @@
     const cartStore = useCartStore();
 
     const cart = computed(() => cartStore.items)
-    const currentStep = ref(1);
+    let currentStep = ref(1);
+    const formMethods = {
+        metodo_envio: {
+            isOpen: false
+        },
+        metodo_pago: {
+            isOpen: false
+        }
+    }
 
 
 
@@ -41,11 +49,11 @@
         calle: yup.string().required('La calle es obligatoria'),
         numero: yup.string().required('El numero de edificio es obligatorio'),
         piso: yup.string().required('El piso es obligatorio'),
-        puerta: yup.number().required('El numero de puerta es obligatorio'),
-        ciudad: yup.number().required('La ciudad es obligatoria'),
+        puerta: yup.string().required('El numero de puerta es obligatorio'),
+        ciudad: yup.string().required('La ciudad es obligatoria'),
         codigo_postal: yup.string().required('El codigo postal es obligatorio').matches(/^[0-9]{5}$/, 'El código postal debe tener exactamente 5 dígitos'),
         provincia: yup.string().required('La provincia es obligatoria'),
-        pais: yup.string.required('El pais es obligatorio')
+        pais: yup.string().required('El pais es obligatorio')
     });
 
     const purchaseTypeDataSchema = yup.object({
@@ -55,9 +63,10 @@
         email: yup.string().email('Email no válido').required('El email es obligatorio'),
     });
 
-    onMounted(() => {
+    //onMounted(() => {
+        /*
         const placesAutocomplete = places({
-            appId: 'LWBBIBKB29', // Lo sacas de tu panel de Algolia
+            appId: 'LWBBIBKB29', 
             apiKey: 'fbbc093854a1a6afb53a41149bf85a48',
             container: document.querySelector('#address-input'),
             templates: {
@@ -65,7 +74,7 @@
             }
         });
 
-        // Evento cuando el usuario selecciona una dirección
+       
         placesAutocomplete.on('change', (e) => {
             console.log('Datos completos:', e.suggestion);
             
@@ -74,17 +83,20 @@
             const ciudad = e.suggestion.city;
             const provincia = e.suggestion.county;
             
-            // Ahora puedes rellenar tus otros campos del checkout automáticamente
-        });
-    });
+           
+        });*/
+    //});
 
     const handleNextStep = (values, actions) => {
-        switch (currentStep) {
+        console.log(values)
+        switch (currentStep.value) {
             case 1:
                 checkoutData.customer = {...values}
+                currentStep.value++;
                 break;
             case 2: 
                 checkoutData.shipping_address = {...values}
+                currentStep.value++;
                 break;
             case 3:
                 checkoutData.payment_method = values.payment_method
@@ -94,14 +106,17 @@
             default:
                 break;
         }
+        console.log(currentStep)
 
-        currentStep++;
+        
     } 
     
     
 
 
 </script>
+
+
 
 
 <template>
@@ -170,13 +185,13 @@
 
             <div class="form-group">
                 <label>Codigo postal:</label>
-                <Field name="codigo-postal" type="text" placeholder="Codigo postal de tu ciudad"/>
+                <Field name="codigo_postal" type="text" placeholder="Codigo postal de tu ciudad"/>
                 <ErrorMessage name="codigo_postal" class="error-msg" />
             </div>
 
             <div class="form-group">
                 <label>Provincia:</label>
-                <Field name="ciudad" type="text" placeholder="Tu provincia"/>
+                <Field name="provincia" type="text" placeholder="Tu provincia"/>
                 <ErrorMessage name="provincia" class="error-msg" />
             </div>
 
@@ -185,31 +200,59 @@
                 <Field name="pais" type="text" placeholder="Tu pais"/>
                 <ErrorMessage name="pais" class="error-msg" />
             </div>
-        </Form>
 
-        <Form v-if="cart.length && currentStep === 3" :validation-schema="purchaseTypeDataSchema" @submit="handleNextStep">
-            <legend>Metodo de envio y pago</legend>
-            
             <div class="form-group">
-                <label>Metodo de envio:</label>
-                <Field name="metodo-envio" type="text" as="select">
-                    <option value="" disabled>Selecciona un método...</option>
-                    <option value="estandar">Envío Estándar (3-5 días)</option>
-                    <option value="express">Envío Express (24h)</option>
-                    <option value="punto_recogida">Punto de recogida</option>
-                </Field>
-                <ErrorMessage name="metodo-envio" class="error-msg" />
+                <input type="submit" value="Siguiente paso" class="button"></input>
             </div>
 
+
+        </Form>
+
+        <Form v-if="cart.length && currentStep === 3" :validation-schema="purchaseTypeDataSchema" @submit="handleNextStep" v-slot="{ values, setFieldValue }">
+            <legend>Metodo de envio y pago</legend>
+
+            <div class="custom-select">
+                <div class="selected-option" @click="formMethods.metodo_envio.isOpen = !isOpen">
+                    {{ values.metodo_envio  || 'Selecciona tu talla'}}
+                </div>
+                
+                <ul v-if="formMethods.metodo_envio.isOpen" class="options-list">
+                    <li @click="setFieldValue('metodo_envio', 'estandar')" :class="{'option-active': values.metodo_envio === 'estandar'}">
+                        Envío Estándar (3-5 días)
+                    </li>
+
+                    <li @click="setFieldValue('metodo_envio', 'express')" :class="{'option-active': values.metodo_envio === 'express'}">
+                        Envío Express (24h)
+                    </li>
+
+                    <li @click="setFieldValue('metodo_envio', 'punto_recogida')" :class="{'option-active': values.metodo_envio === 'punto_recogida'}">
+                        Punto de recogida
+                    </li>
+                </ul>
+            </div>
+
+            <div class="custom-select">
+                <div class="selected-option" @click="formMethods.metodo_pago.isOpen = !isOpen">
+                    {{ values.metodo_envio  || 'Selecciona tu talla'}}
+                </div>
+                
+                <ul v-if="formMethods.metodo_pago.isOpen" class="options-list">
+                    <li @click="setFieldValue('metodo_pago', 'paypal')" :class="{'option-active': values.metodo_envio === 'paypal'}">
+                        Envío Estándar (3-5 días)
+                    </li>
+
+                    <li @click="setFieldValue('metodo_pago', 'bizum')" :class="{'option-active': values.metodo_envio === 'bizum'}">
+                        Envío Express (24h)
+                    </li>
+
+                    <li @click="setFieldValue('metodo_pago', 'tarjeta')" :class="{'option-active': values.metodo_envio === 'tarjeta'}">
+                        Punto de recogida
+                    </li>
+                </ul>
+            </div>
+           
             <div class="form-group">
-                <label>Informacion de pago:</label>
-                <Field name="metodo_envio" type="text" as="select">
-                    <option value="" disabled>Selecciona un método...</option>
-                    <option value="paypal">Envío Estándar (3-5 días)</option>
-                    <option value="bizum">Envío Express (24h)</option>
-                    <option value="tarjeta">Punto de recogida</option>
-                </Field>
-                <ErrorMessage name="metodo_envio" class="error-msg" />
+                <input type="submit" value="Siguiente paso" class="button"></input>
             </div>    
         </Form>
     </div>

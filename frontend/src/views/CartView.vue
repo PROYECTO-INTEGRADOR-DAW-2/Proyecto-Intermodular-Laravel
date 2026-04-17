@@ -56,6 +56,7 @@
             <table class="cart-container">
                 <tr>
                     <th>Producto</th>
+                    <th>Talla</th>
                     <th>Cantidad</th>
                     <th>Precio</th>
                     <th>Subtotal</th>
@@ -68,6 +69,10 @@
                             <img :src="getProductImgUrl(product)" style="width: 50px;">
                             <strong>{{ product.nombre }}</strong>
                         </div>
+                    </td>
+
+                    <td>
+                        {{ product.size }}
                     </td>
 
                     <td>

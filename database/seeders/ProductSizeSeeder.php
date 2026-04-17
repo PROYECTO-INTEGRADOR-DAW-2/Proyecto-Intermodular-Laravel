@@ -26,16 +26,16 @@ class ProductSizeSeeder extends Seeder
             $tallasDisponibles = Talla::where([
                 ['categoria', '=', $this->getTallaCategory($producto->sexo, $producto->categoria)],
                 ['genero', '=', $producto->sexo]
-            ])->get();
+            ])->distinct()->get();
 
             if ($tallasDisponibles->isEmpty()) {
                 continue;
             }
 
-            $cantidadAEnlazar = 4;
+            $cantidadAEnlazar = rand(1, count($tallasDisponibles));
 
-            for ($i = 0; $i <= $cantidadAEnlazar; $i++) {
-                $tallaSeleccionada = $tallasDisponibles->random();
+            for ($i = 0; $i < $cantidadAEnlazar; $i++) {
+                $tallaSeleccionada = $tallasDisponibles[$i];
 
                 ProductoTalla::create([
                     'product_id' => $producto->id,

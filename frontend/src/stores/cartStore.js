@@ -15,7 +15,7 @@ export const useCartStore = defineStore('cart', () => {
     });
 
     // 3. Acciones: Lógica para modificar el carrito
-    const addToCart = (product, quantity) => {
+    const addToCart = (product, quantity, size) => {
         const index = items.value.findIndex(p => p.id === product.id);
         
         if (index !== -1) {
@@ -23,7 +23,7 @@ export const useCartStore = defineStore('cart', () => {
             items.value[index].subtotal = items.value[index].precio * quantity;
         } else {
             let subtotal = parseFloat(product.precio) * quantity;
-            let newProductCart = { ...product, quantity, subtotal}
+            let newProductCart = { ...product, quantity, size, subtotal}
             items.value.push(newProductCart);
             
         }

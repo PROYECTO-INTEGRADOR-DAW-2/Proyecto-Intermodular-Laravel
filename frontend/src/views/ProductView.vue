@@ -1,13 +1,16 @@
 <script setup>
     import { useRoute } from 'vue-router';
-    import { ref, onMounted } from 'vue';
+    import { ref, onMounted, toRaw } from 'vue';
+
     import { useMessageStore } from '../stores/messageStore';
     import { useProductsStore } from '../stores/productsStore';
     import { useCartStore } from '../stores/cartStore';
-    import { RouterLink } from 'vue-router';
-    import Reviews from '../components/Reviews.vue';
     import { useAuthStore } from '../stores/authStore';
     import { useWishlistStore } from '../stores/wishlistStore';
+
+    import { RouterLink } from 'vue-router';
+    import Reviews from '../components/Reviews.vue';
+
 
     const route = useRoute();
 
@@ -31,13 +34,13 @@
                     product.value = null;
                 } else {
                     product.value = response.data || response;
-                    meta.value = response.meta || response;
+                    meta.value = response.meta || response;    
                 }
 
             } else {
                 messageStore.addMessage({ type: 'error', message: 'ID de producto no proporcionado' });
             }
-        } catch (error) {
+        } catch (error) {   
             messageStore.addMessage({ type: 'error', message: 'Error al cargar el producto' });
         } finally {
             loading.value = false;
@@ -45,6 +48,7 @@
     });
 
     const addToCartFormQuantity = ref(1)
+    const addToCartFormSize = ref(0)
 
     const handleToggleWishlist = async () => {
         if (authStore.isAuthenticated) {
@@ -96,7 +100,7 @@
                 </div>
 
                 <div v-if="meta.tallas_disponibles.length" class="sizes-container">
-                    <div v-for="(talla, index) in meta.tallas_disponibles" :key="index" class="size">
+                    <div v-for="(talla, index) in meta.tallas_disponibles" :key="index" @click="addToCartFormSize = talla.nombre" :class="{'size': true, 'size-active': addToCartFormSize === talla.nombre }">
                         {{ talla.nombre }}
                     </div>
                 </div>
@@ -104,7 +108,7 @@
                 
                 <div class="add-to-cart-container">
                     <input type="number" min="1" :max="product.stock" value="1" name="quantity" id="quantity" v-model.number="addToCartFormQuantity">
-                    <button class="add-to-cart-btn" @click="cartStore.addToCart(product, addToCartFormQuantity)">Añadir al carrito</button>
+                    <button class="add-to-cart-btn" @click="cartStore.addToCart(product, addToCartFormQuantity, addToCartFormSize)">Añadir al carrito</button>
                     <button class="wishlist-button" @click="handleToggleWishlist"><i :class="['bi', wishlist.isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart']"></i></button>
                 </div>
                 
