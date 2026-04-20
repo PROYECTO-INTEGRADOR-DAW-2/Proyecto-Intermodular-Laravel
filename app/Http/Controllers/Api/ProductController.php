@@ -91,7 +91,7 @@ class ProductController extends BaseController
     {
         $response = $this->sendResponse((new ProductResource($product))->additional([
             'meta' => [
-                'tallas_disponibles' => $product->sizes
+                'variaciones_disponibles' => $product->variations
             ]
         ]), "Producto obtenido correctamente", 200);
 

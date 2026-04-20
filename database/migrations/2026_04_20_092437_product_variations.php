@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('color_id')->constrained('colors');
             $table->foreignId('size_id')->constrained('tallas');
             $table->integer('stock');
-            $table->float('precio_especifico');
+            $table->float('precio_especifico')->nullable();
             $table->timestamps();
         });
     }

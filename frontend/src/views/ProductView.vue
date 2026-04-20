@@ -49,6 +49,14 @@
 
     const addToCartFormQuantity = ref(1)
     const addToCartFormSize = ref(0)
+    const addToCartColor = ref(meta.value[0]);
+
+    const availableSizesFromColor = computed(() => meta.value.filter(c => c.nombre === addToCartColor.value.nombre).map(c => c.))
+    const handleColorChange = (color) => {
+        addToCartColor.value = color;
+        
+        
+    }
 
     const handleToggleWishlist = async () => {
         if (authStore.isAuthenticated) {

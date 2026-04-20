@@ -5,11 +5,11 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Product;
-use App\Models\ProductoTalla;
 use App\Models\Talla;
+use App\Models\Color;
+use App\Models\Variation;
 
-
-class ProductSizeSeeder extends Seeder
+class ProductVariationSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,6 +18,7 @@ class ProductSizeSeeder extends Seeder
     {
 
         $productos = Product::all(['id', 'categoria', 'sexo']);
+        $colores = Color::all();
 
         foreach ($productos as $producto) {
 
@@ -32,16 +33,19 @@ class ProductSizeSeeder extends Seeder
                 continue;
             }
 
-            $cantidadAEnlazar = rand(1, count($tallasDisponibles));
+            $tallasACrear = rand(1, count($tallasDisponibles));
 
-            for ($i = 0; $i < $cantidadAEnlazar; $i++) {
+            for ($i = 0; $i < $tallasACrear; $i++) {
                 $tallaSeleccionada = $tallasDisponibles[$i];
 
-                ProductoTalla::create([
-                    'product_id' => $producto->id,
-                    'talla_id' => $tallaSeleccionada->id
-                ]);
-
+                foreach($colores as $color) {
+                    Variation::create([
+                        'product_id' => $producto->id,
+                        'color_id' => $color->id,
+                        'size_id' => $tallaSeleccionada->id,
+                        'stock' => rand(1, 50)
+                    ]);
+                };
 
             }
 

@@ -21,10 +21,6 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
-    public function sizes() {
-        return $this->belongsToMany(Talla::class, 'producto_tallas');
-    }
-
     public function variations() {
         return $this->hasMany(Variation::class)->with(['color', 'size']);
     }

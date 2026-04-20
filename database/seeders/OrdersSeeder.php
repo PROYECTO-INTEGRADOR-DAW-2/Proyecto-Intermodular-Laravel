@@ -32,8 +32,6 @@ class OrdersSeeder extends Seeder
     });
 
 
-        
 
-       
     }
 }

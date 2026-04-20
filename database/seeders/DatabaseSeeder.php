@@ -21,7 +21,8 @@ class DatabaseSeeder extends Seeder
             OrdersSeeder::class,
             ReviewSeeder::class,
             TallasSeeder::class,
-            ProductSizeSeeder::class
+            ColorSeeder::class,
+            ProductVariationSeeder::class
         ]);
     }
 }
