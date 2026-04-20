@@ -28,14 +28,16 @@
 
     const cart = computed(() => cartStore.items)
     let currentStep = ref(1);
-    const formMethods = {
+
+    //Desplegable personalizado de select
+    const formMethods = ref({
         metodo_envio: {
             isOpen: false
         },
         metodo_pago: {
             isOpen: false
         }
-    }
+    })
 
 
 
@@ -101,6 +103,7 @@
             case 3:
                 checkoutData.payment_method = values.payment_method
                 checkoutData.shipping_method = values.shipping_method
+                
                 break;
         
             default:
@@ -110,6 +113,10 @@
 
         
     } 
+
+    const cleanFormValue = (value) => {
+        return (value.charAt(0).toUpperCase() + value.slice(1)).replace('_', ' ');
+    }
     
     
 
@@ -212,43 +219,47 @@
             <legend>Metodo de envio y pago</legend>
 
             <div class="custom-select">
-                <div class="selected-option" @click="formMethods.metodo_envio.isOpen = !isOpen">
-                    {{ values.metodo_envio  || 'Selecciona tu talla'}}
+                <div class="selected-option" @click="formMethods.metodo_envio.isOpen = !formMethods.metodo_envio.isOpen">
+                    <p> {{ cleanFormValue(values.metodo_envio  || 'Selecciona tu metodo de envio') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formMethods.metodo_envio.isOpen}]"></i> 
                 </div>
                 
-                <ul v-if="formMethods.metodo_envio.isOpen" class="options-list">
-                    <li @click="setFieldValue('metodo_envio', 'estandar')" :class="{'option-active': values.metodo_envio === 'estandar'}">
-                        Envío Estándar (3-5 días)
-                    </li>
+                <div :class="['options-container', {'active': formMethods.metodo_envio.isOpen}]">
+                    <ul class="options-list">
+                        <li @click="setFieldValue('metodo_envio', 'estandar')" :class="{'option-active': values.metodo_envio === 'estandar'}">
+                            Envío Estándar (3-5 días)
+                        </li>
 
-                    <li @click="setFieldValue('metodo_envio', 'express')" :class="{'option-active': values.metodo_envio === 'express'}">
-                        Envío Express (24h)
-                    </li>
+                        <li @click="setFieldValue('metodo_envio', 'express')" :class="{'option-active': values.metodo_envio === 'express'}">
+                            Envío Express (24h)
+                        </li>
 
-                    <li @click="setFieldValue('metodo_envio', 'punto_recogida')" :class="{'option-active': values.metodo_envio === 'punto_recogida'}">
-                        Punto de recogida
-                    </li>
-                </ul>
+                        <li @click="setFieldValue('metodo_envio', 'punto_recogida')" :class="{'option-active': values.metodo_envio === 'punto_recogida'}">
+                            Punto de recogida
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div class="custom-select">
-                <div class="selected-option" @click="formMethods.metodo_pago.isOpen = !isOpen">
-                    {{ values.metodo_envio  || 'Selecciona tu talla'}}
+                <div class="selected-option" @click="formMethods.metodo_pago.isOpen = !formMethods.metodo_pago.isOpen">
+                    <p>{{ cleanFormValue( values.metodo_pago  || 'Selecciona tu metodo de pago') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formMethods.metodo_pago.isOpen}]"></i>
                 </div>
                 
-                <ul v-if="formMethods.metodo_pago.isOpen" class="options-list">
-                    <li @click="setFieldValue('metodo_pago', 'paypal')" :class="{'option-active': values.metodo_envio === 'paypal'}">
-                        Envío Estándar (3-5 días)
-                    </li>
+                <div :class="['options-container', {'active': formMethods.metodo_pago.isOpen}]">
+                    <ul class="options-list">
+                        <li @click="setFieldValue('metodo_pago', 'paypal')" :class="{'option-active': values.metodo_pago === 'paypal'}">
+                           Paypal
+                        </li>
 
-                    <li @click="setFieldValue('metodo_pago', 'bizum')" :class="{'option-active': values.metodo_envio === 'bizum'}">
-                        Envío Express (24h)
-                    </li>
+                        <li @click="setFieldValue('metodo_pago', 'bizum')" :class="{'option-active': values.metodo_pago === 'bizum'}">
+                            Bizum
+                        </li>
 
-                    <li @click="setFieldValue('metodo_pago', 'tarjeta')" :class="{'option-active': values.metodo_envio === 'tarjeta'}">
-                        Punto de recogida
-                    </li>
-                </ul>
+                        <li @click="setFieldValue('metodo_pago', 'tarjeta')" :class="{'option-active': values.metodo_pago === 'tarjeta'}">
+                            Tarjeta
+                        </li>
+                    </ul>
+                </div>
             </div>
            
             <div class="form-group">
@@ -281,6 +292,88 @@
     margin: 20px 0 20px 0; 
 }
 
+.custom-select {
+    margin: 15px 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 2px solid #D72631;
+    border-radius: 8px;
+    padding: 12px 0px;
+    width: 17%;
+}
+
+.selected-option {
+    align-content: center;
+    padding: 0 5px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid grey;
+    width: 90%;
+    justify-self: center;
+    padding: 10px 0;
+}
+
+.selected-option p{
+    margin: 0;
+    -webkit-user-select: none; 
+    -ms-user-select: none;    
+    user-select: none;
+}
+
+
+.options-container {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease-in-out, visibility 0.3s; /* Añadimos visibility a la transición */
+    overflow: hidden;
+    visibility: hidden; /* Oculto por defecto */
+}
+
+.options-container.active {
+    grid-template-rows: 1fr;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    visibility: visible; /* Visible cuando está activo */
+}
+
+.options-list {
+    min-height: 0;
+    list-style-type: none;
+    display: grid;
+    grid-auto-flow: row;
+    row-gap: 10px;
+    margin: 0;
+}
+
+.options-list li {
+    padding: 20px;
+    cursor: pointer;
+    min-height: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.options-list li:not(:nth-last-child){
+    padding: 20px;
+    cursor: pointer;
+    border: 1px solid grey;
+}
+
+.option-active {
+    background-color: #1F1F1F;
+    color: white;
+}
+
+.bi-arrow-down {
+    transition: all 0.2s ease-in-out;
+    display: inline-block;
+    width: auto;
+}
+
+.bi-arrow-active {
+    transform: rotate(180deg)
+}
 
 
 

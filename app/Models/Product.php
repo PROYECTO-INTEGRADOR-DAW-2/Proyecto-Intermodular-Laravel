@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Database\Factories\ProductFactory;
+use App\Models\Variation;
 
 class Product extends Model
 {
@@ -23,6 +23,10 @@ class Product extends Model
 
     public function sizes() {
         return $this->belongsToMany(Talla::class, 'producto_tallas');
+    }
+
+    public function variations() {
+        return $this->hasMany(Variation::class)->with(['color', 'size']);
     }
 
 }
