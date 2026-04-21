@@ -13,6 +13,12 @@ class Variation extends Model
 
     protected $fillable = ['product_id', 'color_id', 'size_id', 'stock', 'precio_especifico'];
 
+    public function color() {
+        return $this->belongsTo(Color::class, 'color_id');
+    }
 
+    public function size() {
+        return $this->belongsTo(Talla::class, 'size_id');
+    }
 
 }

@@ -1,6 +1,6 @@
 <script setup>
     import { useRoute } from 'vue-router';
-    import { ref, onMounted, toRaw } from 'vue';
+    import { ref, onMounted, toRaw, computed } from 'vue';
 
     import { useMessageStore } from '../stores/messageStore';
     import { useProductsStore } from '../stores/productsStore';
@@ -34,7 +34,10 @@
                     product.value = null;
                 } else {
                     product.value = response.data || response;
-                    meta.value = response.meta || response;    
+                    meta.value = response.meta || response;
+                    addToCartColor.value = meta.value.variaciones_disponibles[0].color;
+                    console.log(toRaw(meta.value.variaciones_disponibles))
+                    console.log("Color seleccionado automaticamente: " + addToCartColor.value.nombre)
                 }
 
             } else {
@@ -48,15 +51,13 @@
     });
 
     const addToCartFormQuantity = ref(1)
-    const addToCartFormSize = ref(0)
-    const addToCartColor = ref(meta.value[0]);
+    const addToCartFormSize = ref(null)
+    const addToCartColor = ref(null);
 
-    const availableSizesFromColor = computed(() => meta.value.filter(c => c.nombre === addToCartColor.value.nombre).map(c => c.))
-    const handleColorChange = (color) => {
-        addToCartColor.value = color;
-        
-        
-    }
+    const availableSizesFromColor = computed(() => 
+        toRaw(meta.value.variaciones_disponibles)
+        .filter(c => c.color.nombre === addToCartColor.value.nombre)
+    )
 
     const handleToggleWishlist = async () => {
         if (authStore.isAuthenticated) {
@@ -107,9 +108,14 @@
                     <p>{{ product.descripcion }}</p>
                 </div>
 
-                <div v-if="meta.tallas_disponibles.length" class="sizes-container">
-                    <div v-for="(talla, index) in meta.tallas_disponibles" :key="index" @click="addToCartFormSize = talla.nombre" :class="{'size': true, 'size-active': addToCartFormSize === talla.nombre }">
-                        {{ talla.nombre }}
+                <div v-if="meta.variaciones_disponibles.length" class="sizes-container">
+                    <div v-for="(talla, index) in availableSizesFromColor" :key="index" @click="addToCartFormSize = talla.size" :class="{'size': true, 'size-active': addToCartFormSize?.nombre === talla.size.nombre }">
+                        {{ talla.size.nombre }}
+                    </div>
+                </div>
+                
+                <div v-if="meta.variaciones_disponibles.length" class="colors-container">
+                    <div v-for="(variacion, index) in meta.variaciones_disponibles" :key="index" @click="addToCartColor = variacion.color" :style="{'background-color': variacion.color.código_hex}" :class="{'color': true, 'color-active': addToCartColor.nombre === variacion.color.nombre }">
                     </div>
                 </div>
 
@@ -245,7 +251,7 @@
     .sizes-container {
         display: grid;
         grid-auto-flow: column;
-        grid-auto-columns: 50px;
+        grid-auto-columns: auto;
         gap: 10px;
         margin-bottom: 30px;
     }
@@ -269,6 +275,28 @@
         background-color: #222;
         color: white;
     }
+
+    .colors-container {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: 50px;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .color {
+        height: 50px;
+        width: 100%;
+        border-radius: 100%;
+        border:none;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .color:hover, .color-active {
+        border: 2px solid #222;
+    }
+
 
     .add-to-cart-btn {
         margin-top: auto;

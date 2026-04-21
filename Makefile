@@ -14,20 +14,28 @@ EXEC_FRONTEND = $(DOCKER_COMPOSE) exec frontend
 setup: .env
 	@echo "Iniciando configuracion de la aplicacion..."
 	$(DOCKER_COMPOSE) up -d --build
+
 	@echo "Añadiendo excepcion en /home/app/ftp para git"
 	$(DOCKER_COMPOSE) exec app git config --system --add safe.directory /home/app/ftp
+
 	@echo "Instalando dependencias de PHP (esto puede tardar la primera vez)..."
 	$(EXEC_APP) composer install --no-scripts --no-interaction
+
 	@echo "Generando clave de aplicacion..."
 	$(EXEC_APP) php artisan key:generate --ansi
+
 	@echo "Actualizando paquetes de Laravel..."
 	$(EXEC_APP) php artisan package:discover --ansi
+
 	@echo "Creando enlaces de almacenamiento (storage)..."
 	$(EXEC_APP) php artisan storage:link
+
 	@echo "Ejecutando migraciones de base de datos..."
 	$(EXEC_APP) php artisan migrate --force
+
 	@echo "Instalando dependencias del frontend..."
 	@$(EXEC_FRONTEND) npm install
+	
 	@echo "Aplicacion lista en: https://app.projectegrupb.es"
 
 up:
