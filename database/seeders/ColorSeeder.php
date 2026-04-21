@@ -17,8 +17,8 @@ class ColorSeeder extends Seeder
         ["Nombre" => 'Beige', "Hex" => "#E2E8F0"],
         ["Nombre" => 'Verde', "Hex" => "#2F855A"],
         ["Nombre" => 'Marron', "Hex" => "#744210"],
-        ["Nombre" => 'Marron', "Hex" => "#1A202C"],
-        ["Nombre" => 'Marron', "Hex" => "#F7FAFC"],
+        ["Nombre" => 'Negro', "Hex" => "#1A202C"],
+        ["Nombre" => 'Blanco', "Hex" => "#F7FAFC"],
     ];
     /**
      * Run the database seeds.

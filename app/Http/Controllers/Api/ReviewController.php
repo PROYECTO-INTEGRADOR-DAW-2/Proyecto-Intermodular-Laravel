@@ -83,5 +83,18 @@ class ReviewController extends BaseController {
 
     }
 
+    public function getCurrentUserReviews(Request $request) {
+        $user = $request->user();
+
+        if ($user) {
+            $reviewsFromUser = ReviewResource::collection($user->reviews());
+
+            $result = $this->sendResponse($reviewsFromUser, "Tus reviews se han obtenido correctamente", 200);
+            
+        } else {
+            $this->sendError("No estas logueado", [], 402);
+        }
+    }
+
 }
 

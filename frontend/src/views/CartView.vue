@@ -57,6 +57,7 @@
                 <tr>
                     <th>Producto</th>
                     <th>Talla</th>
+                    <th>Color</th>
                     <th>Cantidad</th>
                     <th>Precio</th>
                     <th>Subtotal</th>
@@ -73,6 +74,10 @@
 
                     <td>
                         {{ product.size }}
+                    </td>
+
+                    <td>
+                        {{ product.color }}
                     </td>
 
                     <td>

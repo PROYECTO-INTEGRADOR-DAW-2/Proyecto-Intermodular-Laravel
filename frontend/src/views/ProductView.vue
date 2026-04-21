@@ -36,8 +36,6 @@
                     product.value = response.data || response;
                     meta.value = response.meta || response;
                     addToCartColor.value = meta.value.variaciones_disponibles[0].color;
-                    console.log(toRaw(meta.value.variaciones_disponibles))
-                    console.log("Color seleccionado automaticamente: " + addToCartColor.value.nombre)
                 }
 
             } else {
@@ -54,16 +52,32 @@
     const addToCartFormSize = ref(null)
     const addToCartColor = ref(null);
 
-    const availableSizesFromColor = computed(() => 
-        toRaw(meta.value.variaciones_disponibles)
-        .filter(c => c.color.nombre === addToCartColor.value.nombre)
-    )
+    const availableSizesFromColor = computed(() => {
+        if (!meta.value?.variaciones_disponibles || !addToCartColor.value) return [];
+        return toRaw(meta.value.variaciones_disponibles)
+            .filter(c => c.color.nombre === addToCartColor.value.nombre);
+    });
+
+    const generalColors = computed(() => {
+        if (meta.value?.variaciones_disponibles) {
+            return [...new Map(meta.value.variaciones_disponibles.map(item => [item.color.nombre, item])).values()];
+        }
+        return [];
+    });
 
     const handleToggleWishlist = async () => {
         if (authStore.isAuthenticated) {
             await wishlist.toggleWishlistItemAction(product.value.id);
         } else {
             messageStore.addMessage({type: "error", message: "Debes iniciar sesion para realizar esta accion"})
+        }
+    }
+
+    const handleAddToCart = () => {
+        if(!addToCartFormQuantity.value || !addToCartColor.value || !addToCartFormSize.value) {
+            messageStore.addMessage({type: "error", message: "Asegúrate de añadir talla, color y cantidad"})
+        } else {
+            cartStore.addToCart(product.value, addToCartFormQuantity.value, addToCartFormSize.value.nombre, addToCartColor.value.nombre)
         }
     }
 
@@ -115,14 +129,14 @@
                 </div>
                 
                 <div v-if="meta.variaciones_disponibles.length" class="colors-container">
-                    <div v-for="(variacion, index) in meta.variaciones_disponibles" :key="index" @click="addToCartColor = variacion.color" :style="{'background-color': variacion.color.código_hex}" :class="{'color': true, 'color-active': addToCartColor.nombre === variacion.color.nombre }">
+                    <div v-for="(variacion, index) in generalColors" :key="index" @click="addToCartColor = variacion.color" :style="{'background-color': variacion.color.código_hex}" :class="{'color': true, 'color-active': addToCartColor.nombre === variacion.color.nombre }">
                     </div>
                 </div>
 
                 
                 <div class="add-to-cart-container">
                     <input type="number" min="1" :max="product.stock" value="1" name="quantity" id="quantity" v-model.number="addToCartFormQuantity">
-                    <button class="add-to-cart-btn" @click="cartStore.addToCart(product, addToCartFormQuantity, addToCartFormSize)">Añadir al carrito</button>
+                    <button class="add-to-cart-btn" @click="handleAddToCart">Añadir al carrito</button>
                     <button class="wishlist-button" @click="handleToggleWishlist"><i :class="['bi', wishlist.isInWishlist(product.id) ? 'bi-heart-fill' : 'bi-heart']"></i></button>
                 </div>
                 

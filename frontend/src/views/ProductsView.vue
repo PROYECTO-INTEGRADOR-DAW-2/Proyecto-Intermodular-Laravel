@@ -57,11 +57,7 @@
         store.getProducts(query);
         currentQuery.value = {...query};
     }
-
-    // --- Lifecycle Hooks ---
-
-
-
+    
     // --- Watchers ---
 
     //Funcion debug para ver que productos nuevos se han obtenido en el fetch
