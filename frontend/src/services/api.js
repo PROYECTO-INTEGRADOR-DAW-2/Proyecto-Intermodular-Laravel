@@ -442,6 +442,8 @@ const updatePassword = async (data) => {
 const fetchUser = async () => {
     try {
         const response = await privateApi.get('/user');
+        console.log("Axios: Response received:", response.data)
+
         return {
             success: true,
             data: response.data,

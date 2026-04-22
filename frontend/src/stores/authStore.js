@@ -18,11 +18,13 @@ export const useAuthStore = defineStore('auth', {
 
             if (response.success) {
                 this.addMessageAction("success", response.message);
-                // La respuesta estandarizada es { success: true, data: { token: ..., user: ... }, message: ... }
                 const { token, user } = response.data.data;
+
                 this.user = user;
+                this.role = user.rol;
                 this.isAuthenticated = true;
                 this.bearerToken = token;
+
                 localStorage.setItem("token", token);
 
                 return response;
@@ -38,9 +40,12 @@ export const useAuthStore = defineStore('auth', {
             if (response.success) {
                 this.addMessageAction("success", response.message);
                 const { token, user } = response.data.data;
+
                 this.user = user;
+                this.role = user.rol;
                 this.isAuthenticated = true;
                 this.bearerToken = token;
+
                 localStorage.setItem("token", token);
 
                 return response;
@@ -86,6 +91,7 @@ export const useAuthStore = defineStore('auth', {
 
             if (response.success) {
                 this.user = response.data;
+                this.role = response.data.rol;
                 this.isAuthenticated = true;
             } else {
                 this.user = null;
@@ -108,7 +114,7 @@ export const useAuthStore = defineStore('auth', {
             if (!this.isAuthenticated) {
                 this.addMessageAction('error', "No estas logueado en el sistema");
                 return;
-            } else if (!this.role.toLowerCase() === 'admin') {
+            } else if (this.role.toLowerCase() !== 'admin') {
                 this.addMessageAction('error', 'No estas autorizado para realizar esta accion')
                 return;
             }
@@ -118,7 +124,11 @@ export const useAuthStore = defineStore('auth', {
 
             if (response.success) {
                 this.addMessageAction('success', response?.message || "Se han obtenido correctamente los usuarios");
-                return response;
+                return {
+                    success: true,
+                    data: response.data.data,
+                    message: response.message
+                };
             } else {
                 this.addMessageAction('error', response?.message || "Error al intentar obtener los usuarios");
                 return response;

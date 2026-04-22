@@ -17,7 +17,7 @@ class IsAdminMiddleware
     {
         $user = $request->user();
 
-        if ($user && $user->is_admin) {
+        if ($user && $user->rol === 'admin') {
             return $next($request);
         } else {
             return response()->json([

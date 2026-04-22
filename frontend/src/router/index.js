@@ -73,31 +73,36 @@ const router = createRouter({
     ]
 })
 
-router.beforeEach((to, from) => {
+router.beforeEach(async (to, from) => {
 
-    const token = localStorage.getItem('token');
-    const isAuthenticated = !!token;
     const authStore = useAuthStore();
+    const token = localStorage.getItem('token');
+
+    // Si hay token pero no tenemos datos del usuario en el store, los recuperamos una sola vez
+    if (token && !authStore.user) {
+        await authStore.fetchUserAction();
+    }
+
+    const isAuthenticated = authStore.isAuthenticated;
+    const userRole = authStore.role;
 
     // 1. Si la ruta pide auth y NO está logueado -> Al Login
     if (to.meta.requiresAuth && !isAuthenticated) {
         return { name: 'login' };
     } 
 
-    // 2. Si la ruta requiere autentificacion y el rol de admin no lo tiene el usuario -> Al home
-    if (to.meta.requiresAuth && to.meta.requiresAdmin && authStore.role !== 'admin') {
-        return {name: 'home'};
+    // 2. Si la ruta requiere admin y el rol NO es admin -> Al home
+    if (to.meta.requiresAdmin && userRole !== 'admin') {
+        return { name: 'home' };
     }
 
     // 3. Si es para invitados (login/register) y YA está logueado -> Al Home
-    else if (to.meta.isGuest && isAuthenticated) {
+    if (to.meta.isGuest && isAuthenticated) {
         return { name: 'home' };
     } 
 
     // 4. Si todo está ok, que pase
-    else {
-        return true;
-    }
+    return true;
 
 })
 

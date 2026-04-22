@@ -37,6 +37,7 @@ class AuthController extends BaseController
                     'apellidos' => $user->apellidos,
                     'nombre_usuario' => $user->nombre_usuario,
                     'email' => $user->email,
+                    'rol' => $user->rol
                 ],
             ];
 
@@ -60,6 +61,7 @@ class AuthController extends BaseController
             'nombre_usuario' => $validated['nombre_usuario'],
             'email' => $validated['email'],
             'contraseña' => Hash::make($validated['contraseña']),
+            'rol' => 'client'
         ]);
 
         $result = [
@@ -70,6 +72,7 @@ class AuthController extends BaseController
                 'nombre' => $user->nombre,
                 'nombre_usuario' => $user->nombre_usuario,
                 'email' => $user->email,
+                'rol' => $user->rol
             ],
         ];
 

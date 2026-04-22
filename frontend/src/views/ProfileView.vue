@@ -35,7 +35,7 @@
         const response = await authStore.updateProfileAction(values);
         
         if (!response.success && response.info) {
-             Object.entries(response.info).forEach(([field, messages]) => {
+            Object.entries(response.info).forEach(([field, messages]) => {
                 actions.setFieldError(field, messages[0]);
             });
         }
@@ -45,7 +45,7 @@
         const response = await authStore.updatePasswordAction(values);
 
         if (!response.success && response.info) {
-             Object.entries(response.info).forEach(([field, messages]) => {
+            Object.entries(response.info).forEach(([field, messages]) => {
                 setFieldError(field, messages[0]);
             });
         }
