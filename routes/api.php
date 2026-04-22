@@ -15,6 +15,8 @@ use App\Http\Controllers\Api\PasswordController;
 
 use App\Http\Controllers\Api\WishlistController;
 
+use App\Http\Controllers\Api\AdminController;
+
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -44,12 +46,11 @@ Route::name('api.')->group(function () {
             Route::delete('/products/{product}/reviews/{review}', [ReviewController::class, 'deleteReview'])->name('reviews.delete');
 
             Route::middleware('check.admin')->group(function() {
-                Route::get('/users', [])
-            })
+                Route::get('/users', [AdminController::class, 'getAllUsers'])->name('admin.get-users');
+                Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('admin.update-user');
+                Route::get('/roles', [AdminController::class, 'getAllRoles'])->name('admin.get-roles');
+            });
             
-
-
-
         }
         );
 

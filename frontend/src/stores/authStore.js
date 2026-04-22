@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia';
-import { login, register, updateProfile, updatePassword, fetchUser } from '../services/api.js'
+import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, fetchRoles } from '../services/api.js'
 import { useMessageStore } from '../stores/messageStore.js';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null,
+        role: "",
         isAuthenticated: false,
         bearerToken: localStorage.getItem('token') || null,
         debug: true
@@ -99,6 +100,30 @@ export const useAuthStore = defineStore('auth', {
             this.isAuthenticated = false;
             this.bearerToken = null;
             localStorage.removeItem('token');
+        },
+
+        //Admin methods
+        async getUsers() {
+
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', "No estas logueado en el sistema");
+                return;
+            } else if (!this.role.toLowerCase() === 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion')
+                return;
+            }
+
+
+            const response = await fetchUsers();
+
+            if (response.success) {
+                this.addMessageAction('success', response?.message || "Se han obtenido correctamente los usuarios");
+                return response;
+            } else {
+                this.addMessageAction('error', response?.message || "Error al intentar obtener los usuarios");
+                return response;
+            }
+
         },
 
         addMessageAction(type, message) {

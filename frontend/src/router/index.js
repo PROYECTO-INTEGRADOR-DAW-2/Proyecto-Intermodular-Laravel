@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useAuthStore } from '../stores/authStore';
 
 
 
@@ -59,6 +60,15 @@ const router = createRouter({
             path: '/checkout',
             name: 'checkout',
             component: () => import('../views/CheckoutView.vue'),
+        },
+        {
+            path: '/admin',
+            name: 'admin',
+            component: () => import('../views/AdminView.vue'),
+            meta: {
+                requiresAuth: true,
+                requiresAdmin: true
+            }
         }
     ]
 })
@@ -67,18 +77,24 @@ router.beforeEach((to, from) => {
 
     const token = localStorage.getItem('token');
     const isAuthenticated = !!token;
+    const authStore = useAuthStore();
 
-        // 1. Si la ruta pide auth y NO está logueado -> Al Login
+    // 1. Si la ruta pide auth y NO está logueado -> Al Login
     if (to.meta.requiresAuth && !isAuthenticated) {
         return { name: 'login' };
     } 
 
-    // 2. Si es para invitados (login/register) y YA está logueado -> Al Home
+    // 2. Si la ruta requiere autentificacion y el rol de admin no lo tiene el usuario -> Al home
+    if (to.meta.requiresAuth && to.meta.requiresAdmin && authStore.role !== 'admin') {
+        return {name: 'home'};
+    }
+
+    // 3. Si es para invitados (login/register) y YA está logueado -> Al Home
     else if (to.meta.isGuest && isAuthenticated) {
         return { name: 'home' };
     } 
 
-    // 3. Si todo está ok, que pase
+    // 4. Si todo está ok, que pase
     else {
         return true;
     }

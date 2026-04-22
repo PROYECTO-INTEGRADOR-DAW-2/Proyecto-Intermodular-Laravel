@@ -456,6 +456,96 @@ const fetchUser = async () => {
     }
 }
 
+
+// ADMIN METHODS 
+
+const fetchUsers = async () => {
+    try {
+        const response = await privateApi.get('/users');
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+
+    } catch(error) {
+         if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al obtener la lista de deseos"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const fetchRoles = async () => {
+    try {
+        const response = await privateApi.get('/roles');
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+
+    } catch(error) {
+         if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al obtener la lista de deseos"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const updateUser = async (data) => {
+    try {
+        const response = await privateApi.post(`/users/${data.id}`, data);
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+
+    } catch(error) {
+         if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al obtener la lista de deseos"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
 export {
     fetchProducts,
     fetchProduct,
@@ -470,5 +560,8 @@ export {
     register,
     updateProfile,
     updatePassword,
-    fetchUser
+    fetchUser,
+    fetchUsers,
+    fetchRoles,
+    updateUser
 }

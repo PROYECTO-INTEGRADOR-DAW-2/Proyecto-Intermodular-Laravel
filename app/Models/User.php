@@ -84,4 +84,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class);
     }
+    
+
+    //Custom methods
+
+
+    /**
+     * Nos devuelve un booleano para saber si es admin el usuario o no
+     * 
+     * @return bool
+     */
+    public function isAdmin() {
+        
+        return match($this->rol) {
+            'admin' => true,
+            'client' => false
+        };
+
+    }
 }   

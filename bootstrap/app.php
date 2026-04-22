@@ -22,9 +22,15 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->is('api/*')) {
                 $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
 
+                // Si el error es específicamente por el Binding (404), forzamos el código
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                    $statusCode = 404;
+                }
+
                 return response()->json([
                     'success' => false,
-                    'message' => $e->getMessage(),
+                    'message' => $e->getMessage(), // O $e->getMessage()
+                    'error_type' => class_basename($e) // Esto ayuda mucho a debuguear en Vue
                 ], $statusCode);
             }
 
