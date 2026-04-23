@@ -119,7 +119,7 @@ export const useAuthStore = defineStore('auth', {
             localStorage.removeItem('token');
         },
 
-        //Admin methods
+        //ADMIN METHODS
         async getUsersAction() {
 
             if (!this.isAuthenticated) {
@@ -171,6 +171,25 @@ export const useAuthStore = defineStore('auth', {
             } else {
                 this.addMessageAction('error', response?.message || "Error al intentar actualizar el usuario");
                 return response;
+            }
+        },
+
+        async deleteUserAction(userId) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion');
+                return;
+            }
+
+            const response = await deleteUser(userId);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message || 'Se ha eliminado correctamente el usuario');
+                return response;
+            } else {
+                this.addMessageAction('error', response.message || 'Error al intentar eliminar el usuario');
             }
         },
 

@@ -45,6 +45,10 @@ class AdminController extends BaseController {
 
     }
 
+    public function deleteUser(User $user) {
+        $user->delete();
+    }
+
 
 
 }

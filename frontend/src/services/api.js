@@ -531,7 +531,36 @@ const updateUser = async (user, data) => {
         }
 
     } catch(error) {
-         if (error.response) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al actualizar el usuario"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const deleteUser = async (userId) => {
+    try {
+        const response = await privateApi.delete(`/users/${userId}`);
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+
+    } catch (error) {
+        if (error.response) {
             return {
                 success: false,
                 data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
@@ -565,5 +594,6 @@ export {
     fetchUser,
     fetchUsers,
     fetchRoles,
+    deleteUser,
     updateUser
 }

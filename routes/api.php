@@ -48,6 +48,7 @@ Route::name('api.')->group(function () {
             Route::middleware('check.admin')->group(function() {
                 Route::get('/users', [AdminController::class, 'getAllUsers'])->name('admin.get-users');
                 Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('admin.update-user');
+                Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.delete-user');
                 Route::get('/roles', [AdminController::class, 'getAllRoles'])->name('admin.get-roles');
             });
             
