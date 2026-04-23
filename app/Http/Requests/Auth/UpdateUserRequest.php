@@ -18,13 +18,14 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         $rolesValidos = ['admin','client'];
+        $userId = $this->route('user')->id;
 
         return [
             'nombre' => ['required', 'string', 'max:255'],
             'apellidos' => ['required', 'string', 'max:255'],
-            'nombre_usuario' => ['required', 'string', 'max:255', 'unique:users,nombre_usuario'],
-            'email' => ['required', 'email', 'unique:users,email'],
-            'role' => ['required', Rule::in($rolesValidos)]
+            'nombre_usuario' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($userId)],
+            'email' => ['required', 'email', Rule::unique('users')->ignore($userId)],
+            'rol' => ['required', Rule::in($rolesValidos)]
         ];
     }
 }

@@ -519,9 +519,9 @@ const fetchRoles = async () => {
     }
 }
 
-const updateUser = async (data) => {
+const updateUser = async (user, data) => {
     try {
-        const response = await privateApi.post(`/users/${data.id}`, data);
+        const response = await privateApi.put(`/users/${user}`, data);
         console.log("Axios: Response received:", response.data)
 
         return {
@@ -535,8 +535,8 @@ const updateUser = async (data) => {
             return {
                 success: false,
                 data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
-                info: error.response?.info || 'Sin informacion del error',
-                message: error.response?.message || "Ha habido un error al obtener la lista de deseos"
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al actualizar el usuario"
             }
         } else {
             return {

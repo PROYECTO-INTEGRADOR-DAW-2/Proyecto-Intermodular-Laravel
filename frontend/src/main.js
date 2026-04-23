@@ -14,13 +14,5 @@ const pinia = createPinia()
 app.use(pinia)
 app.use(router)
 
-// Inicializar la autenticación si hay un token
-import { useAuthStore } from './stores/authStore.js'
-
-const authStore = useAuthStore(pinia)
-
-if (localStorage.getItem('token')) {
-    authStore.fetchUserAction()
-}
-
+// El router se encargará de inicializar la autenticación en el beforeEach
 app.mount('#app')

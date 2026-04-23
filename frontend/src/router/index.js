@@ -78,30 +78,50 @@ router.beforeEach(async (to, from) => {
     const authStore = useAuthStore();
     const token = localStorage.getItem('token');
 
-    // Si hay token pero no tenemos datos del usuario en el store, los recuperamos una sola vez
+    if (authStore.debug) {
+        console.log(`[Router] Navigating to: ${to.path}`, {
+            requiresAuth: to.meta.requiresAuth,
+            requiresAdmin: to.meta.requiresAdmin,
+            hasToken: !!token,
+            storedUser: !!authStore.user
+        });
+    }
+
+    // Si hay token pero no tenemos datos del usuario en el store, intentamos recuperarlos
     if (token && !authStore.user) {
+        if (authStore.debug) console.log("[Router] Token detected without user data. Fetching...");
         await authStore.fetchUserAction();
     }
 
     const isAuthenticated = authStore.isAuthenticated;
-    const userRole = authStore.role;
+    const userRole = (authStore.role || "").toLowerCase();
 
-    // 1. Si la ruta pide auth y NO está logueado -> Al Login
+    if (authStore.debug) {
+        console.log(`[Router] Auth state:`, {
+            isAuthenticated,
+            userRole
+        });
+    }
+
+    // Redirección si requiere auth y no está autenticado
     if (to.meta.requiresAuth && !isAuthenticated) {
+        if (authStore.debug) console.warn("[Router] Access denied: Requires Auth. Redirecting to Login.");
         return { name: 'login' };
-    } 
+    }
 
-    // 2. Si la ruta requiere admin y el rol NO es admin -> Al home
+    // Redirección si requiere admin y no es admin
     if (to.meta.requiresAdmin && userRole !== 'admin') {
+        if (authStore.debug) console.warn(`[Router] Access denied: Admin required. Current role: ${userRole}. Redirecting home.`);
         return { name: 'home' };
     }
 
-    // 3. Si es para invitados (login/register) y YA está logueado -> Al Home
+    // Redirección si es invitado y ya está logueado
     if (to.meta.isGuest && isAuthenticated) {
+        if (authStore.debug) console.log("[Router] Guest route accessed by authenticated user. Redirecting home.");
         return { name: 'home' };
-    } 
+    }
 
-    // 4. Si todo está ok, que pase
+    if (authStore.debug) console.log("[Router] Navigation allowed.");
     return true;
 
 })

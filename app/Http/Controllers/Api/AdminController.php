@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Http\Requests\Auth\UpdateUserRequest;
 
 class AdminController extends BaseController {
+    
 
     public function getAllUsers() {
         $allUsers = User::all();
@@ -24,7 +25,23 @@ class AdminController extends BaseController {
     public function updateUser(User $user, UpdateUserRequest $request) {
         $validated = $request->validated();
 
+        //HARDCODED BUSQUEDA DE EMAILS USADOS
+        /* $takenEmails = array_column(
+            array_filter(User::all(['id','email'])->toArray(), function ($value) use ($user) {
+                $user->id !== $value['id'];
+            }
+        ), 'email');
+
+        
+        if (array_search($user->email, $takenEmails)) {
+            return $this->sendError('El email que has especificado esta siendo usado', ['email' => ["El email esta siendo usado"]], 400);
+        } else {
+            $user->update($validated);
+            return $this->sendMessage("Se ha actualizado correctamente el usuario", 200);
+        } */
+
         $user->update($validated);
+        return $this->sendMessage("Se ha actualizado correctamente el usuario", 200);
 
     }
 

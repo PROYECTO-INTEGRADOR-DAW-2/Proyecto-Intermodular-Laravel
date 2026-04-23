@@ -85,19 +85,30 @@ export const useAuthStore = defineStore('auth', {
         },
 
         async fetchUserAction() {
-            if (!this.bearerToken) return;
-
-            const response = await fetchUser();
-
-            if (response.success) {
-                this.user = response.data;
-                this.role = response.data.rol;
-                this.isAuthenticated = true;
-            } else {
-                this.user = null;
+            if (!this.bearerToken) {
                 this.isAuthenticated = false;
-                this.bearerToken = null;
-                localStorage.removeItem('token');
+                return;
+            }
+
+            // Evitar llamadas concurrentes si ya tenemos el usuario
+            if (this.user) {
+                this.isAuthenticated = true;
+                return;
+            }
+
+            try {
+                const response = await fetchUser();
+
+                if (response.success && response.data) {
+                    this.user = response.data;
+                    this.role = response.data.rol || "";
+                    this.isAuthenticated = true;
+                } else {
+                    this.logoutAction();
+                }
+            } catch (error) {
+                console.error("Error fetching user:", error);
+                this.logoutAction();
             }
         },
 
@@ -109,7 +120,7 @@ export const useAuthStore = defineStore('auth', {
         },
 
         //Admin methods
-        async getUsers() {
+        async getUsersAction() {
 
             if (!this.isAuthenticated) {
                 this.addMessageAction('error', "No estas logueado en el sistema");
@@ -134,6 +145,33 @@ export const useAuthStore = defineStore('auth', {
                 return response;
             }
 
+        },
+
+        async updateUserAction(user, data) {
+            
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', "No estas logueado en el sistema");
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion')
+                return;
+            }
+
+            const response = await updateUser(user, data);
+
+            if (response.success) {
+                this.addMessageAction('success', response?.message || "Se ha actualizado correctamente el usuario");
+                
+                return {
+                    success: true,
+                    data: response.data,
+                    info : response?.info,
+                    message: response.message
+                };
+            } else {
+                this.addMessageAction('error', response?.message || "Error al intentar actualizar el usuario");
+                return response;
+            }
         },
 
         addMessageAction(type, message) {
