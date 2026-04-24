@@ -14,6 +14,8 @@
 
     const updateUserPopUpActive = ref(false);
     const deleteUserPopUpActive = ref(false);
+    const addUserPopUpActive = ref(false);
+
     const userFormData = ref({});
     const userSelectedToDelete = ref({});
     
@@ -26,6 +28,19 @@
         rol: yup.string().required('Debes de seleccionar un rol')
     })
 
+    const schemaAddUser = yup.object({
+        nombre: yup.string().required('El nombre de usuario es obligatorio'),
+        apellidos: yup.string().required('Los apellidos del usuarios son obligatorios'),
+        nombre_usuario: yup.string().required('El nombre de usuario es obligatorio'),
+        contraseña: yup.string().required('La contraseña es obligatoria')
+        .matches(/[A-Z]/, 'Debe tener al menos una letra mayuscula')
+        .matches(/[a-z]/, 'Debe contener al menos una letra minúscula')
+        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Debe contener al menos un símbolo (!@#$%^&...)'),
+        confirm_contraseña: yup.string().required("Confirmacion obligatoria").oneOf([yup.ref('contraseña')], 'Las contraseñas no coinciden'),
+        email: yup.string().email("Debes introducir un email valido").required("Email obligatorio"),
+        rol: yup.string().required('Debes de seleccionar un rol')
+    })
+
     const handleEditUser = (user) => {
         updateUserPopUpActive.value = true;
         userFormData.value = {...user}
@@ -34,6 +49,10 @@
     const handleDeleteUser = (user) => {
         deleteUserPopUpActive.value = true;
         userSelectedToDelete.value = user;
+    }
+
+    const handleAddUser = () => {
+        addUserPopUpActive.value = true;
     }
 
     const onSubmitUserUpdate = async (data, { setFieldError }) => {
@@ -66,10 +85,9 @@
 
         deleteUserPopUpActive.value = false;
 
-    
+
         if (userId) {
             const response = await authStore.deleteUserAction(userId);
-
 
             if (response.success) {
                 emit('fetchUsers')
@@ -80,6 +98,20 @@
         }
     }
 
+    const onSubmitAddUser = async (userData, { setFieldError }) => {
+        const response = await authStore.addUserAction(userData);
+
+        if (!response.success && response.info) {
+            Object.entries(response.info).forEach(([field, messages]) => {
+                setFieldError(field, messages[0]);
+            })
+        } else {
+            emit('fetchUsers')
+
+            addUserPopUpActive.value = false;
+        }
+    }
+
 
     
 
@@ -87,6 +119,12 @@
 </script>
 
 <template>
+    <div style="margin-top: 2em;">
+        <div class="buttons-container">
+            <button class="create-user-button" @click="handleAddUser">Nuevo <i class="bi bi-plus"></i></button>
+            <button class="create-user-button">Nuevo <i class="bi bi-plus"></i></button>
+        </div>
+        
         <div class="cart-table-wrapper">
             <div v-if="users.length">
                 <div class="updateTableButton"></div>
@@ -101,7 +139,6 @@
                         <th>Rol</th>
                         <th>Acciones</th>
                     </tr>
-                    
                     
                     <tr v-for="(user, index) in users">
                         <td>{{ user.id }}</td>
@@ -227,10 +264,99 @@
             </div>
         </div>
 
+        <div class="popup-backdrop" v-if="addUserPopUpActive" @click.self="addUserPopUpActive = false">
+            <div class="pop-up-edit-user-container">
+                <div class="popup-header">
+                    <h3>Añadir Usuario</h3>
+                    <button class="close-btn" @click="addUserPopUpActive = false">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <Form :validation-schema="schemaAddUser" @submit="onSubmitAddUser">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <Field type="text" name="nombre" placeholder="Nombre"></Field>
+                            <ErrorMessage name="nombre" class="error-msg" />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Apellidos</label>
+                            <Field type="text" name="apellidos" placeholder="Apellidos"></Field>
+                            <ErrorMessage name="apellidos" class="error-msg" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nombre de usuario</label>
+                        <Field type="text" name="nombre_usuario" placeholder="Usuario"></Field>
+                        <ErrorMessage name="nombre_usuario" class="error-msg" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contraseña</label>
+                        <Field type="password" name="contraseña" placeholder="Contraseña"></Field>
+                        <ErrorMessage name="contraseña" class="error-msg" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirmacion contraseña</label>
+                        <Field type="password" name="confirm_contraseña" placeholder="Confirmacion contraseña"></Field>
+                        <ErrorMessage name="confirm_contraseña" class="error-msg" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <Field type="text" name="email" placeholder="correo@ejemplo.com"></Field>
+                        <ErrorMessage name="email" class="error-msg" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rol de usuario</label>
+                        <Field as="select" name="rol">
+                            <option disabled readonly selected>Selecciona un rol</option>
+                            <option value="admin">Admin</option>
+                            <option value="client">Cliente</option>
+                        </Field>
+                        <ErrorMessage name="rol" class="error-msg" />
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" @click="addUserPopUpActive = false">Cancelar</button>
+                        <button type="submit" class="add-btn">Añadir usuario</button>
+                    </div>
+                </Form>
+            </div>
+        </div>
+
+    </div>
+        
+
 </template>
 
 <style scoped>
-.cart-table-wrapper {
+
+    .buttons-container {
+        display: grid;
+        grid-template-columns: auto auto;
+        width: 15em;
+        justify-self: end;
+        gap: 20px;
+    }
+
+    .create-user-button {
+        width: 5em;
+        height: 3em;
+        border: none;
+        background-color: #D72631;
+        color: white;
+        font-weight: 700;
+        font-size: 20px;
+        border-radius: 8px;
+    }
+
+    .cart-table-wrapper {
         width: 100%;
         justify-self: center;
         max-height: 60vh;
@@ -238,6 +364,8 @@
         margin: 20px 0;
         align-self: start;
         position: relative;
+        box-shadow: inset 0 2px 2px 10px rgba(0, 0, 0, 0.5);
+        
     }
 
     .users-table {
@@ -473,6 +601,26 @@
     }
 
     .delete-btn:active {
+        transform: translateY(0);
+    }
+
+    .add-btn {
+        background-color: #D72631;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .add-btn:hover {
+        background-color: #b01f28;
+        transform: translateY(-2px);
+    }
+
+    .add-btn:active {
         transform: translateY(0);
     }
 

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\UserResource;
 use App\Http\Requests\Auth\UpdateUserRequest;
+use App\Http\Requests\Auth\CreateUserRequest;
 
 class AdminController extends BaseController {
     
@@ -42,6 +43,15 @@ class AdminController extends BaseController {
 
         $user->update($validated);
         return $this->sendMessage("Se ha actualizado correctamente el usuario", 200);
+
+    }
+
+    public function createUser(CreateUserRequest $request) {
+        $validated = $request->validated();
+
+        User::create($validated);
+
+        return $this->sendMessage("Se ha añadido correctamente el usuario", 200);
 
     }
 

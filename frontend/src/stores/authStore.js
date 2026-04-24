@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, fetchRoles } from '../services/api.js'
+import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, addUser, fetchRoles } from '../services/api.js'
 import { useMessageStore } from '../stores/messageStore.js';
 
 export const useAuthStore = defineStore('auth', {
@@ -170,6 +170,33 @@ export const useAuthStore = defineStore('auth', {
                 };
             } else {
                 this.addMessageAction('error', response?.message || "Error al intentar actualizar el usuario");
+                return response;
+            }
+        },
+
+        async addUserAction(data) {
+            
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', "No estas logueado en el sistema");
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion')
+                return;
+            }
+
+            const response = await addUser(data);
+
+            if (response.success) {
+                this.addMessageAction('success', response?.message || "Se ha añadido correctamente el usuario");
+                
+                return {
+                    success: true,
+                    data: response.data,
+                    info : response?.info,
+                    message: response.message
+                };
+            } else {
+                this.addMessageAction('error', response?.message || "Error al intentar añadir el usuario");
                 return response;
             }
         },
