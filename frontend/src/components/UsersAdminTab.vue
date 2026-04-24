@@ -12,9 +12,10 @@
     
     const emit = defineEmits(['fetchUsers']);
 
-
     const updateUserPopUpActive = ref(false);
+    const deleteUserPopUpActive = ref(false);
     const userFormData = ref({});
+    const userSelectedToDelete = ref({});
     
 
     const schemaUpdateUser = yup.object({
@@ -28,6 +29,11 @@
     const handleEditUser = (user) => {
         updateUserPopUpActive.value = true;
         userFormData.value = {...user}
+    }
+
+    const handleDeleteUser = (user) => {
+        deleteUserPopUpActive.value = true;
+        userSelectedToDelete.value = user;
     }
 
     const onSubmitUserUpdate = async (data, { setFieldError }) => {
@@ -58,8 +64,12 @@
 
     const onSubmitUserDelete = async (userId) => {
 
+        deleteUserPopUpActive.value = false;
+
+    
         if (userId) {
             const response = await authStore.deleteUserAction(userId);
+
 
             if (response.success) {
                 emit('fetchUsers')
@@ -101,7 +111,7 @@
                         <td>{{ user.email }}</td>
                         <td>{{ user.rol }}</td>
                         <td class="actions">
-                            <button @click="onSubmitUserDelete(user.id)"><i class="bi bi-trash"></i></button>
+                            <button @click="handleDeleteUser(user)"><i class="bi bi-trash"></i></button>
                             <button @click="handleEditUser(user)"><i class="bi bi-pencil"></i></button>
                         </td>
                     </tr>
@@ -160,6 +170,60 @@
                         <button type="submit" class="save-btn">Guardar Cambios</button>
                     </div>
                 </Form>
+            </div>
+        </div>
+
+        <div class="popup-backdrop" v-if="deleteUserPopUpActive" @click.self="deleteUserPopUpActive = false">
+            <div class="pop-up-edit-user-container">
+                <div class="popup-header">
+                    <h3>Eliminar Usuario</h3>
+                    <button class="close-btn" @click="deleteUserPopUpActive = false">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <h2 style="margin-bottom:30px">Estas seguro de querer eliminar el usuario siguiente?</h2>
+
+                <div class="user-data">
+
+                    <div style="display: grid;">
+                        <strong>Id</strong>
+                        <p >{{ userSelectedToDelete.id }}</p>
+                    </div>
+                    
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <div style="display: grid;">
+                            <strong>Nombre</strong>
+                            <p >{{ userSelectedToDelete.nombre }}</p>
+                        </div>
+
+                        <div style="display: grid;">
+                            <strong>Apellidos</strong>
+                            <p>{{ userSelectedToDelete.apellidos }}</p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <div style="display: grid;">
+                            <strong>Nombre usuario</strong>
+                            <p>{{ userSelectedToDelete.nombre_usuario }}</p>
+                        </div>
+
+                        <div style="display: grid;">
+                            <strong>Email</strong>
+                            <p>{{ userSelectedToDelete.email }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" @click="deleteUserPopUpActive = false">Cancelar</button>
+                        <button type="submit" class="delete-btn" @click="onSubmitUserDelete(userSelectedToDelete.id)">Eliminar usuario</button>
+                    </div>
+                    
+                </div>
+
+                
             </div>
         </div>
 
@@ -380,6 +444,36 @@
 
     .cancel-btn:hover {
         background-color: #e5e5e5;
+    }
+
+    .user-data {
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        row-gap: 20px;
+    }
+
+    .user-data p{
+        margin: 0;
+    }
+
+    .delete-btn {
+        background-color: #D72631;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+
+    .delete-btn:hover {
+        background-color: #b01f28;
+        transform: translateY(-2px);
+    }
+
+    .delete-btn:active {
+        transform: translateY(0);
     }
 
 </style>

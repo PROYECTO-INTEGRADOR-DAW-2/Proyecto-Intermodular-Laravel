@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, fetchRoles } from '../services/api.js'
+import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, fetchRoles } from '../services/api.js'
 import { useMessageStore } from '../stores/messageStore.js';
 
 export const useAuthStore = defineStore('auth', {
