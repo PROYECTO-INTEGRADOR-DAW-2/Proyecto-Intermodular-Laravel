@@ -18,7 +18,8 @@ class UserSeeder extends Seeder
             'apellidos' => 'Danga Vicol',
             'email' => 'albertdangavicol@gmail.com',
             'nombre_usuario' => "alvertt",
-            'contraseña' => Hash::make("password")
+            'contraseña' => Hash::make("password"),
+            'rol' => 1
             ]
         );
 

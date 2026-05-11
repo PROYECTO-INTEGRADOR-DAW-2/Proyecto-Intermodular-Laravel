@@ -7,50 +7,34 @@
     const authStore = useAuthStore();
 
     const props = defineProps({
-        users: Array
+        roles: Array
     })
     
     //Emit evento para obtencion de usuarios despues de realizar acciones CRUD 
-    const emit = defineEmits(['fetchUsers']);
+    const emit = defineEmits(['fetchRoles']);
 
     //Variables para mostrar o no popups
-    const updateUserPopUpActive = ref(false);
-    const deleteUserPopUpActive = ref(false);
-    const addUserPopUpActive = ref(false);
-    const importUsersPopUpActive = ref(false);
+    const updateRolePopUpActive = ref(false);
+    const deleteRolePopUpActive = ref(false);
+    const addRolePopUpActive = ref(false);
+    const importRolesPopUpActive = ref(false);
     const getLogsButtonActive = ref(false);
     const showLogsPopUpActive = ref(false);
 
     //Informacion sobre usuario seleccionado para eliminar, actualizar, obtencion de logs
-    const userFormData = ref({});
-    const userSelectedToDelete = ref({});
+    const roleFormData = ref({});
+    const roleSelectedToDelete = ref({});
 
     const logsData = ref(null);
     
 
     //Schemas de validacion para los diferentes tipos de formularios
-    const schemaUpdateUser = yup.object({
-        nombre: yup.string().required('El nombre de usuario es obligatorio'),
-        apellidos: yup.string().required('Los apellidos del usuarios son obligatorios'),
-        nombre_usuario: yup.string().required('El nombre de usuario es obligatorio'),
-        email: yup.string().email("Debes introducir un email valido").required("Email obligatorio"),
-        rol: yup.string().required('Debes de seleccionar un rol')
+    const schemaUpdateAddRole = yup.object({
+        rol: yup.string().required('El nombre de rol es obligatorio'),
+        descripcion: yup.string().required('Los apellidos del usuarios son obligatorios').max(255),
     })
 
-    const schemaAddUser = yup.object({
-        nombre: yup.string().required('El nombre de usuario es obligatorio'),
-        apellidos: yup.string().required('Los apellidos del usuarios son obligatorios'),
-        nombre_usuario: yup.string().required('El nombre de usuario es obligatorio'),
-        contraseña: yup.string().required('La contraseña es obligatoria')
-        .matches(/[A-Z]/, 'Debe tener al menos una letra mayuscula')
-        .matches(/[a-z]/, 'Debe contener al menos una letra minúscula')
-        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Debe contener al menos un símbolo (!@#$%^&...)'),
-        confirm_contraseña: yup.string().required("Confirmacion obligatoria").oneOf([yup.ref('contraseña')], 'Las contraseñas no coinciden'),
-        email: yup.string().email("Debes introducir un email valido").required("Email obligatorio"),
-        rol: yup.string().required('Debes de seleccionar un rol')
-    })
-
-    const schemaImportUsers = yup.object().shape({
+    const schemaImportRoles = yup.object().shape({
         fichero: yup.mixed()
         .required('El fichero es obligatorio')
         .test('is-correct-file-tipe', "El fichero debe de ser una de las siguientes extensiones (csv, xlsx, xls)", (value) => {
@@ -66,30 +50,30 @@
 
 
     //Metodos relacionados con los eventos de click a botones y demas (mostrar popups, rellenar formularios)
-    const handleEditUser = (user) => {
-        updateUserPopUpActive.value = true;
-        userFormData.value = {...user}
+    const handleEditRole = (role) => {
+        updateRolePopUpActive.value = true;
+        roleFormData.value = {...role}
     }
 
-    const handleDeleteUser = (user) => {
-        deleteUserPopUpActive.value = true;
-        userSelectedToDelete.value = user;
+    const handleDeleteRole = (role) => {
+        deleteRolePopUpActive.value = true;
+        roleSelectedToDelete.value = role;
     }
 
-    const handleAddUser = () => {
-        addUserPopUpActive.value = true;
+    const handleAddRole = () => {
+        addRolePopUpActive.value = true;
     }
 
-    const handleImportUsers = () => {
-        importUsersPopUpActive.value = true;
+    const handleImportRoles = () => {
+        importRolesPopUpActive.value = true;
     }
 
 
     //Metodos relacionados con el CRUD de usuarios e importacion
-    const onSubmitUserUpdate = async (data, { setFieldError }) => {
+    const onSubmitRoleUpdate = async (data, { setFieldError }) => {
 
         if (data?.id) {
-            const response = await authStore.updateUserAction(data.id, data);
+            const response = await authStore.updateRoleAction(data.id, data);
 
             if (!response.success && response.info) {
 
@@ -99,62 +83,63 @@
 
             } else {
 
-                emit('fetchUsers')
+                emit('fetchRoles')
 
-                userFormData.value = {};
-                updateUserPopUpActive.value = false;
+                roleFormData.value = {};
+                updateRolePopUpActive.value = false;
                 
 
             }
 
         } else {
-            messageStore.addMessage('error', 'No se ha proporcionado del id del usuario');
+            messageStore.addMessage('error', 'No se ha proporcionado del id del rol');
         }
     }
 
-    const onSubmitUserDelete = async (userId) => {
+    const onSubmitRoleDelete = async (roleId) => {
 
-        deleteUserPopUpActive.value = false;
+        deleteRolePopUpActive.value = false;
 
 
-        if (userId) {
-            const response = await authStore.deleteUserAction(userId);
+        if (roleId) {
+            const response = await authStore.deleteRoleAction(roleId);
 
             if (response.success) {
-                emit('fetchUsers')
+                deleteRolePopUpActive.value = false;
+                emit('fetchRoles')
             }
 
         } else {
-            messageStore.addMessage('error', 'No se ha proporcionado del id del usuario');
+            messageStore.addMessage('error', 'No se ha proporcionado el id del rol');
         }
     }
 
-    const onSubmitAddUser = async (userData, { setFieldError }) => {
-        const response = await authStore.addUserAction(userData);
+    const onSubmitAddRole = async (roleData, { setFieldError }) => {
+        const response = await authStore.addRoleAction(roleData);
 
         if (!response.success && response.info) {
             Object.entries(response.info).forEach(([field, messages]) => {
                 setFieldError(field, messages[0]);
             })
         } else {
-            emit('fetchUsers')
+            emit('fetchRoles')
 
-            addUserPopUpActive.value = false;
+            addRolePopUpActive.value = false;
         }
     }
 
-    const onSubmitImportUsers = async (values, { setFieldError }) => {
+    const onSubmitImportRoles = async (values, { setFieldError }) => {
         const formData = new FormData();
         formData.append("fichero", values.fichero);
 
-        const response = await authStore.importUsersAction(formData);
+        const response = await authStore.importRolesAction(formData);
 
         if (!response.success && response.info) {
             Object.entries(response.info).forEach(([field, messages]) => {
                 setFieldError(field, messages[0]);
             })
         } else {
-            emit('fetchUsers');
+            emit('fetchRoles');
             getLogsButtonActive.value = true;
         }
     }
@@ -166,20 +151,20 @@
             page = 1;
         }
 
-        const response = await authStore.getLogDataFromImports(page);
+        const response = await authStore.getLogDataFromRoleImports(page);
         console.log(response.data);
         
 
         if (response.success) {
             logsData.value = response.data;
-            importUsersPopUpActive.value = false;
+            importRolesPopUpActive.value = false;
             showLogsPopUpActive.value = true;
         }
     }
 
     const handlePreviousLogsPage = async () => {
         if (logsData.value?.previous_page) {
-            const response = await authStore.getLogDataFromImports(logsData.value.previous_page);
+            const response = await authStore.getLogDataFromRoleImports(logsData.value.previous_page);
 
             if (response.success) {
                 logsData.value = response.data;
@@ -189,7 +174,7 @@
 
     const handleNextLogsPage = async () => {
         if (logsData.value?.next_page) {
-            const response = await authStore.getLogDataFromImports(logsData.value.next_page);
+            const response = await authStore.getLogDataFromRoleImports(logsData.value.next_page);
 
             if (response.success) {
                 logsData.value = response.data;
@@ -203,36 +188,31 @@
 <template>
     <div style="margin-top: 2em;">
         <div class="buttons-container">
-            <button class="create-user-button" @click="handleAddUser">Nuevo <i class="bi bi-plus"></i></button>
-            <button class="import-users-button" @click="handleImportUsers">Importar <i class="bi bi-plus"></i></button>
+            <button class="create-role-button" @click="handleAddRole">Nuevo <i class="bi bi-plus"></i></button>
+            <button class="import-roles-button" @click="handleImportRoles">Importar <i class="bi bi-plus"></i></button>
             <button class="show-logs-button" @click="onSubmitGetLogs">Obtener logs</button>
         </div>
         
         <div class="cart-table-wrapper">
-            <div v-if="users.length">
+            <div v-if="roles.length">
                 <div class="updateTableButton"></div>
-                <table class="users-table">
+                <table class="roles-table">
                     
                     <tr>
                         <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Apellidos</th>
-                        <th>Nombre usuario</th>
-                        <th>Email</th>
                         <th>Rol</th>
+                        <th>Descripcion</th>
                         <th>Acciones</th>
                     </tr>
                     
-                    <tr v-for="(user, index) in users">
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.nombre }}</td>
-                        <td>{{ user.apellidos }}</td>
-                        <td>{{ user.nombre_usuario }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.rol }}</td>
+                    <tr v-for="(role, index) in roles">
+                        <td>{{ role.id }}</td>
+                        <td>{{ role.rol }}</td>
+                        <td>{{ role.descripcion }}</td>
+
                         <td class="actions">
-                            <button @click="handleDeleteUser(user)"><i class="bi bi-trash"></i></button>
-                            <button @click="handleEditUser(user)"><i class="bi bi-pencil"></i></button>
+                            <button @click="handleDeleteRole(role)"><i class="bi bi-trash"></i></button>
+                            <button @click="handleEditRole(role)"><i class="bi bi-pencil"></i></button>
                         </td>
                     </tr>
 
@@ -240,105 +220,73 @@
             </div>
         </div>
 
-        <div class="popup-backdrop" v-if="updateUserPopUpActive" @click.self="updateUserPopUpActive = false">
-            <div class="pop-up-edit-user-container">
+        <div class="popup-backdrop" v-if="updateRolePopUpActive" @click.self="updateRolePopUpActive = false">
+            <div class="pop-up-edit-role-container">
                 <div class="popup-header">
-                    <h3>Editar Usuario</h3>
-                    <button class="close-btn" @click="updateUserPopUpActive = false">
+                    <h3>Editar Rol</h3>
+                    <button class="close-btn" @click="updateRolePopUpActive = false">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
 
-                <Form :validation-schema="schemaUpdateUser" :initial-values="userFormData" @submit="onSubmitUserUpdate">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nombre</label>
-                            <Field type="text" name="nombre" placeholder="Nombre"></Field>
-                            <ErrorMessage name="nombre" class="error-msg" />
-                        </div>
-
-                        <div class="form-group">
-                            <label>Apellidos</label>
-                            <Field type="text" name="apellidos" placeholder="Apellidos"></Field>
-                            <ErrorMessage name="apellidos" class="error-msg" />
-                        </div>
-                    </div>
-
+                <Form :validation-schema="schemaUpdateAddRole" :initial-values="roleFormData" @submit="onSubmitRoleUpdate">
+                    
                     <div class="form-group">
-                        <label>Nombre de usuario</label>
-                        <Field type="text" name="nombre_usuario" placeholder="Usuario"></Field>
-                        <ErrorMessage name="nombre_usuario" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email</label>
-                        <Field type="text" name="email" placeholder="correo@ejemplo.com"></Field>
-                        <ErrorMessage name="email" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Rol de usuario</label>
-                        <Field as="select" name="rol">
-                            <option value="admin">Admin</option>
-                            <option value="client">Cliente</option>
-                        </Field>
+                        <label>Rol</label>
+                        <Field type="text" name="rol" placeholder="Nombre del rol"></Field>
                         <ErrorMessage name="rol" class="error-msg" />
                     </div>
 
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <Field type="text" name="descripcion" placeholder="Descripcion"></Field>
+                        <ErrorMessage name="descripcion" class="error-msg" />
+                    </div>
+                    
+
                     <div class="form-actions">
-                        <button type="button" class="cancel-btn" @click="updateUserPopUpActive = false">Cancelar</button>
+                        <button type="button" class="cancel-btn" @click="updateRolePopUpActive = false">Cancelar</button>
                         <button type="submit" class="save-btn">Guardar Cambios</button>
                     </div>
                 </Form>
             </div>
         </div>
 
-        <div class="popup-backdrop" v-if="deleteUserPopUpActive" @click.self="deleteUserPopUpActive = false">
-            <div class="pop-up-edit-user-container">
+        <div class="popup-backdrop" v-if="deleteRolePopUpActive" @click.self="deleteRolePopUpActive = false">
+            <div class="pop-up-edit-role-container">
                 <div class="popup-header">
-                    <h3>Eliminar Usuario</h3>
-                    <button class="close-btn" @click="deleteUserPopUpActive = false">
+                    <h3>Eliminar Rol</h3>
+                    <button class="close-btn" @click="deleteRolePopUpActive = false">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
 
-                <h2 style="margin-bottom:30px">Estas seguro de querer eliminar el usuario siguiente?</h2>
+                <h2 style="margin-bottom:30px">Estas seguro de querer eliminar el rol siguiente?</h2>
 
-                <div class="user-data">
+                <div class="role-data">
 
                     <div style="display: grid;">
                         <strong>Id</strong>
-                        <p >{{ userSelectedToDelete.id }}</p>
+                        <p >{{ roleSelectedToDelete.id }}</p>
                     </div>
                     
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                    <div style="display: grid; grid-template-columns: 1fr; grid-template-rows: 1fr 1fr;">
                         <div style="display: grid;">
-                            <strong>Nombre</strong>
-                            <p >{{ userSelectedToDelete.nombre }}</p>
+                            <strong>Rol</strong>
+                            <p >{{ roleSelectedToDelete.rol }}</p>
                         </div>
 
                         <div style="display: grid;">
-                            <strong>Apellidos</strong>
-                            <p>{{ userSelectedToDelete.apellidos }}</p>
+                            <strong>Descripción</strong>
+                            <p>{{ roleSelectedToDelete.descripcion }}</p>
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
-                        <div style="display: grid;">
-                            <strong>Nombre usuario</strong>
-                            <p>{{ userSelectedToDelete.nombre_usuario }}</p>
-                        </div>
-
-                        <div style="display: grid;">
-                            <strong>Email</strong>
-                            <p>{{ userSelectedToDelete.email }}</p>
-                        </div>
-                    </div>
 
                     <div class="form-actions">
-                        <button type="button" class="cancel-btn" @click="deleteUserPopUpActive = false">Cancelar</button>
-                        <button type="submit" class="delete-btn" @click="onSubmitUserDelete(userSelectedToDelete.id)">Eliminar usuario</button>
+                        <button type="button" class="cancel-btn" @click="deleteRolePopUpActive = false">Cancelar</button>
+                        <button type="submit" class="delete-btn" @click="onSubmitRoleDelete(roleSelectedToDelete.id)">Eliminar rol</button>
                     </div>
                     
                 </div>
@@ -347,82 +295,48 @@
             </div>
         </div>
 
-        <div class="popup-backdrop" v-if="addUserPopUpActive" @click.self="addUserPopUpActive = false">
-            <div class="pop-up-edit-user-container">
+        <div class="popup-backdrop" v-if="addRolePopUpActive" @click.self="addRolePopUpActive = false">
+            <div class="pop-up-edit-role-container">
                 <div class="popup-header">
-                    <h3>Añadir Usuario</h3>
-                    <button class="close-btn" @click="addUserPopUpActive = false">
+                    <h3>Añadir Rol</h3>
+                    <button class="close-btn" @click="addRolePopUpActive = false">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
 
-                <Form :validation-schema="schemaAddUser" @submit="onSubmitAddUser">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nombre</label>
-                            <Field type="text" name="nombre" placeholder="Nombre"></Field>
-                            <ErrorMessage name="nombre" class="error-msg" />
-                        </div>
-
-                        <div class="form-group">
-                            <label>Apellidos</label>
-                            <Field type="text" name="apellidos" placeholder="Apellidos"></Field>
-                            <ErrorMessage name="apellidos" class="error-msg" />
-                        </div>
-                    </div>
-
+                <Form :validation-schema="schemaUpdateAddRole" @submit="onSubmitAddRole">
+                    
                     <div class="form-group">
-                        <label>Nombre de usuario</label>
-                        <Field type="text" name="nombre_usuario" placeholder="Usuario"></Field>
-                        <ErrorMessage name="nombre_usuario" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <Field type="password" name="contraseña" placeholder="Contraseña"></Field>
-                        <ErrorMessage name="contraseña" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Confirmacion contraseña</label>
-                        <Field type="password" name="confirm_contraseña" placeholder="Confirmacion contraseña"></Field>
-                        <ErrorMessage name="confirm_contraseña" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email</label>
-                        <Field type="text" name="email" placeholder="correo@ejemplo.com"></Field>
-                        <ErrorMessage name="email" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Rol de usuario</label>
-                        <Field as="select" name="rol">
-                            <option disabled readonly selected>Selecciona un rol</option>
-                            <option value="admin">Admin</option>
-                            <option value="client">Cliente</option>
-                        </Field>
+                        <label>Rol</label>
+                        <Field type="text" name="rol" placeholder="Nombre del rol"></Field>
                         <ErrorMessage name="rol" class="error-msg" />
                     </div>
 
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <Field type="text" name="descripcion" placeholder="Descripción"></Field>
+                        <ErrorMessage name="descripcion" class="error-msg" />
+                    </div>
+                    
+
                     <div class="form-actions">
-                        <button type="button" class="cancel-btn" @click="addUserPopUpActive = false">Cancelar</button>
-                        <button type="submit" class="add-btn">Añadir usuario</button>
+                        <button type="button" class="cancel-btn" @click="addRolePopUpActive = false">Cancelar</button>
+                        <button type="submit" class="add-btn">Añadir rol</button>
                     </div>
                 </Form>
             </div>
         </div>
 
-        <div class="popup-backdrop" v-if="importUsersPopUpActive" @click.self="importUsersPopUpActive = false">
+        <div class="popup-backdrop" v-if="importRolesPopUpActive" @click.self="importRolesPopUpActive = false">
             <div class="pop-up-edit-user-container">
                 <div class="popup-header">
-                    <h3>Importar Usuarios</h3>
-                    <button class="close-btn" @click="importUsersPopUpActive = false">
+                    <h3>Importar Roles</h3>
+                    <button class="close-btn" @click="importRolesPopUpActive = false">
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
 
-                <Form :validation-schema="schemaImportUsers" @submit="onSubmitImportUsers">
+                <Form :validation-schema="schemaImportRoles" @submit="onSubmitImportRoles">
                     
                     <div class="form-group">
                         <label>Fichero (csv,xlsx,xls)</label>
@@ -433,8 +347,8 @@
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="cancel-btn" @click="importUsersPopUpActive = false">Cancelar</button>
-                        <button type="submit" class="add-btn">Importar usuarios</button>
+                        <button type="button" class="cancel-btn" @click="importRolesPopUpActive = false">Cancelar</button>
+                        <button type="submit" class="add-btn">Importar Roles</button>
                         <button type="button" class="show-logs-btn" @click="onSubmitGetLogs"></button>
                     </div>
                 </Form>
@@ -474,7 +388,7 @@
         gap: 20px;
     }
 
-    .create-user-button {
+    .create-role-button {
         cursor: pointer;
         width: auto;
         height: 3em;
@@ -486,7 +400,7 @@
         border-radius: 8px;
     }
 
-    .import-users-button {
+    .import-roles-button {
         cursor: pointer;
         width: auto;
         height: 3em;
@@ -522,7 +436,7 @@
         
     }
 
-    .users-table {
+    .roles-table {
         width: 100%;
         background-color: #1F1F1F;
         color: white;
@@ -531,18 +445,18 @@
         display: table;
     }
 
-    .users-table tr {
+    .roles-table tr {
         width: 100%;
         display: table-row; 
     }
 
-    .users-table td, .users-table th {
+    .roles-table td, .roles-table th {
         padding: 15px;
         text-align: left;
         border-bottom: 1px solid #333;
     }
 
-    .users-table th {
+    .roles-table th {
         background-color: #2D2D2D;
         position: sticky;
         top: 0;
@@ -587,7 +501,7 @@
     }
 
     /* Centered Popup Container */
-    .pop-up-edit-user-container {
+    .pop-up-edit-role-container {
         border-radius: 24px;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         background-color: #ffffff;

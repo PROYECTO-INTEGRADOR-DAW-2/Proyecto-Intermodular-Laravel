@@ -4,17 +4,21 @@
     import { onMounted, ref } from 'vue';
     
     import UsersAdminTab from '../components/UsersAdminTab.vue';
+    import RolesAdminTab from '../components/RolesAdminTab.vue';
 
     const currentTab = ref("");
     const authStore = useAuthStore();
     const messageStore = useMessageStore();
 
     const users = ref([]);
+    const roles = ref([]);
     const loadingUsers = ref(false);
+    const loadingRoles = ref(false);
 
-    const fetchedSections = {
-        users: false
-    }
+    const fetchedSections = ref({
+        users: false,
+        roles: false,
+    })
 
     const handleTabChange = async (tab) => {
         switch (tab) {
@@ -28,15 +32,34 @@
 
                     if (response.success) {
                         users.value = response.data
-                        fetchedSections.users = true;
+                        fetchedSections.value.users = true;
                         loadingUsers.value = false;
                     } else {
-                        fetchedSections.users = true;
+                        fetchedSections.value.users = true;
                         loadingUsers.value = false;
                     }
                 }
                 
                 break;
+            case 'roles':
+                if (fetchedSections.value.roles) {
+                    currentTab.value = 'roles';
+                } else {
+                    currentTab.value = 'roles';
+                    loadingRoles.value = true;
+                    roles.value = [];
+                    
+                    const response = await authStore.getAllRolesAction();
+
+                    if (response.success) {
+                        roles.value = response.data.data;
+                        fetchedSections.value.roles = true;
+                        loadingRoles.value = false;
+                    } else {
+                        fetchedSections.value.roles = true;
+                        loadingRoles.value = false;
+                    }
+                }
         
             default:
                 break;
@@ -46,16 +69,38 @@
     //USER RELATED METHODS AND DATA FOR THE CHILD COMPONENT
 
     const handleFetchUser = async () => {
-        const response = await authStore.getUsersAction();
+
+        users.value = [];
         loadingUsers.value = true;
-        
+        fetchedSections.value.users = false;
+
+        const response = await authStore.getUsersAction();
+
         if (response.success) {
             users.value = response.data;
-            fetchedSections.user = true;
+            fetchedSections.value.users = true;
             loadingUsers.value = true;
         } else {
             users.value = [];
-            fetchedSections.users = true;
+            fetchedSections.value.users = true;
+            loadingUsers.value = false;
+        }
+    }
+
+    const handleFetchRoles = async () => {
+        
+        roles.value = [];
+        loadingRoles.value = true;
+        fetchedSections.value.roles = false;
+
+        const response = await authStore.getAllRolesAction();
+
+        if (response.success) {
+            roles.value = response.data.data;
+            fetchedSections.value.roles = true;
+            loadingRoles.value = false;
+        } else {
+            fetchedSections.value.roles = true;
             loadingUsers.value = false;
         }
     }
@@ -63,16 +108,17 @@
 
     onMounted(async () => {
         currentTab.value = 'users';
+        loadingUsers.value = true;
         
         const response = await authStore.getUsersAction();
         loadingUsers.value = true;
 
         if (response.success) {
             users.value = response.data;
-            fetchedSections.users = true;
+            fetchedSections.value.users = true;
             loadingUsers.value = false;
         } else {
-            fetchedSections.users = true;
+            fetchedSections.value.users = true;
             loadingUsers.value = false;
         }
 
@@ -81,25 +127,38 @@
     
     
 </script>
-
+    
 <template>
     <div class="main-container">
         <div class="tabs">
             <div class="tab" @click="handleTabChange('users')" :class="{'tab-active': currentTab === 'users'}">Usuarios</div>
             <div class="tab">Products</div>
-            <div class="tab">Roles</div>
+            <div class="tab" @click="handleTabChange('roles')" :class="{'tab-active': currentTab === 'roles'}">Roles</div>
         </div>
 
         <UsersAdminTab v-if="currentTab === 'users' && users.length" :users="users" @fetchUsers="handleFetchUser"></UsersAdminTab>
-
-        <div v-else-if="currentTab === 'users' && loadingUsers">     
+        
+        <div v-else-if="currentTab === 'users' && loadingUsers" class="spinner-container">     
             <div class="spinner"></div>
             <p>Cargando usuarios...</p>
         </div>
 
-        <div v-else-if="currentTab === 'users' && !loadingUsers">
+        <div v-else-if="currentTab === 'users' && !loadingUsers && fetchedSections.users">
             <div class="no-users-container">
                 <h4>No hay usuarios en el sistema</h4>
+            </div>
+        </div>
+
+        <RolesAdminTab v-if="currentTab === 'roles' && roles.length" :roles="roles" @fetchRoles="handleFetchRoles"></RolesAdminTab>
+
+        <div v-else-if="currentTab === 'roles' && loadingRoles" class="spinner-container">     
+            <div class="spinner"></div>
+            <p>Cargando roles...</p>
+        </div>
+
+        <div v-else-if="currentTab === 'roles' && !loadingRoles && fetchedSections.roles">
+            <div class="no-users-container">
+                <h4>No hay roles en el sistema</h4>
             </div>
         </div>
         
@@ -109,6 +168,12 @@
 </template>
 
 <style scoped>
+
+    .spinner-container {
+        justify-self: center;
+        align-self: center;
+        justify-items: center;
+    }
 
     .spinner {
         width: 50px;

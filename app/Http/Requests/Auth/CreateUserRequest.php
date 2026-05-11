@@ -2,7 +2,6 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use App\Traits\CustomValidationResponse;
 use Illuminate\Validation\Rules\Password;
 
@@ -18,7 +17,6 @@ class CreateUserRequest extends FormRequest {
      */
     public function rules() {
 
-        $rolesValidos = ['admin','client'];
         return [
             'nombre' => ['required', 'string', 'max:255'],
             'apellidos' => ['required', 'string', 'max:255'],
@@ -26,7 +24,7 @@ class CreateUserRequest extends FormRequest {
             'contraseña' => ['required', Password::defaults()],
             'confirm_contraseña' => ['required', 'same:contraseña'],
             'email' => ['required', 'email', 'unique:users,email'],
-            'rol' => ['required', Rule::in($rolesValidos)]
+            'rol' => ['required', 'exists:roles,rol']
         ];
     }
 

@@ -16,9 +16,10 @@ use App\Http\Controllers\Api\PasswordController;
 use App\Http\Controllers\Api\WishlistController;
 
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\UserImportController;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    return $request->user()->load('role');
 })->middleware('auth:sanctum');
 
 
@@ -48,9 +49,17 @@ Route::name('api.')->group(function () {
             Route::middleware('check.admin')->group(function() {
                 Route::get('/users', [AdminController::class, 'getAllUsers'])->name('admin.get-users');
                 Route::post('/users', [AdminController::class, 'createUser'])->name('admin.add-user');
+                Route::post('/users/import', [UserImportController::class, 'store'])->name('admin.import-users');
+                Route::get('/users/import/logs', [UserImportController::class, 'getLogs'])->name('admin.import-users-logs');
                 Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('admin.update-user');
                 Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.delete-user');
+
                 Route::get('/roles', [AdminController::class, 'getAllRoles'])->name('admin.get-roles');
+                Route::post('/roles', [AdminController::class, 'addRole'])->name('admin.add-role');
+                Route::delete('/roles/{role}', [AdminController::class, 'deleteRole'])->name('admin.delete-role');
+                Route::put('/roles', [AdminController::class, 'updateRole'])->name('admin.update-role');
+
+
             });
             
         }

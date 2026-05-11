@@ -1,12 +1,16 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Role;
+
 use App\Http\Resources\UserResource;
 use App\Http\Requests\Auth\UpdateUserRequest;
 use App\Http\Requests\Auth\CreateUserRequest;
+
+use App\Http\Requests\Auth\AddRoleRequest;
+use App\Http\Requests\Auth\UpdateRoleRequest;
 
 class AdminController extends BaseController {
     
@@ -18,9 +22,25 @@ class AdminController extends BaseController {
     }
 
     public function getAllRoles() {
-        $allRoles = ["admin", "client"];
+        $allRoles = Role::all();
 
         return $this->sendResponse($allRoles, "Se han obtenido los roles del sistema", 200);
+    }
+
+    public function addRole(AddRoleRequest $request) {
+        $validatedData = $request->validated();
+
+        Role::create($validatedData);
+    }
+
+    public function updateRole(Role $role, UpdateRoleRequest $request) {
+        $validatedData = $request->validated();
+
+        $role->update($validatedData);
+    }
+
+    public function deleteRole(Role $role) {
+        $role->delete();
     }
 
     public function updateUser(User $user, UpdateUserRequest $request) {
@@ -30,7 +50,7 @@ class AdminController extends BaseController {
         /* $takenEmails = array_column(
             array_filter(User::all(['id','email'])->toArray(), function ($value) use ($user) {
                 $user->id !== $value['id'];
-            }
+            }   
         ), 'email');
 
         
@@ -52,7 +72,6 @@ class AdminController extends BaseController {
         User::create($validated);
 
         return $this->sendMessage("Se ha añadido correctamente el usuario", 200);
-
     }
 
     public function deleteUser(User $user) {

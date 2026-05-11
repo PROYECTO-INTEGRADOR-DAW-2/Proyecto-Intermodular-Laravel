@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, addUser, fetchRoles } from '../services/api.js'
+import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, addUser, importUsers, getImportsLogs, getAllRoles, deleteRole, addRole, updateRole } from '../services/api.js'
 import { useMessageStore } from '../stores/messageStore.js';
 
 export const useAuthStore = defineStore('auth', {
@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', {
                 const { token, user } = response.data.data;
 
                 this.user = user;
-                this.role = user.rol;
+                this.role = user.role.rol;
                 this.isAuthenticated = true;
                 this.bearerToken = token;
 
@@ -42,7 +42,7 @@ export const useAuthStore = defineStore('auth', {
                 const { token, user } = response.data.data;
 
                 this.user = user;
-                this.role = user.rol;
+                this.role = user.role.rol;
                 this.isAuthenticated = true;
                 this.bearerToken = token;
 
@@ -101,7 +101,7 @@ export const useAuthStore = defineStore('auth', {
 
                 if (response.success && response.data) {
                     this.user = response.data;
-                    this.role = response.data.rol || "";
+                    this.role = response.data.role.rol || "";
                     this.isAuthenticated = true;
                 } else {
                     this.logoutAction();
@@ -122,6 +122,8 @@ export const useAuthStore = defineStore('auth', {
         //ADMIN METHODS
         async getUsersAction() {
 
+            console.log(this.role.toLowerCase())    
+
             if (!this.isAuthenticated) {
                 this.addMessageAction('error', "No estas logueado en el sistema");
                 return;
@@ -129,7 +131,6 @@ export const useAuthStore = defineStore('auth', {
                 this.addMessageAction('error', 'No estas autorizado para realizar esta accion')
                 return;
             }
-
 
             const response = await fetchUsers();
 
@@ -217,6 +218,130 @@ export const useAuthStore = defineStore('auth', {
                 return response;
             } else {
                 this.addMessageAction('error', response.message || 'Error al intentar eliminar el usuario');
+            }
+        },
+
+        async importUsersAction(formData) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion');
+                return;
+            }
+
+            const response = await importUsers(formData);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message || 'Se han importado correctamente los usuarios');
+                return response;
+            } else {
+                this.addMessageAction('error', response.message || 'Error al intentar importar los usuarios');
+                return response;
+            }
+        },
+
+        async getLogDataFromImports(page) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', "No estas logueado en el sistema")
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', "No estas autorizado para realizar esta accion")
+                return;
+            }
+
+            const response = await getImportsLogs(page);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message || 'Se han obtenido los logs del sistema');
+                return {
+                    success: true,
+                    data: response.data.data,
+                    message: response.message
+                };
+            } else {
+                this.addMessageAction('error', response.message || 'No se han podido obtener los logs del sistema');
+                return response;
+            }
+        },
+
+        async getAllRolesAction() {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return
+            } else if (this.role.toLowerCase() !== 'admin'){
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion');
+                return;
+            }
+
+            const response = await getAllRoles();
+
+            if (response.success) {
+                this.addMessageAction('success', response.message);
+                return response;
+            } else {
+                this.addMessageAction('error', response.message);
+                return response;
+            }
+        },
+
+        async deleteRoleAction(roleId) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return
+            } else if (this.role.toLowerCase() !== 'admin'){
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion');
+                return;
+            }
+
+            const response = await deleteRole(roleId);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message);
+                return response;
+            } else {
+                this.addMessageAction('error', response.message);
+                return response;
+            }
+        },
+
+        async addRoleAction(data) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return
+            } else if (this.role.toLowerCase() !== 'admin'){
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion');
+                return;
+            }
+
+            const response = await addRole(data);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message);
+                return response;
+            } else {
+                this.addMessageAction('error', response.message);
+                return response;
+            }
+        },
+
+        async updateRoleAction(roleId, data) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return
+            } else if (this.role.toLowerCase() !== 'admin'){
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion');
+                return;
+            }
+
+            const response = await updateRole(roleId, data);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message);
+                return response;
+            } else {
+                this.addMessageAction('error', response.message);
+                return response;
             }
         },
 

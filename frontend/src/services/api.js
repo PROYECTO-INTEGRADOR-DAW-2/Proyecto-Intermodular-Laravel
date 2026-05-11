@@ -490,34 +490,6 @@ const fetchUsers = async () => {
     }
 }
 
-const fetchRoles = async () => {
-    try {
-        const response = await privateApi.get('/roles');
-        console.log("Axios: Response received:", response.data)
-
-        return {
-            success: true,
-            data: response.data,
-            message: response.data.message,
-        }
-
-    } catch(error) {
-         if (error.response) {
-            return {
-                success: false,
-                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
-                info: error.response?.info || 'Sin informacion del error',
-                message: error.response?.message || "Ha habido un error al obtener la lista de deseos"
-            }
-        } else {
-            return {
-                success: false,
-                data: error.message || 'Sin descripcion de error',
-                message: error.message
-            }
-        }
-    }
-}
 
 const updateUser = async (user, data) => {
     try {
@@ -606,6 +578,179 @@ const deleteUser = async (userId) => {
     }
 }
 
+const importUsers = async (formData) => {
+    try {
+        const respone = await privateApi.post('/users/import', formData, {
+            headers: {
+                "Content-Type": 'multipart/form-data'
+            }
+        });
+
+        return {
+            success: true,
+            data: respone.data,
+            message: respone.message
+        }
+
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al importar los usuarios"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const getImportsLogs = async (page) => {
+    try {
+        const response = await privateApi.get('/users/import/logs', { params: { page } });
+        console.log('Axios response: ', response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+        
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al importar los usuarios"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const getAllRoles = async () => {
+    try {
+        const response = await privateApi.get('/roles');
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message || 'Se han obtenido los roles correctamente'
+        }
+
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error: ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data?.info || error.response.data?.errors,
+                message: error.response.data?.message || 'Ha habido un error al obtener todos los roles'
+            } 
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const deleteRole = async (roleId) => {
+    try {
+        const response = await privateApi.delete(`/roles/${roleId}`);
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message || 'Se ha eliminado el rol correctamente'
+        }
+        
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error: ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data?.info || error.response.data?.errors,
+                message: error.response.data?.message || 'Ha habido un error al eliminar el rol'
+            } 
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const updateRole = async (roleId, data) => {
+    try {
+        const response = await privateApi.put(`/roles/${roleId}`, data);
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message || 'Se ha actualizado el rol correctamente'
+        }
+        
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error: ${error.respone?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.respone.data?.info || error.response.data?.errors,
+                message: error.respone.data?.message || 'Ha habido un error al actualizar el rol'
+            } 
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const addRole = async (data) => {
+    try {
+        const response = await privateApi.post(`/roles`, data);
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message || 'Se ha añadido el rol correctamente'
+        }
+        
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error: ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data?.info || error.response.data?.errors,
+                message: error.response.data?.message || 'Ha habido un error al añadir el rol'
+            } 
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
 export {
     fetchProducts,
     fetchProduct,
@@ -622,8 +767,13 @@ export {
     updatePassword,
     fetchUser,
     fetchUsers,
-    fetchRoles,
     addUser,
     deleteUser,
-    updateUser
+    updateUser,
+    importUsers,
+    getImportsLogs,
+    getAllRoles,
+    updateRole,
+    deleteRole,
+    addRole
 }

@@ -17,7 +17,6 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rolesValidos = ['admin','client'];
         $userId = $this->route('user')->id;
 
         return [
@@ -25,7 +24,7 @@ class UpdateUserRequest extends FormRequest
             'apellidos' => ['required', 'string', 'max:255'],
             'nombre_usuario' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($userId)],
             'email' => ['required', 'email', Rule::unique('users')->ignore($userId)],
-            'rol' => ['required', Rule::in($rolesValidos)]
+            'rol' => ['required', 'exists:roles,rol']
         ];
     }
 }

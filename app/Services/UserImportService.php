@@ -8,9 +8,11 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use App\Models\Role;
 
 class UserImportService {
 
@@ -20,6 +22,7 @@ class UserImportService {
 
     public function import(UploadedFile $file) {
         $logPath = storage_path('logs/imports.log');
+
         if (file_exists($logPath)) {
             unlink($logPath);
         }
@@ -36,7 +39,7 @@ class UserImportService {
 
 
         //HARDCODED
-       /*$allUsers = User::all(['nombre_usuario', 'email'])->toArray();
+        /*$allUsers = User::all(['nombre_usuario', 'email'])->toArray();
         $takenEmails = array_column($allUsers, 'email');
         $takenUserNames = array_column($allUsers, 'nombre_usuario'); */
 
@@ -100,10 +103,19 @@ class UserImportService {
                             ]);
                             continue 3;
                         }
+                        break;
                     case('F'): 
                         if ($this->checkRole($columnValue)) {
-                            $newUser['role'] = $columnValue;
+                            $idRole = $this->getRoleId($columnValue);
+                            $newUser['rol'] = $idRole;
+                        } else {
+                            $this->newLog('error', 'Error en la fila', [
+                                'Fila' => $index,
+                                'Descripcion' => "El rol es invalido"
+                            ]);
+                            continue 3;
                         }
+                        break;
                         
 
                         //HARDCODED 
@@ -114,13 +126,13 @@ class UserImportService {
                             ]);
                         } */
                 }
-
             }
 
-
+            User::create($newUser);
 
         }
-
+        
+        return true;
 
     }
 
@@ -143,31 +155,49 @@ class UserImportService {
         }
     }
 
-    public function checkUserName($value) {
+    public function checkUserName(string $value): bool {
 
         return Validator::make(
-            ['p' => $value], 
+            ['nombre_usuario' => $value], 
             ['nombre_usuario' => 'unique:users,nombre_usuario']
         )->passes();
         
     }
 
-    public function checkPassword($value) {
+    public function checkPassword(string $value): bool {
 
         return Validator::make(
-            ['p' => $value], 
-            Password::default()
+            ['p' => $value],
+            ['p' => Password::defaults()] 
+            
         )->passes();
         
     }
 
-    public function checkEmail($value) {
+    public function checkEmail(string $value): bool {
 
         return Validator::make(
-            ['p' => $value], 
+            ['email' => $value], 
             ['email' => 'email:rfc,unique:users,email']
         )->passes();
         
+    }
+
+    public function checkRole(string $value): bool {
+        return Validator::make(
+            ['role' => $value],
+            ['role' => 'exists:roles,rol']
+        )->passes();
+    }
+
+    public function getRoleId(string $value): int | false {
+        $role = Role::where('rol', $value);
+
+        if ($role) {
+            return $role->id;
+        } else {
+            return false;
+        }
     }
 
 

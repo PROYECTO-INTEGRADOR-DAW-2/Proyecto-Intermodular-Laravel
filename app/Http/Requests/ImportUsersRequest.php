@@ -19,7 +19,7 @@ class ImportUsersRequest extends FormRequest
 
         // Si no hay archivos, Laravel fallará en el 'required' de abajo
         if (!$fileKey) {
-            return ['file' => 'required']; 
+            return ['fichero' => 'required']; 
         }
 
         return [
