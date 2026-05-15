@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ReviewResourceUser;
 
 
 class ProfileController extends BaseController
@@ -60,4 +61,12 @@ class ProfileController extends BaseController
         $request->session()->regenerateToken();
 
     }
+
+    public function getReviews(Request $request) {
+        $user = $request->user();
+
+        $reviewsFromUser = ReviewResourceUser::collection($user->reviews()->get());
+
+        return $this->sendResponse($reviewsFromUser, "Se han obtenido las reseñas correctamente", 200);
+    } 
 }

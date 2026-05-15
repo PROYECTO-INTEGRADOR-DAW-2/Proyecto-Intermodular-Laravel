@@ -458,6 +458,34 @@ const fetchUser = async () => {
     }
 }
 
+const getReviews = async () => {
+    try {
+        const response = await privateApi.get('/profile/reviews');
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message || "Se han obtenido sus reseñas correctamente"
+        }
+    } catch (error) {
+        if (error.respone) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response?.info || 'Sin informacion del error',
+                message: error.response?.message || "Ha habido un error al obtener la lista de deseos"
+            }
+        } else {
+            return {
+                success: false, 
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
 
 // ADMIN METHODS 
 
@@ -775,5 +803,6 @@ export {
     getAllRoles,
     updateRole,
     deleteRole,
-    addRole
+    addRole,
+    getReviews,
 }

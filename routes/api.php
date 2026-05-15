@@ -35,6 +35,8 @@ Route::name('api.')->group(function () {
 
             Route::post('products/import', [ProductImportController::class , 'store'])->name('products.import');
 
+            Route::get('/profile/reviews', [ProfileController::class, 'getReviews'])->name('profile.reviews');
+
             // Endpoints de actualizacion de perfil de usuario
             Route::put('/update-profile', [ProfileController::class, 'update'])->name('user.update-profile');
             Route::put('/update-password', [PasswordController::class, 'update'])->name('user.update-password');
@@ -57,9 +59,7 @@ Route::name('api.')->group(function () {
                 Route::get('/roles', [AdminController::class, 'getAllRoles'])->name('admin.get-roles');
                 Route::post('/roles', [AdminController::class, 'addRole'])->name('admin.add-role');
                 Route::delete('/roles/{role}', [AdminController::class, 'deleteRole'])->name('admin.delete-role');
-                Route::put('/roles', [AdminController::class, 'updateRole'])->name('admin.update-role');
-
-
+                Route::put('/roles/{role}', [AdminController::class, 'updateRole'])->name('admin.update-role');
             });
             
         }

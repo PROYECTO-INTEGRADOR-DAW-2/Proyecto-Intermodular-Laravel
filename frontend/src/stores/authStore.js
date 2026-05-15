@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, addUser, importUsers, getImportsLogs, getAllRoles, deleteRole, addRole, updateRole } from '../services/api.js'
+import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, addUser, importUsers, getImportsLogs, getAllRoles, deleteRole, addRole, updateRole, getReviews } from '../services/api.js'
 import { useMessageStore } from '../stores/messageStore.js';
 
 export const useAuthStore = defineStore('auth', {
@@ -117,6 +117,18 @@ export const useAuthStore = defineStore('auth', {
             this.isAuthenticated = false;
             this.bearerToken = null;
             localStorage.removeItem('token');
+        },
+
+        async getReviewsAction() {
+            const response = await getReviews();
+
+            if (response.success) {
+                this.addMessageAction('success', response.message);
+                return response;
+            } else {
+                this.addMessageAction('error', response.message);
+                return response;
+            }
         },
 
         //ADMIN METHODS

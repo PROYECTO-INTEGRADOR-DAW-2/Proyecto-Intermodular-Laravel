@@ -8,6 +8,7 @@
     const authStore = useAuthStore();
     const route = useRoute();
     
+    const reviews = ref([]);
 
     const initialData = {
         nombre: authStore.user?.nombre || '',
@@ -54,8 +55,24 @@
 
     let currentTab = "#datos-personales";
 
-    watch(() => route.hash, (newHash) => {
+    watch(() => route.hash, async (newHash) => {
+
         currentTab = newHash;
+
+        switch (newHash) {
+            case "#reviews":
+                const response = await authStore.getReviewsAction();
+
+                if (response.success) {
+                    reviews.value = response.data;
+                }         
+
+                break;
+        
+            case "#pedidos":
+                break;
+        }
+
     })
 
   
@@ -68,9 +85,10 @@
     <div class="tabs">
         <router-link :to="{ hash: '#datos-personales' }" class="tab" :class="{ 'tab-active': currentTab === '#datos-personales' }">Datos personales</router-link>
         <router-link :to="{ hash: '#contraseña' }" class="tab" :class="{ 'tab-active': currentTab === '#contraseña' }">Contraseña</router-link>
+        <router-link :to="{ hash: '#reviews' }" class="tab" :class="{ 'tab-active': currentTab === '#reviews' }">Mis reseñas</router-link>
     </div>
 
-    <div class="form-container">
+    <div class="main-container">
         <Form v-if="authStore.user && currentTab === '#datos-personales'" :validation-schema="schemaProfile" :initial-values="initialData" @submit="onSubmitProfile" class="profile-form">
             <div class="form-group">
                 <label>Nombre:</label>
@@ -117,6 +135,20 @@
             <button type="submit" class="button">Actualizar Contraseña</button>
         </Form>
 
+        <div v-if="authStore.user && currentTab === '#reviews'" class="reviews-container">
+            <div v-if="reviews" v-for="(review, index) in reviews" :key="index" class="review">
+                <h3>review.product.nombre</h3>
+                <div class="stars-container">
+                    <i v-for="star in 5" :class="['bi', star <= review.valoracion ? 'bi-star-fill' : 'bi-star']"></i>
+                </div>
+                <p class="review-coment">review.comentario</p>
+                <router-link :to="{ name: 'product-details', params: { id: review.product_id } }">Ver producto</router-link>
+            </div>
+
+            <div v-else>
+                No has añadido ninguna reseña
+            </div>
+        </div>
     </div>
     
 </template>
@@ -126,7 +158,7 @@
     .tabs {
         margin-top: 50px;
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         grid-template-rows: auto;
         justify-content: center;
         justify-self: center;
@@ -158,16 +190,16 @@
 
 
 
-    .form-container {
+    .main-container {
         display: grid;
         height: 100vh;
+        padding: 50px;
     }
 
     .profile-form {
         height: 500px;
         width: 100%;
-        display: grid;   
-        padding: 50px;
+        display: grid;
     }
 
     .profile-form label {
@@ -184,6 +216,12 @@
     .form-group {
         display: grid;
         margin: 20px 0 20px 0; 
+    }
+
+    .reviews-container {
+        display: grid;
+        gap: 20px;
+        width: 100%;
     }
 
    
