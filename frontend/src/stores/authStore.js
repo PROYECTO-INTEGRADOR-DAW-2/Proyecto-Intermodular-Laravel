@@ -1,5 +1,10 @@
 import { defineStore } from 'pinia';
-import { login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, addUser, importUsers, getImportsLogs, getAllRoles, deleteRole, addRole, updateRole, getReviews } from '../services/api.js'
+import { 
+        login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, addUser, importUsers, getImportsLogs, 
+        getAllRoles, deleteRole, addRole, updateRole, getReviews,
+        fetchProducts, updateProduct, deleteProduct, addProduct, importProducts, getImportsLogsProducts
+} from '../services/api.js'
+
 import { useMessageStore } from '../stores/messageStore.js';
 
 export const useAuthStore = defineStore('auth', {
@@ -133,8 +138,6 @@ export const useAuthStore = defineStore('auth', {
 
         //ADMIN METHODS
         async getUsersAction() {
-
-            console.log(this.role.toLowerCase())    
 
             if (!this.isAuthenticated) {
                 this.addMessageAction('error', "No estas logueado en el sistema");
@@ -353,6 +356,150 @@ export const useAuthStore = defineStore('auth', {
                 return response;
             } else {
                 this.addMessageAction('error', response.message);
+                return response;
+            }
+        },
+        
+        async getProductsAction() {
+
+
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', "No estas logueado en el sistema");
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion')
+                return;
+            }
+
+            const response = await fetchProducts();
+
+            if (response.success) {
+                this.addMessageAction('success', response?.message || "Se han obtenido correctamente los productos");
+                return {
+                    success: true,
+                    data: response.data.data,
+                    message: response.message
+                };
+            } else {
+                this.addMessageAction('error', response?.message || "Error al intentar obtener los productos");
+                return response;
+            }
+
+        },
+
+        async updateProductAction(product, data) {
+            
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', "No estas logueado en el sistema");
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion')
+                return;
+            }
+
+            const response = await updateProduct(product, data);
+
+            if (response.success) {
+                this.addMessageAction('success', response?.message || "Se ha actualizado correctamente el producto");
+                
+                return {
+                    success: true,
+                    data: response.data,
+                    info : response?.info,
+                    message: response.message
+                };
+            } else {
+                this.addMessageAction('error', response?.message || "Error al intentar actualizar el producto");
+                return response;
+            }
+        },
+
+        async addProductAction(data) {
+            
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', "No estas logueado en el sistema");
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion')
+                return;
+            }
+
+            const response = await addProduct(data);
+
+            if (response.success) {
+                this.addMessageAction('success', response?.message || "Se ha añadido correctamente el producto");
+                
+                return {
+                    success: true,
+                    data: response.data,
+                    info : response?.info,
+                    message: response.message
+                };
+            } else {
+                this.addMessageAction('error', response?.message || "Error al intentar añadir el producto");
+                return response;
+            }
+        },
+
+        async deleteProductAction(productId) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion');
+                return;
+            }
+
+            const response = await deleteProduct(productId);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message || 'Se ha eliminado correctamente el producto');
+                return response;
+            } else {
+                this.addMessageAction('error', response.message || 'Error al intentar eliminar el producto');
+            }
+        },
+
+        async importProductsAction(formData) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', 'No estas autorizado para realizar esta accion');
+                return;
+            }
+
+            const response = await importProducts(formData);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message || 'Se han importado correctamente los productos');
+                return response;
+            } else {
+                this.addMessageAction('error', response.message || 'Error al intentar importar los productos');
+                return response;
+            }
+        },
+
+        async getLogDataFromImportsProducts(page) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', "No estas logueado en el sistema")
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', "No estas autorizado para realizar esta accion")
+                return;
+            }
+
+            const response = await getImportsLogsProducts(page);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message || 'Se han obtenido los logs del sistema');
+                return {
+                    success: true,
+                    data: response.data.data,
+                    message: response.message
+                };
+            } else {
+                this.addMessageAction('error', response.message || 'No se han podido obtener los logs del sistema');
                 return response;
             }
         },

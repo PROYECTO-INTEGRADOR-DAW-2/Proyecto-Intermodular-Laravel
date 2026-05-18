@@ -17,35 +17,17 @@
     const updateRolePopUpActive = ref(false);
     const deleteRolePopUpActive = ref(false);
     const addRolePopUpActive = ref(false);
-    const importRolesPopUpActive = ref(false);
-    const getLogsButtonActive = ref(false);
-    const showLogsPopUpActive = ref(false);
 
     //Informacion sobre usuario seleccionado para eliminar, actualizar, obtencion de logs
     const roleFormData = ref({});
     const roleSelectedToDelete = ref({});
 
     const logsData = ref(null);
-    
 
     //Schemas de validacion para los diferentes tipos de formularios
     const schemaUpdateAddRole = yup.object({
         rol: yup.string().required('El nombre de rol es obligatorio'),
         descripcion: yup.string().required('Los apellidos del usuarios son obligatorios').max(255),
-    })
-
-    const schemaImportRoles = yup.object().shape({
-        fichero: yup.mixed()
-        .required('El fichero es obligatorio')
-        .test('is-correct-file-tipe', "El fichero debe de ser una de las siguientes extensiones (csv, xlsx, xls)", (value) => {
-            if (!value) return false;
-
-            // Opción A: Comprobar la extensión por el nombre
-            const fileName = value.name || "";
-            const isExtensionValid = fileName.toLowerCase().endsWith('.csv') || fileName.toLowerCase().endsWith('.xlsx') || fileName.toLowerCase().endsWith('.xls');
-
-            return isExtensionValid;
-        })
     })
 
 
@@ -62,10 +44,6 @@
 
     const handleAddRole = () => {
         addRolePopUpActive.value = true;
-    }
-
-    const handleImportRoles = () => {
-        importRolesPopUpActive.value = true;
     }
 
 
@@ -128,59 +106,9 @@
         }
     }
 
-    const onSubmitImportRoles = async (values, { setFieldError }) => {
-        const formData = new FormData();
-        formData.append("fichero", values.fichero);
-
-        const response = await authStore.importRolesAction(formData);
-
-        if (!response.success && response.info) {
-            Object.entries(response.info).forEach(([field, messages]) => {
-                setFieldError(field, messages[0]);
-            })
-        } else {
-            emit('fetchRoles');
-            getLogsButtonActive.value = true;
-        }
-    }
 
 
-    //Metodos relacionados con logs de importacion
-    const onSubmitGetLogs = async (page = 1) => {
-        if (typeof page !== 'number') {
-            page = 1;
-        }
-
-        const response = await authStore.getLogDataFromRoleImports(page);
-        console.log(response.data);
-        
-
-        if (response.success) {
-            logsData.value = response.data;
-            importRolesPopUpActive.value = false;
-            showLogsPopUpActive.value = true;
-        }
-    }
-
-    const handlePreviousLogsPage = async () => {
-        if (logsData.value?.previous_page) {
-            const response = await authStore.getLogDataFromRoleImports(logsData.value.previous_page);
-
-            if (response.success) {
-                logsData.value = response.data;
-            }
-        }
-    }
-
-    const handleNextLogsPage = async () => {
-        if (logsData.value?.next_page) {
-            const response = await authStore.getLogDataFromRoleImports(logsData.value.next_page);
-
-            if (response.success) {
-                logsData.value = response.data;
-            }
-        }
-    }
+    
 
     
 </script>
@@ -189,8 +117,6 @@
     <div style="margin-top: 2em;">
         <div class="buttons-container">
             <button class="create-role-button" @click="handleAddRole">Nuevo <i class="bi bi-plus"></i></button>
-            <button class="import-roles-button" @click="handleImportRoles">Importar <i class="bi bi-plus"></i></button>
-            <button class="show-logs-button" @click="onSubmitGetLogs">Obtener logs</button>
         </div>
         
         <div class="cart-table-wrapper">
@@ -382,7 +308,7 @@
 
     .buttons-container {
         display: grid;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: auto;
         width: auto;
         justify-self: end;
         gap: 20px;

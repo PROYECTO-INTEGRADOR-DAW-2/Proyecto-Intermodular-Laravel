@@ -11,6 +11,7 @@ use App\Http\Requests\Auth\CreateUserRequest;
 
 use App\Http\Requests\Auth\AddRoleRequest;
 use App\Http\Requests\Auth\UpdateRoleRequest;
+use App\Models\Product;
 
 class AdminController extends BaseController {
     
@@ -76,6 +77,27 @@ class AdminController extends BaseController {
 
     public function deleteUser(User $user) {
         $user->delete();
+    }
+
+    public function updateProduct(Product $product, UpdateProductRequest $request) {
+        $validated = $request->validated();
+
+        $product->update($validated);
+
+        return $this->sendMessage("Se ha actualizado correctamente el producto", 200);
+
+    }
+
+    public function createProduct(CreateProductRequest $request) {
+        $validated = $request->validated();
+
+        Product::create($validated);
+
+        return $this->sendMessage("Se ha añadido correctamente el producto", 200);
+    }
+
+    public function deleteProduct(Product $product) {
+        $product->delete();
     }
 
 

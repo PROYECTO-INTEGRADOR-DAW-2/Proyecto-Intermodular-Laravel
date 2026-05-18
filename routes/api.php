@@ -56,11 +56,20 @@ Route::name('api.')->group(function () {
                 Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('admin.update-user');
                 Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.delete-user');
 
+                Route::get('/products', [AdminController::class, 'getAllProducts'])->name('admin.get-products');
+                Route::post('/products', [AdminController::class, 'createProduct'])->name('admin.add-product');
+                Route::post('/products/import', [UserImportController::class, 'store'])->name('admin.import-products');
+                Route::get('/products/import/logs', [UserImportController::class, 'getLogs'])->name('admin.import-products-logs');
+                Route::put('/products/{product}', [AdminController::class, 'updateProduct'])->name('admin.update-product');
+                Route::delete('/products/{product}', [AdminController::class, 'deleteProduct'])->name('admin.delete-product');
+
                 Route::get('/roles', [AdminController::class, 'getAllRoles'])->name('admin.get-roles');
                 Route::post('/roles', [AdminController::class, 'addRole'])->name('admin.add-role');
                 Route::delete('/roles/{role}', [AdminController::class, 'deleteRole'])->name('admin.delete-role');
                 Route::put('/roles/{role}', [AdminController::class, 'updateRole'])->name('admin.update-role');
             });
+            
+            
             
         }
         );

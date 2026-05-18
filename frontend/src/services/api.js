@@ -667,6 +667,158 @@ const getImportsLogs = async (page) => {
     }
 }
 
+
+
+const updateProduct = async (product, data) => {
+    try {
+        const response = await privateApi.put(`/products/${product}`, data);
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+
+    } catch(error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al actualizar el producto"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const addProduct = async (data) => {
+    try {
+        const response = await privateApi.post(`/products`, data);
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+
+    } catch(error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al añadir el producto"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const deleteProduct = async (productId) => {
+    try {
+        const response = await privateApi.delete(`/products/${productId}`);
+        console.log("Axios: Response received:", response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al eliminar el producto"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const importProducts = async (formData) => {
+    try {
+        const respone = await privateApi.post('/products/import', formData, {
+            headers: {
+                "Content-Type": 'multipart/form-data'
+            }
+        });
+
+        return {
+            success: true,
+            data: respone.data,
+            message: respone.message
+        }
+
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al importar los productos"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+const getImportsLogsProducts = async (page) => {
+    try {
+        const response = await privateApi.get('/products/import/logs', { params: { page } });
+        console.log('Axios response: ', response.data)
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.data.message,
+        }
+        
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data.info || error.response.data.errors,
+                message: error.response?.data.message || "Ha habido un error al obtener los logs de importacion"
+            }
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
+
+
 const getAllRoles = async () => {
     try {
         const response = await privateApi.get('/roles');
