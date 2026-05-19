@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Product;
 
 use App\Http\Resources\UserResource;
 use App\Http\Requests\Auth\UpdateUserRequest;
@@ -11,7 +12,10 @@ use App\Http\Requests\Auth\CreateUserRequest;
 
 use App\Http\Requests\Auth\AddRoleRequest;
 use App\Http\Requests\Auth\UpdateRoleRequest;
-use App\Models\Product;
+
+use App\Http\Requests\Auth\AddProductRequest;
+use App\Http\Requests\Auth\UpdateProductRequest;
+
 
 class AdminController extends BaseController {
     
@@ -88,7 +92,7 @@ class AdminController extends BaseController {
 
     }
 
-    public function createProduct(CreateProductRequest $request) {
+    public function createProduct(AddProductRequest $request) {
         $validated = $request->validated();
 
         Product::create($validated);

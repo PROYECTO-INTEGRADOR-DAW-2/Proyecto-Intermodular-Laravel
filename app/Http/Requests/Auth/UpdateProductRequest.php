@@ -1,13 +1,22 @@
 <?php
-
 namespace App\Http\Requests\Auth;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Traits\CustomValidationResponse; 
+use Illuminate\Foundation\Http\FormRequest;
+use App\Traits\CustomValidationResponse;
 
-class UpdateProductRequest extends FormRequest
-{
+class UpdateProductRequest extends FormRequest {
+
+    private $configValidation = [
+        'ajustes'    => ["ajustado", "holgado","normal"],
+        'marcas'     => ["nike", "adidas", "puma", "asics"],
+        'alturas'    => ["alto", "bajo", "normal", ""],
+        'tallas'     => ["s", "m", "l", "xl"],
+        'deportes'   => ["trail", "futbol", "tenis", "padel", "baloncesto"],
+        'categorias' => ["zapatillas", "camisetas", "pantalones"],
+        'sexos'      => ["hombre", "mujer", "niño", "niña"]
+    ];
+
     use CustomValidationResponse;
 
     /**
@@ -15,14 +24,27 @@ class UpdateProductRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules() 
     {
+        $product = $this->route('product')->id;
+
         return [
-            'nombre' => ['required', 'string', 'max:255'],
-            'apellidos' => ['required', 'string', 'max:255'],
-            'nombre_usuario' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email'],
-            'rol' => ['required', 'exists:roles,rol']
+            'marca' => ['required', 'string', Rule::in($this->configValidation['marcas'])],
+            'categoria' => ['required', 'string', Rule::in($this->configValidation['categorias'])],
+            'nombre' => ['required', 'string', Rule::unique('products')->ignore($product)],
+            'precio' => ['required', 'decimal:1,2'], 
+            'ajuste' => ['required', 'string', Rule::in($this->configValidation['ajustes'])], 
+            'sexo' => ['required', 'string', Rule::in($this->configValidation['sexos'])], 
+            'descripcion' => ['required', 'string', 'max:255'], 
+            'altura' => ['required', 'string', Rule::in($this->configValidation['alturas'])], 
+            'deporte' => ['required', 'string', Rule::in($this->configValidation['deportes'])], 
+            'oferta' => ['required', 'boolean'], 
+            'novedad' => ['required', 'boolean'], 
+            'img' => ['required', 'string'],
+            "variaciones" => ['required', 'array'],
         ];
+
+        
     }
+
 }

@@ -20,34 +20,68 @@
     const importProductsPopUpActive = ref(false);
     const getLogsButtonActive = ref(false);
     const showLogsPopUpActive = ref(false);
+    const formDesplegables = ref({
+        categoria: {
+            isOpen: false
+        },
+        marca: {
+            isOpen: false
+        },
+        sexo: {
+            isOpen: false
+        },
+        deporte: {
+            isOpen: false
+        }
+    })
 
     //Informacion sobre usuario seleccionado para eliminar, actualizar, obtencion de logs
     const productFormData = ref({});
     const productSelectedToDelete = ref({});
+    const productVariations = ref([]);
 
     const logsData = ref(null);
     
 
     //Schemas de validacion para los diferentes tipos de formularios
     const schemaUpdateProduct = yup.object({
-        nombre: yup.string().required('El nombre de usuario es obligatorio'),
-        apellidos: yup.string().required('Los apellidos del usuarios son obligatorios'),
-        nombre_usuario: yup.string().required('El nombre de usuario es obligatorio'),
-        email: yup.string().email("Debes introducir un email valido").required("Email obligatorio"),
-        rol: yup.string().required('Debes de seleccionar un rol')
+        marca: yup.string().required('Debes de seleccionar una marca'),
+        categoria: yup.string().required('Debes de seleccionar una categoria'),
+        nombre: yup.string().required('Debes de asignar un nombre'),
+        precio: yup.decimal().required('Debes de especificar el precio'),
+        ajuste: yup.string().required("Debes de seleccionar un ajuste"),
+        sexo: yup.string().required("Sebes de seleccionar un sexo"),
+        descripcion: yup.string().required('Debes de seleccionar un rol'),
+        altura: yup.string().required('Debes de seleccionar una altura'),
+        deporte: yup.string().required('Debes de seleccionar un deporte'),
+        oferta: yup.boolean().required('Debes de confirmar si es oferta o no'),
+        precio_anterior: Yup.string().when('oferta', {
+            is: true,
+            then: (schema) => schema.required('Este campo es obligatorio si el producto tiene oferta'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        novedad: yup.boolean().required('Debes de confirmar si es novedad o no'),
+        img: yup.string().required('Debes de añadir una imagen')
     })
 
-    const schemaAddProduct = yup.object({
-        nombre: yup.string().required('El nombre de usuario es obligatorio'),
-        apellidos: yup.string().required('Los apellidos del usuarios son obligatorios'),
-        nombre_usuario: yup.string().required('El nombre de usuario es obligatorio'),
-        contraseña: yup.string().required('La contraseña es obligatoria')
-        .matches(/[A-Z]/, 'Debe tener al menos una letra mayuscula')
-        .matches(/[a-z]/, 'Debe contener al menos una letra minúscula')
-        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Debe contener al menos un símbolo (!@#$%^&...)'),
-        confirm_contraseña: yup.string().required("Confirmacion obligatoria").oneOf([yup.ref('contraseña')], 'Las contraseñas no coinciden'),
-        email: yup.string().email("Debes introducir un email valido").required("Email obligatorio"),
-        rol: yup.string().required('Debes de seleccionar un rol')
+    const schemaAddProduct = yup.object().shape({
+        marca: yup.string().required('Debes de seleccionar una marca'),
+        categoria: yup.string().required('Debes de seleccionar una categoria'),
+        nombre: yup.string().required('Debes de asignar un nombre'),
+        precio: yup.decimal().required('Debes de especificar el precio'),
+        ajuste: yup.string().required("Debes de seleccionar un ajuste"),
+        sexo: yup.string().required("Sebes de seleccionar un sexo"),
+        descripcion: yup.string().required('Debes de seleccionar un rol'),
+        altura: yup.string().required('Debes de seleccionar una altura'),
+        deporte: yup.string().required('Debes de seleccionar un deporte'),
+        oferta: yup.boolean().required('Debes de confirmar si es oferta o no'),
+        precio_anterior: Yup.string().when('oferta', {
+            is: true,
+            then: (schema) => schema.required('Este campo es obligatorio si el producto tiene oferta'),
+            otherwise: (schema) => schema.notRequired(),
+        }),
+        novedad: yup.boolean().required('Debes de confirmar si es novedad o no'),
+        img: yup.string().required('Debes de añadir una imagen')
     })
 
     const schemaImportProducts = yup.object().shape({
@@ -158,6 +192,10 @@
             getLogsButtonActive.value = true;
         }
     }
+
+    const onSubmitAddVariation = (variation) => {
+        
+    } 
 
 
     //Metodos relacionados con logs de importacion
@@ -356,55 +394,102 @@
                     </button>
                 </div>
 
-                <Form :validation-schema="schemaAddProduct" @submit="onSubmitAddProduct">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nombre</label>
-                            <Field type="text" name="nombre" placeholder="Nombre"></Field>
-                            <ErrorMessage name="nombre" class="error-msg" />
+                <Form :validation-schema="schemaAddProduct" @submit="onSubmitAddProduct" v-slot="{ values, setFieldValue }">
+                
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <Field type="text" name="nombre" placeholder="Nombre del producto"></Field>
+                        <ErrorMessage name="nombre" class="error-msg" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoria</label>
+
+                        <div class="custom-select">
+                            <div class="selected-option" @click="formDesplegables.categoria.isOpen = !formDesplegables.categoria.isOpen">
+                                <p> {{ cleanFormValue(values.categoria  || 'Selecciona la categoria') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.categoria.isOpen}]"></i> 
+                            </div>
+                            
+                            <div :class="['options-container', {'active': formDesplegables.categoria.isOpen}]">
+                                <ul class="options-list">
+                                    <li @click="setFieldValue('categoria', 'zapatillas')" :class="{'option-active': values.categoria === 'zapatillas'}">
+                                        Zapatillas
+                                    </li>
+
+                                    <li @click="setFieldValue('categoria', 'camisetas')" :class="{'option-active': values.categoria === 'camisetas'}">
+                                        Camisetas
+                                    </li>
+
+                                    <li @click="setFieldValue('categoria', 'pantalones')" :class="{'option-active': values.categoria === 'pantalones'}">
+                                        Pantalones
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Apellidos</label>
-                            <Field type="text" name="apellidos" placeholder="Apellidos"></Field>
-                            <ErrorMessage name="apellidos" class="error-msg" />
+                        
+                        <ErrorMessage name="categoria" class="error-msg" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Marca</label>
+                        
+                        <div class="custom-select">
+                            <div class="selected-option" @click="formDesplegables.marca.isOpen = !formDesplegables.marca.isOpen">
+                                <p> {{ cleanFormValue(values.marca  || 'Selecciona la marca') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.marca.isOpen}]"></i> 
+                            </div>
+                            
+                            <div :class="['options-container', {'active': formDesplegables.marca.isOpen}]">
+                                <ul class="options-list">
+                                    <li @click="setFieldValue('marca', 'nike')" :class="{'option-active': values.marca === 'nike'}">
+                                        Nike
+                                    </li>
+
+                                    <li @click="setFieldValue('marca', 'adidas')" :class="{'option-active': values.marca === 'adidas'}">
+                                        Envío Express (24h)
+                                    </li>
+
+                                    <li @click="setFieldValue('marca', 'asics')" :class="{'option-active': values.marca === 'asics'}">
+                                        Punto de recogida
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
+
+                        
+                        <ErrorMessage name="marca" class="error-msg" />
                     </div>
 
                     <div class="form-group">
-                        <label>Nombre de usuario</label>
-                        <Field type="text" name="nombre_usuario" placeholder="Usuario"></Field>
-                        <ErrorMessage name="nombre_usuario" class="error-msg" />
+                        <label>Ajuste</label>
+                        
+                        <div class="custom-select">
+                            <div class="selected-option" @click="formDesplegables.ajuste.isOpen = !formDesplegables.ajuste.isOpen">
+                                <p> {{ cleanFormValue(values.marca  || 'Selecciona el ajuste') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.ajuste.isOpen}]"></i> 
+                            </div>
+                            
+                            <div :class="['options-container', {'active': formDesplegables.ajuste.isOpen}]">
+                                <ul class="options-list">
+                                    <li @click="setFieldValue('ajuste', 'nike')" :class="{'option-active': values.ajuste === 'ajustado'}">
+                                        Ajustado
+                                    </li>
+
+                                    <li @click="setFieldValue('ajuste', 'adidas')" :class="{'option-active': values.ajuste === 'holgado'}">
+                                        Holgado
+                                    </li>
+
+                                    <li @click="setFieldValue('ajuste', 'asics')" :class="{'option-active': values.ajuste === 'normal'}">
+                                        Normal
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        
+                        <ErrorMessage name="marca" class="error-msg" />
                     </div>
 
-                    <div class="form-group">
-                        <label>Contraseña</label>
-                        <Field type="password" name="contraseña" placeholder="Contraseña"></Field>
-                        <ErrorMessage name="contraseña" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Confirmacion contraseña</label>
-                        <Field type="password" name="confirm_contraseña" placeholder="Confirmacion contraseña"></Field>
-                        <ErrorMessage name="confirm_contraseña" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email</label>
-                        <Field type="text" name="email" placeholder="correo@ejemplo.com"></Field>
-                        <ErrorMessage name="email" class="error-msg" />
-                    </div>
-
-                    <div class="form-group">
-                        <label>Rol de usuario</label>
-                        <Field as="select" name="rol">
-                            <option disabled readonly selected>Selecciona un rol</option>
-                            <option value="admin">Admin</option>
-                            <option value="client">Cliente</option>
-                        </Field>
-                        <ErrorMessage name="rol" class="error-msg" />
-                    </div>
-
+                    
                     <div class="form-actions">
                         <button type="button" class="cancel-btn" @click="addProductPopUpActive = false">Cancelar</button>
                         <button type="submit" class="add-btn">Añadir usuario</button>
