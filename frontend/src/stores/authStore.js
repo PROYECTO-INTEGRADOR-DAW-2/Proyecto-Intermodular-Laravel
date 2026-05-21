@@ -360,7 +360,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
         
-        async getProductsAction() {
+        async getAllProductsAction() {
 
 
             if (!this.isAuthenticated) {

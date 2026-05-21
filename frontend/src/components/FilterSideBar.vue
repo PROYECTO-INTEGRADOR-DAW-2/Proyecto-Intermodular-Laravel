@@ -150,7 +150,11 @@
                 </div>
 
                 <div class="filter-field">
-                    <label for="novedades" class="checkbox-item-toggler"><strong style="font-size: 20px;">Novedades </strong><input type="checkbox" name="novedades" id="novedades" v-model="query.novedades"><span class="custom-toggler"></span></label >
+                    <label for="novedades" class="checkbox-item-toggler">
+                        <strong style="font-size: 20px;">Novedades </strong>
+                        <input type="checkbox" name="novedades" id="novedades" v-model="query.novedades">
+                        <span class="custom-toggler"></span>
+                    </label >
                 </div>
 
                 <div class="filter-field">

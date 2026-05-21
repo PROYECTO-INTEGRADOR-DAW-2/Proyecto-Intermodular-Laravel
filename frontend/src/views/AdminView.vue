@@ -5,6 +5,7 @@
     
     import UsersAdminTab from '../components/UsersAdminTab.vue';
     import RolesAdminTab from '../components/RolesAdminTab.vue';
+import ProductsAdminTab from '../components/ProductsAdminTab.vue';
 
     const currentTab = ref("");
     const authStore = useAuthStore();
@@ -12,12 +13,15 @@
 
     const users = ref([]);
     const roles = ref([]);
+    const products = ref([]);
     const loadingUsers = ref(false);
     const loadingRoles = ref(false);
+    const loadingProducts = ref(false);
 
     const fetchedSections = ref({
         users: false,
         roles: false,
+        products: false
     })
 
     const handleTabChange = async (tab) => {
@@ -41,6 +45,25 @@
                 }
                 
                 break;
+            case 'products':
+                if (fetchedSections.value.products) {
+                    currentTab.value = 'products';
+                } else {
+                    currentTab.value = 'products';
+                    loadingProducts.value = true;
+                    products.value = [];
+                    
+                    const response = await authStore.getAllProductsAction();
+
+                    if (response.success) {
+                        products.value = response.data.data;
+                        fetchedSections.value.products = true;
+                        loadingProducts.value = false;
+                    } else {
+                        fetchedSections.value.products = true;
+                        loadingProducts.value = false;
+                    }
+                }
             case 'roles':
                 if (fetchedSections.value.roles) {
                     currentTab.value = 'roles';
@@ -101,7 +124,25 @@
             loadingRoles.value = false;
         } else {
             fetchedSections.value.roles = true;
-            loadingUsers.value = false;
+            loadingRoles.value = false;
+        }
+    }
+
+    const handleFetchProducts = async () => {
+        
+        products.value = [];
+        loadingProducts.value = true;
+        fetchedSections.value.products = false;
+
+        const response = await authStore.getAllRolesAction();
+
+        if (response.success) {
+            products.value = response.data.data;
+            fetchedSections.value.products = true;
+            loadingProducts.value = false;
+        } else {
+            fetchedSections.value.products = true;
+            loadingProducts.value = false;
         }
     }
 
@@ -132,7 +173,7 @@
     <div class="main-container">
         <div class="tabs">
             <div class="tab" @click="handleTabChange('users')" :class="{'tab-active': currentTab === 'users'}">Usuarios</div>
-            <div class="tab">Products</div>
+            <div class="tab" @click="handleTabChange('products')" :class="{'tab-active': currentTab === 'products'}">Products</div>
             <div class="tab" @click="handleTabChange('roles')" :class="{'tab-active': currentTab === 'roles'}">Roles</div>
         </div>
 
@@ -146,6 +187,19 @@
         <div v-else-if="currentTab === 'users' && !loadingUsers && fetchedSections.users">
             <div class="no-users-container">
                 <h4>No hay usuarios en el sistema</h4>
+            </div>
+        </div>
+
+        <ProductsAdminTab v-if="currentTab === 'products' && products.length" :products="products"></ProductsAdminTab>
+
+        <div v-else-if="currentTab === 'products' && loadingProducts" class="spinner-container">     
+            <div class="spinner"></div>
+            <p>Cargando productos...</p>
+        </div>
+
+        <div v-else-if="currentTab === 'products' && !loadingProducts && fetchedSections.products">
+            <div class="no-users-container">
+                <h4>No hay productos en el sistema</h4>
             </div>
         </div>
 

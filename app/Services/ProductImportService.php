@@ -62,7 +62,7 @@ class ProductImportService {
                     "sku" => "", "marca" => "", "categoria" => "", "nombre" => "", "precio" => 0.0,
                     "talla" => "", "color" => "", "stock" => 0, "ajuste" => "",
                     "sexo" => "", "descripcion" => "", "altura" => "", "deporte" => "", "oferta" => "", "img" => ""
-                ];
+            ];
 
             //Iterar cada celda de una fila            
             foreach ($cellIterator as $cell) {

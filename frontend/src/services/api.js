@@ -957,4 +957,9 @@ export {
     deleteRole,
     addRole,
     getReviews,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    importProducts,
+    getImportsLogsProducts,
 }
