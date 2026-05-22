@@ -14,6 +14,7 @@ import ProductsAdminTab from '../components/ProductsAdminTab.vue';
     const users = ref([]);
     const roles = ref([]);
     const products = ref([]);
+    const productsMetaData = ref(null);
     const loadingUsers = ref(false);
     const loadingRoles = ref(false);
     const loadingProducts = ref(false);
@@ -52,11 +53,13 @@ import ProductsAdminTab from '../components/ProductsAdminTab.vue';
                     currentTab.value = 'products';
                     loadingProducts.value = true;
                     products.value = [];
+                    productsMetaData.value = null;
                     
                     const response = await authStore.getAllProductsAction();
 
                     if (response.success) {
                         products.value = response.data.data;
+                        productsMetaData.value = response.data.meta || null;
                         fetchedSections.value.products = true;
                         loadingProducts.value = false;
                     } else {
@@ -64,6 +67,8 @@ import ProductsAdminTab from '../components/ProductsAdminTab.vue';
                         loadingProducts.value = false;
                     }
                 }
+
+                break;
             case 'roles':
                 if (fetchedSections.value.roles) {
                     currentTab.value = 'roles';
@@ -131,13 +136,15 @@ import ProductsAdminTab from '../components/ProductsAdminTab.vue';
     const handleFetchProducts = async () => {
         
         products.value = [];
+        productsMetaData.value = null;
         loadingProducts.value = true;
         fetchedSections.value.products = false;
 
-        const response = await authStore.getAllRolesAction();
+        const response = await authStore.getAllProductsAction();
 
         if (response.success) {
             products.value = response.data.data;
+            productsMetaData.value = response.data.meta || null;
             fetchedSections.value.products = true;
             loadingProducts.value = false;
         } else {
@@ -190,7 +197,7 @@ import ProductsAdminTab from '../components/ProductsAdminTab.vue';
             </div>
         </div>
 
-        <ProductsAdminTab v-if="currentTab === 'products' && products.length" :products="products"></ProductsAdminTab>
+        <ProductsAdminTab v-if="currentTab === 'products' && products.length" :products="products" :metaData="productsMetaData" @fetchProducts="handleFetchProducts"></ProductsAdminTab>
 
         <div v-else-if="currentTab === 'products' && loadingProducts" class="spinner-container">     
             <div class="spinner"></div>

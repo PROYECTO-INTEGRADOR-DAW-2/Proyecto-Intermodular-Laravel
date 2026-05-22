@@ -7,7 +7,8 @@
     const authStore = useAuthStore();
 
     const props = defineProps({
-        products: Array
+        products: Array,
+        metaData: Object,
     })
     
     //Emit evento para obtencion de usuarios despues de realizar acciones CRUD 
@@ -38,6 +39,12 @@
         },
         altura: {
             isOpen: false
+        },
+        ajuste: {
+            isOpen: false
+        },
+        color: {
+            isOpen: false
         }
     })
 
@@ -54,14 +61,18 @@
         marca: yup.string().required('Debes de seleccionar una marca'),
         categoria: yup.string().required('Debes de seleccionar una categoria'),
         nombre: yup.string().required('Debes de asignar un nombre'),
-        precio: yup.decimal().required('Debes de especificar el precio'),
+        precio: yup.number().test(
+            'is-decimal',
+            'El campo debe tener máximo 2 decimales, tt',
+            (value) => (value + "").match(/^\d+(\.\d{1,2})?$/),
+        ).required(),
         ajuste: yup.string().required("Debes de seleccionar un ajuste"),
         sexo: yup.string().required("Sebes de seleccionar un sexo"),
         descripcion: yup.string().required('Debes de seleccionar un rol'),
         altura: yup.string().required('Debes de seleccionar una altura'),
         deporte: yup.string().required('Debes de seleccionar un deporte'),
         oferta: yup.boolean().required('Debes de confirmar si es oferta o no'),
-        precio_anterior: Yup.string().when('oferta', {
+        precio_anterior: yup.string().when('oferta', {
             is: true,
             then: (schema) => schema.required('Este campo es obligatorio si el producto tiene oferta'),
             otherwise: (schema) => schema.notRequired(),
@@ -74,14 +85,18 @@
         marca: yup.string().required('Debes de seleccionar una marca'),
         categoria: yup.string().required('Debes de seleccionar una categoria'),
         nombre: yup.string().required('Debes de asignar un nombre'),
-        precio: yup.decimal().required('Debes de especificar el precio'),
+        precio: yup.number().test(
+            'is-decimal',
+            'El campo debe tener máximo 2 decimales, tt',
+            (value) => (value + "").match(/^\d+(\.\d{1,2})?$/),
+        ).required(),
         ajuste: yup.string().required("Debes de seleccionar un ajuste"),
         sexo: yup.string().required("Sebes de seleccionar un sexo"),
         descripcion: yup.string().required('Debes de seleccionar un rol'),
         altura: yup.string().required('Debes de seleccionar una altura'),
         deporte: yup.string().required('Debes de seleccionar un deporte'),
         oferta: yup.boolean().required('Debes de confirmar si es oferta o no'),
-        precio_anterior: Yup.string().when('oferta', {
+        precio_anterior: yup.string().when('oferta', {
             is: true,
             then: (schema) => schema.required('Este campo es obligatorio si el producto tiene oferta'),
             otherwise: (schema) => schema.notRequired(),
@@ -241,6 +256,10 @@
         }
     }
 
+    const cleanFormValue = (value) => {
+        return (value.charAt(0).toUpperCase() + value.slice(1)).replace('_', ' ');
+    }
+
     
 </script>
 
@@ -260,20 +279,24 @@
                     <tr>
                         <th>Id</th>
                         <th>Nombre</th>
-                        <th>Apellidos</th>
-                        <th>Nombre usuario</th>
-                        <th>Email</th>
-                        <th>Rol</th>
+                        <th>Precio</th>
+                        <th>Categoria</th>
+                        <th>Deporte</th>
+                        <th>Sexo</th>
+                        <th>Ajuste</th>
+                        <th>Stock</th>
                         <th>Acciones</th>
                     </tr>
                     
                     <tr v-for="(product, index) in products">
                         <td>{{ product.id }}</td>
                         <td>{{ product.nombre }}</td>
-                        <td>{{ product.apellidos }}</td>
-                        <td>{{ product.nombre_usuario }}</td>
-                        <td>{{ product.email }}</td>
-                        <td>{{ product.rol }}</td>
+                        <td>{{ product.precio }}</td>
+                        <td>{{ product.categoria }}</td>
+                        <td>{{ product.deporte }}</td>
+                        <td>{{ product.sexo }}</td>
+                        <td>{{ product.ajuste }}</td>
+                        <td>{{ product.stock }}</td>
                         <td class="actions">
                             <button @click="handleDeleteProduct(product)"><i class="bi bi-trash"></i></button>
                             <button @click="handleEditProduct(product)"><i class="bi bi-pencil"></i></button>
@@ -287,7 +310,7 @@
         <div class="popup-backdrop" v-if="updateProductPopUpActive" @click.self="updateProductPopUpActive = false">
             <div class="pop-up-edit-product-container">
                 <div class="popup-header">
-                    <h3>Editar Usuario</h3>
+                    <h3>Editar Producto</h3>
                     <button class="close-btn" @click="updateProductPopUpActive = false">
                         <i class="bi bi-x-lg"></i>
                     </button>
@@ -391,10 +414,10 @@
             </div>
         </div>
 
-        <div class="popup-backdrop" v-if="addProductPopUpActive" @click.self="addProductPopUpActive = false">
-            <div class="pop-up-edit-product-container">
+        <div v-if="addProductPopUpActive" class="main-add-product-container">
+            <div class="pop-up-add-product-container">
                 <div class="popup-header">
-                    <h3>Añadir Usuario</h3>
+                    <h3>Añadir Producto</h3>
                     <button class="close-btn" @click="addProductPopUpActive = false">
                         <i class="bi bi-x-lg"></i>
                     </button>
@@ -426,7 +449,7 @@
                         <label>Precio Anterior</label>
                         <Field type="text" name="precio-anterior" placeholder="Precio anterior"></Field>
                         <ErrorMessage name="nombre" class="error-msg" />
-                    </div>   -->
+                    </div> -->
 
                     
 
@@ -437,7 +460,6 @@
                     </div> -->
 
                     
-
                     <div class="form-group">
                         <label for="novedad" class="checkbox-item-toggler">
                             <strong style="font-size: 20px;">Novedad </strong>
@@ -447,223 +469,252 @@
                     </div>
 
 
-                    <div class="form-group">
-                        <label>Categoria</label>
+                    <div class="form-grid">
+                        <div>
+                            <label>Categoria</label>
 
-                        <div class="custom-select">
-                            <div class="selected-option" @click="formDesplegables.categoria.isOpen = !formDesplegables.categoria.isOpen">
-                                <p> {{ cleanFormValue(values.categoria  || 'Selecciona la categoria') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.categoria.isOpen}]"></i> 
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.categoria.isOpen = !formDesplegables.categoria.isOpen">
+                                    <p> {{ cleanFormValue(values.categoria  || 'Selecciona la categoria') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.categoria.isOpen}]"></i> 
+                                </div>
+                                
+                                <div :class="['options-container', {'active': formDesplegables.categoria.isOpen}]">
+                                    <ul class="options-list">
+                                        <li @click="setFieldValue('categoria', 'zapatillas')" :class="{'option-active': values.categoria === 'zapatillas'}">
+                                            Zapatillas
+                                        </li>
+
+                                        <li @click="setFieldValue('categoria', 'camisetas')" :class="{'option-active': values.categoria === 'camisetas'}">
+                                            Camisetas
+                                        </li>
+
+                                        <li @click="setFieldValue('categoria', 'pantalones')" :class="{'option-active': values.categoria === 'pantalones'}">
+                                            Pantalones
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
+
                             
-                            <div :class="['options-container', {'active': formDesplegables.categoria.isOpen}]">
-                                <ul class="options-list">
-                                    <li @click="setFieldValue('categoria', 'zapatillas')" :class="{'option-active': values.categoria === 'zapatillas'}">
-                                        Zapatillas
-                                    </li>
-
-                                    <li @click="setFieldValue('categoria', 'camisetas')" :class="{'option-active': values.categoria === 'camisetas'}">
-                                        Camisetas
-                                    </li>
-
-                                    <li @click="setFieldValue('categoria', 'pantalones')" :class="{'option-active': values.categoria === 'pantalones'}">
-                                        Pantalones
-                                    </li>
-                                </ul>
-                            </div>
+                            <ErrorMessage name="categoria" class="error-msg" />
                         </div>
 
+                        <div>
+                            <label>Marca</label>
                         
-                        <ErrorMessage name="categoria" class="error-msg" />
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.marca.isOpen = !formDesplegables.marca.isOpen">
+                                    <p> {{ cleanFormValue(values.marca  || 'Selecciona la marca') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.marca.isOpen}]"></i> 
+                                </div>
+                                
+                                <div :class="['options-container', {'active': formDesplegables.marca.isOpen}]">
+                                    <ul class="options-list">
+                                        <li @click="setFieldValue('marca', 'nike')" :class="{'option-active': values.marca === 'nike'}">
+                                            Nike
+                                        </li>
+
+                                        <li @click="setFieldValue('marca', 'adidas')" :class="{'option-active': values.marca === 'adidas'}">
+                                            Adidas
+                                        </li>
+
+                                        <li @click="setFieldValue('marca', 'asics')" :class="{'option-active': values.marca === 'asics'}">
+                                            Asics
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <ErrorMessage name="marca" class="error-msg" />
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Marca</label>
+                    <div class="form-grid ">
                         
-                        <div class="custom-select">
-                            <div class="selected-option" @click="formDesplegables.marca.isOpen = !formDesplegables.marca.isOpen">
-                                <p> {{ cleanFormValue(values.marca  || 'Selecciona la marca') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.marca.isOpen}]"></i> 
-                            </div>
-                            
-                            <div :class="['options-container', {'active': formDesplegables.marca.isOpen}]">
-                                <ul class="options-list">
-                                    <li @click="setFieldValue('marca', 'nike')" :class="{'option-active': values.marca === 'nike'}">
-                                        Nike
-                                    </li>
+                        <div>
+                            <label>Ajuste</label>
+                        
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.ajuste.isOpen = !formDesplegables.ajuste.isOpen">
+                                    <p> {{ cleanFormValue(values.ajuste  || 'Selecciona el ajuste') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.ajuste.isOpen}]"></i> 
+                                </div>
+                                
+                                <div :class="['options-container', {'active': formDesplegables.ajuste.isOpen}]">
+                                    <ul class="options-list">
+                                        <li @click="setFieldValue('ajuste', 'ajustado')" :class="{'option-active': values.ajuste === 'ajustado'}">
+                                            Ajustado
+                                        </li>
 
-                                    <li @click="setFieldValue('marca', 'adidas')" :class="{'option-active': values.marca === 'adidas'}">
-                                        Adidas
-                                    </li>
+                                        <li @click="setFieldValue('ajuste', 'holgado')" :class="{'option-active': values.ajuste === 'holgado'}">
+                                            Holgado
+                                        </li>
 
-                                    <li @click="setFieldValue('marca', 'asics')" :class="{'option-active': values.marca === 'asics'}">
-                                        Asics
-                                    </li>
-                                </ul>
+                                        <li @click="setFieldValue('ajuste', 'normal')" :class="{'option-active': values.ajuste === 'normal'}">
+                                            Normal
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
+                            <ErrorMessage name="ajuste" class="error-msg" />
                         </div>
 
+                        <div>
+                            <label>Altura</label>
                         
-                        <ErrorMessage name="marca" class="error-msg" />
-                    </div>
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.altura.isOpen = !formDesplegables.altura.isOpen">
+                                    <p> {{ cleanFormValue(values.altura  || 'Selecciona la altura') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.altura.isOpen}]"></i> 
+                                </div>
+                                
+                                <div :class="['options-container', {'active': formDesplegables.altura.isOpen}]">
+                                    <ul class="options-list">
+                                        <li @click="setFieldValue('altura', 'alto')" :class="{'option-active': values.altura === 'alto'}">
+                                            Alto
+                                        </li>
 
-                    <div class="form-group">
-                        <label>Ajuste</label>
-                        
-                        <div class="custom-select">
-                            <div class="selected-option" @click="formDesplegables.ajuste.isOpen = !formDesplegables.ajuste.isOpen">
-                                <p> {{ cleanFormValue(values.ajuste  || 'Selecciona el ajuste') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.ajuste.isOpen}]"></i> 
+                                        <li @click="setFieldValue('altura', 'bajo')" :class="{'option-active': values.altura === 'bajo'}">
+                                            Bajo
+                                        </li>
+
+                                        <li @click="setFieldValue('altura', 'normal')" :class="{'option-active': values.altura === 'normal'}">  
+                                            Normal
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                            
-                            <div :class="['options-container', {'active': formDesplegables.ajuste.isOpen}]">
-                                <ul class="options-list">
-                                    <li @click="setFieldValue('ajuste', 'ajustado')" :class="{'option-active': values.ajuste === 'ajustado'}">
-                                        Ajustado
-                                    </li>
-
-                                    <li @click="setFieldValue('ajuste', 'holgado')" :class="{'option-active': values.ajuste === 'holgado'}">
-                                        Holgado
-                                    </li>
-
-                                    <li @click="setFieldValue('ajuste', 'normal')" :class="{'option-active': values.ajuste === 'normal'}">
-                                        Normal
-                                    </li>
-                                </ul>
-                            </div>
+                            <ErrorMessage name="altura" class="error-msg" />
                         </div>
+                        
+                       
 
                         
-                        <ErrorMessage name="ajuste" class="error-msg" />
+                        
                     </div>
 
-                    <div class="form-group">
-                        <label>Altura</label>
-                        
-                        <div class="custom-select">
-                            <div class="selected-option" @click="formDesplegables.altura.isOpen = !formDesplegables.altura.isOpen">
-                                <p> {{ cleanFormValue(values.altura  || 'Selecciona la altura') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.altura.isOpen}]"></i> 
-                            </div>
-                            
-                            <div :class="['options-container', {'active': formDesplegables.sexo.isOpen}]">
-                                <ul class="options-list">
-                                    <li @click="setFieldValue('altura', 'alto')" :class="{'option-active': values.sexo === 'alto'}">
-                                        Alto
-                                    </li>
-
-                                    <li @click="setFieldValue('altura', 'bajo')" :class="{'option-active': values.sexo === 'bajo'}">
-                                        Bajo
-                                    </li>
-
-                                    <li @click="setFieldValue('altura', 'normal')" :class="{'option-active': values.sexo === 'normal'}">
-                                        Normal
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        
-                        <ErrorMessage name="altura" class="error-msg" />
-                    </div>
                     
-                    <div class="form-group">
-                        <label>Sexo</label>
+                    <div class="form-grid ">
+                        <div>
+                            <label>Sexo</label>
                         
-                        <div class="custom-select">
-                            <div class="selected-option" @click="formDesplegables.sexo.isOpen = !formDesplegables.sexo.isOpen">
-                                <p> {{ cleanFormValue(values.sexo  || 'Selecciona el sexo') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.sexo.isOpen}]"></i> 
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.sexo.isOpen = !formDesplegables.sexo.isOpen">
+                                    <p> {{ cleanFormValue(values.sexo  || 'Selecciona el sexo') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.sexo.isOpen}]"></i> 
+                                </div>
+                                
+                                <div :class="['options-container', {'active': formDesplegables.sexo.isOpen}]">
+                                    <ul class="options-list">
+                                        <li @click="setFieldValue('sexo', 'hombre')" :class="{'option-active': values.sexo === 'hombre'}">
+                                            Hombre
+                                        </li>
+
+                                        <li @click="setFieldValue('sexo', 'mujer')" :class="{'option-active': values.sexo === 'mujer'}">
+                                            Mujer
+                                        </li>
+
+                                        <li @click="setFieldValue('sexo', 'niño')" :class="{'option-active': values.sexo === 'niño'}">
+                                            Niño
+                                        </li>
+
+                                        <li @click="setFieldValue('sexo', 'niña')" :class="{'option-active': values.sexo === 'niña'}">
+                                            Niña
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                            
-                            <div :class="['options-container', {'active': formDesplegables.sexo.isOpen}]">
-                                <ul class="options-list">
-                                    <li @click="setFieldValue('sexo', 'hombre')" :class="{'option-active': values.sexo === 'hombre'}">
-                                        Hombre
-                                    </li>
-
-                                    <li @click="setFieldValue('sexo', 'mujer')" :class="{'option-active': values.sexo === 'mujer'}">
-                                        Mujer
-                                    </li>
-
-                                    <li @click="setFieldValue('sexo', 'niño')" :class="{'option-active': values.sexo === 'niño'}">
-                                        Niño
-                                    </li>
-
-                                    <li @click="setFieldValue('sexo', 'niña')" :class="{'option-active': values.sexo === 'niña'}">
-                                        Niña
-                                    </li>
-                                </ul>
-                            </div>
+                            <ErrorMessage name="sexo" class="error-msg" />
                         </div>
 
+                        <div>
+                            <label>Deporte</label>
                         
-                        <ErrorMessage name="sexo" class="error-msg" />
-                    </div>
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.deporte.isOpen = !formDesplegables.deporte.isOpen">
+                                    <p> {{ cleanFormValue(values.deporte  || 'Selecciona el deporte') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.deporte.isOpen}]"></i> 
+                                </div>
+                                
+                                <div :class="['options-container', {'active': formDesplegables.deporte.isOpen}]">
+                                    <ul class="options-list">
 
-                    <div class="form-group">
-                        <label>Deporte</label>
-                        
-                        <div class="custom-select">
-                            <div class="selected-option" @click="formDesplegables.deporte.isOpen = !formDesplegables.deporte.isOpen">
-                                <p> {{ cleanFormValue(values.deporte  || 'Selecciona el deporte') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.deporte.isOpen}]"></i> 
+                                        <li @click="setFieldValue('deporte', 'general')" :class="{'option-active': values.deporte === 'general'}">
+                                            General
+                                        </li>
+                                        
+                                        <li @click="setFieldValue('deporte', 'trail')" :class="{'option-active': values.deporte === 'trail'}">
+                                            Trail
+                                        </li>
+
+                                        <li @click="setFieldValue('deporte', 'futbol')" :class="{'option-active': values.deporte === 'futbol'}">
+                                            Futbol
+                                        </li>
+
+                                        <li @click="setFieldValue('deporte', 'tenis')" :class="{'option-active': values.deporte === 'tenis'}">
+                                            Tenis
+                                        </li>
+
+                                        <li @click="setFieldValue('deporte', 'padel')" :class="{'option-active': values.deporte === 'padel'}">
+                                            Padel
+                                        </li>
+
+                                        <li @click="setFieldValue('deporte', 'baloncesto')" :class="{'option-active': values.deporte === 'baloncesto'}">
+                                            Baloncesto
+                                        </li>
+                                        
+                                    </ul>
+                                </div>
                             </div>
-                            
-                            <div :class="['options-container', {'active': formDesplegables.deporte.isOpen}]">
-                                <ul class="options-list">
-
-                                    <li @click="setFieldValue('deporte', 'general')" :class="{'option-active': values.deporte === 'general'}">
-                                        General
-                                    </li>
-                                    
-                                    <li @click="setFieldValue('deporte', 'trail')" :class="{'option-active': values.deporte === 'trail'}">
-                                        Trail
-                                    </li>
-
-                                    <li @click="setFieldValue('deporte', 'futbol')" :class="{'option-active': values.deporte === 'futbol'}">
-                                        Futbol
-                                    </li>
-
-                                    <li @click="setFieldValue('deporte', 'tenis')" :class="{'option-active': values.deporte === 'tenis'}">
-                                        Tenis
-                                    </li>
-
-                                    <li @click="setFieldValue('deporte', 'padel')" :class="{'option-active': values.deporte === 'padel'}">
-                                        Padel
-                                    </li>
-
-                                    <li @click="setFieldValue('deporte', 'baloncesto')" :class="{'option-active': values.deporte === 'baloncesto'}">
-                                        Baloncesto
-                                    </li>
-                                    
-                                </ul>
-                            </div>
+                            <ErrorMessage name="deporte" class="error-msg" />
                         </div>
-
-                        
-                        <ErrorMessage name="deporte" class="error-msg" />
                     </div>
 
-                    <div class="form-group">
+                    
+                    <div class="form-group ">
                         <label>Descripcion</label>
-                        <Field type="textarea" name="descripcion" placeholder="Descripcion del producto"></Field>
+                        <Field as="textarea" name="descripcion" class="textarea-fijo" placeholder="Descripcion del producto"></Field>
                         <ErrorMessage name="descripcion" class="error-msg" />
+                    </div>
+
+                    <div class="variations-section">
+                        <h3>Variaciones</h3>
+
+                        <button class="add-variation-btn" @click="addVariationFormActive = !addVariationFormActive">
+                            <i class="bi bi-plus"></i>
+                        </button>
+
+                        
                     </div>
                     
 
                     <div class="form-actions">
                         <button type="button" class="cancel-btn" @click="addProductPopUpActive = false">Cancelar</button>
-                        <button type="submit" class="add-btn">Añadir usuario</button>
-                    </div>
-
-
-                    <div class="variations-section">
-                        <h3>Variaciones</h3>
-
-                        <button class="add-variation-btn">
-                            <i class="bi bi-plus"></i>
-                        </button>
-
-                        <Form v-if="addVariationFormActive" :validation-schema="schemaAddVariation" @submit="onSubmitAddVariation" v-slot="{ values, setFieldValue }"></Form>
+                        <button type="submit" class="add-btn">Añadir producto</button>
                     </div>
 
                 </Form>
             </div>
+            <div v-if="addVariationFormActive" class="pop-up-add-variation-container" >
+                <Form :validation-schema="schemaAddVariation" @submit="onSubmitAddVariation" v-slot="{ values, setFieldValue }" >
+                            
+                    <div class="form-grid">
+                        <div>
+                            <label>Color</label>
+                                
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.color.isOpen = !formDesplegables.color.isOpen">
+                                    <p> {{ cleanFormValue(values.color  || 'Selecciona el color') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.color.isOpen}]"></i> 
+                                </div>
+                                            
+                                <div :class="['options-container', {'active': formDesplegables.color.isOpen}]">
+                                    <ul class="options-list">
+                                        <li v-for="color in metaData.colors" @click="setFieldValue('color', color.nombre)" :class="{'option-active': values.color === color.nombre}">
+                                            {{ color.nombre }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <ErrorMessage name="color" class="error-msg" />
+                        </div>
+                    </div>
+                </Form>
+            </div>
+            
         </div>
 
         <div class="popup-backdrop" v-if="importProductsPopUpActive" @click.self="importProductsPopUpActive = false">
@@ -851,6 +902,23 @@
         position: relative;
     }
 
+    .main-add-product-container {
+        display: grid;
+        grid-template-columns: auto auto;
+        column-gap: 0px;
+        align-items: start;
+    }
+
+    .pop-up-add-product-container, .pop-up-add-variation-container {
+        border-radius: 24px;
+        background-color: #ffffff;
+        padding: 30px;
+        width: 90%;
+        max-width: 500px;
+        animation: slideRight 0.3s ease;
+        position: relative;
+    }
+
     /* Popup Animations */
     @keyframes fadeIn {
         from { opacity: 0; }
@@ -860,6 +928,11 @@
     @keyframes slideUp {
         from { transform: translateY(20px); opacity: 0; }
         to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes slideRight {
+        from { transform: translateX(-50px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
 
     .popup-header {
@@ -931,6 +1004,14 @@
         box-shadow: 0 0 0 4px rgba(215, 38, 49, 0.1);
     }
 
+    .textarea-fijo {
+        width: 400px;
+        height: 200px;
+        resize: none; /* Bloquea el redimensionado */
+        box-sizing: border-box; /* Evita que el padding sume tamaño extra al ancho */
+        border-radius: 8px
+    }
+
     .error-msg {
         color: #d32f2f;
         font-size: 0.75rem;
@@ -985,6 +1066,90 @@
     .custom-toggler-active {
         background-color: #cf8489;
     }
+
+    .custom-select {
+        margin: 15px 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        border: 2px solid #D72631;
+        border-radius: 8px;
+        padding: 12px 0px;
+
+    }
+
+    .selected-option {
+        align-content: center;
+        padding: 0 5px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        cursor: pointer;
+        border-bottom: 1px solid grey;
+        width: 90%;
+        justify-self: center;
+        padding: 10px 0;
+    }
+
+    .selected-option p{
+        margin: 0;
+        -webkit-user-select: none; 
+        -ms-user-select: none;    
+        user-select: none;
+    }
+
+
+    .options-container {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.3s ease-in-out, visibility 0.3s; /* Añadimos visibility a la transición */
+        overflow: hidden;
+        visibility: hidden; /* Oculto por defecto */
+    }
+
+    .options-container.active {
+        grid-template-rows: 1fr;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        visibility: visible; /* Visible cuando está activo */
+    }
+
+    .options-list {
+        min-height: 0;
+        list-style-type: none;
+        display: grid;
+        grid-auto-flow: row;
+        row-gap: 10px;
+        margin: 0;
+    }
+
+    .options-list li {
+        padding: 20px;
+        cursor: pointer;
+        min-height: 0;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .options-list li:not(:nth-last-child){
+        padding: 20px;
+        cursor: pointer;
+        border: 1px solid grey;
+    }
+
+    .option-active {
+        background-color: #1F1F1F;
+        color: white;
+    }
+
+    .bi-arrow-down {
+        transition: all 0.2s ease-in-out;
+        display: inline-block;
+        width: auto;
+    }
+
+    .bi-arrow-active {
+        transform: rotate(180deg)
+    }
+
 
     /* Action Buttons */
     .form-actions {
@@ -1086,14 +1251,18 @@
         outline: none;
         cursor: pointer;
         transition: transform 0.2s, background-color 0.2s;
+        height: 100px;
+        width: 100px;
+    }
+
+    .add-variation-btn i::before{
+        font-size: 50px;
     }
 
     .add-variation-btn:hover {
-        background-color: #b01f28;
         transform: translateY(-2px);
+        background-color: #b1b1b1;
     }
-
-
 
 
 

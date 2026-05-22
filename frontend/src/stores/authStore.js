@@ -16,6 +16,7 @@ export const useAuthStore = defineStore('auth', {
         debug: true
     }),
     actions: {
+
         async loginAction(data) {
             const response = await login(data);
 
@@ -362,7 +363,6 @@ export const useAuthStore = defineStore('auth', {
         
         async getAllProductsAction() {
 
-
             if (!this.isAuthenticated) {
                 this.addMessageAction('error', "No estas logueado en el sistema");
                 return;
@@ -375,11 +375,7 @@ export const useAuthStore = defineStore('auth', {
 
             if (response.success) {
                 this.addMessageAction('success', response?.message || "Se han obtenido correctamente los productos");
-                return {
-                    success: true,
-                    data: response.data.data,
-                    message: response.message
-                };
+                return response;
             } else {
                 this.addMessageAction('error', response?.message || "Error al intentar obtener los productos");
                 return response;

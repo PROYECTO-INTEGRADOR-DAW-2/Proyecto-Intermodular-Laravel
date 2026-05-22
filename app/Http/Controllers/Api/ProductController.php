@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Api\BaseController;
 
 use App\Models\Product;
+use App\Models\Color;
 
 use App\Http\Resources\ProductResource;
 
@@ -68,11 +69,18 @@ class ProductController extends BaseController
 
         $productos = $query->paginate(10);
 
+        $colors = Color::all(['id', 'nombre', 'código_hex']);
+
+
+
         return ProductResource::collection($productos)
             ->additional([
                 'meta' => [
                     'products' => [
                         'max_price' => (float) $maxPrice,
+                    ],
+                    'variations' => [
+                        'colors' => $colors,
                     ]
                 ],
             ]);
