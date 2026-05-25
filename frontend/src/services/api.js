@@ -931,6 +931,33 @@ const addRole = async (data) => {
     }
 }
 
+const fetchSizes = async(data) => {
+    try {
+        const response = await privateApi.get('/sizes', data);
+
+        return {
+            success: true,
+            data: response.data,
+            message: response.message
+        }
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                data: `Error: ${error.response?.status || 'Tipo sin especificar'} : ${error.response?.message || 'Descripcion sin especificar'}`,
+                info: error.response.data?.info || error.response.data?.errors,
+                message: error.response.data?.message || 'Ha habido un error al añadir el rol'
+            } 
+        } else {
+            return {
+                success: false,
+                data: error.message || 'Sin descripcion de error',
+                message: error.message
+            }
+        }
+    }
+}
+
 export {
     fetchProducts,
     fetchProduct,

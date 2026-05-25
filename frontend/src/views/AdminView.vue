@@ -156,6 +156,7 @@ import ProductsAdminTab from '../components/ProductsAdminTab.vue';
 
     onMounted(async () => {
         currentTab.value = 'users';
+        users.value = [];
         loadingUsers.value = true;
         
         const response = await authStore.getUsersAction();

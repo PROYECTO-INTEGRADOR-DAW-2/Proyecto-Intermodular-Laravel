@@ -10,6 +10,10 @@
         products: Array,
         metaData: Object,
     })
+
+    const categorias = ref(["Zapatillas infantil", "Prendas Infantil", "Zapatillas adultos", "Prendas adultos"]);
+    const tallasDisponibles = ref([]);
+    
     
     //Emit evento para obtencion de usuarios despues de realizar acciones CRUD 
     const emit = defineEmits(['fetchProducts']);
@@ -44,6 +48,9 @@
             isOpen: false
         },
         color: {
+            isOpen: false
+        },
+        categoria: {
             isOpen: false
         }
     })
@@ -105,6 +112,11 @@
         img: yup.string().required('Debes de añadir una imagen')
     })
 
+    const schemaAddVariation = yup.object().shape({
+        color: yup.string().required("Debes de seleccionar el color de la variacion"),
+        talla: yup.string().required("Debes de seleccionar la talla de la variacion")
+    })
+
     const schemaImportProducts = yup.object().shape({
         fichero: yup.mixed()
         .required('El fichero es obligatorio')
@@ -137,6 +149,16 @@
 
     const handleImportProducts = () => {
         importProductsPopUpActive.value = true;
+    }
+
+    const handleSelectVariationCategory = async (category) => {
+
+        const category = new String(category).toLowerCase();
+
+        const response = await getSizesAction(category);
+
+        if (response.success) tallasDisponibles.value = response.data;
+
     }
 
 
@@ -690,6 +712,12 @@
                 </Form>
             </div>
             <div v-if="addVariationFormActive" class="pop-up-add-variation-container" >
+                <div class="popup-header">
+                    <h3>Añadir Variacion</h3>
+                    <button class="close-btn" @click="addVariationFormActive = false">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
                 <Form :validation-schema="schemaAddVariation" @submit="onSubmitAddVariation" v-slot="{ values, setFieldValue }" >
                             
                     <div class="form-grid">
@@ -703,13 +731,34 @@
                                             
                                 <div :class="['options-container', {'active': formDesplegables.color.isOpen}]">
                                     <ul class="options-list">
-                                        <li v-for="color in metaData.colors" @click="setFieldValue('color', color.nombre)" :class="{'option-active': values.color === color.nombre}">
+                                        <li v-for="color in metaData.variations.colors" @click="setFieldValue('color', color.nombre)" :class="{'option-active': values.color === color.nombre}">
                                             {{ color.nombre }}
                                         </li>
                                     </ul>
                                 </div>
                             </div>
                             <ErrorMessage name="color" class="error-msg" />
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label>Categoria</label>
+                                
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.categoria.isOpen = !formDesplegables.categoria.isOpen">
+                                    <p> {{ cleanFormValue(values.categoria  || 'Selecciona la categoria') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.color.isOpen}]"></i> 
+                                </div>
+                                            
+                                <div :class="['options-container', {'active': formDesplegables.categoria.isOpen}]">
+                                    <ul class="options-list">
+                                        <li v-for="categoria in categorias" @click="setFieldValue('categoria', categoria); handleSelectVariationCategory(categoria)" :class="{'option-active': values.categoria === categoria}">
+                                            {{ categoria }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <ErrorMessage name="categoria" class="error-msg" />
                         </div>
                     </div>
                 </Form>
@@ -905,6 +954,7 @@
     .main-add-product-container {
         display: grid;
         grid-template-columns: auto auto;
+        width: 70%;
         column-gap: 0px;
         align-items: start;
     }

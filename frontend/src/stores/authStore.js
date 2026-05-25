@@ -500,6 +500,26 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
+        async geSizesAction(category) {
+            if (!this.isAuthenticated) {
+                this.addMessageAction('error', 'No estas logueado en el sistema');
+                return;
+            } else if (this.role.toLowerCase() !== 'admin') {
+                this.addMessageAction('error', "No estas autorizado para realizar esta accion")
+                return;
+            }
+
+            const response = await fetchSizes(page);
+
+            if (response.success) {
+                this.addMessageAction('success', response.message || 'Se han obtenido los tamaños de la categoria');
+                return response;
+            } else {
+                this.addMessageAction('error', response.message || 'No se han podido obtener los tamaños del sistema');
+                return response;
+            }
+        },
+
         addMessageAction(type, message) {
             const messageStore = useMessageStore();
             messageStore.addMessage({ type, message });
