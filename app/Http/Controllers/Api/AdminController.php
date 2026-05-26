@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
 
-
+use App\Enums\TallaCategoria;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Product;
@@ -15,6 +15,9 @@ use App\Http\Requests\Auth\UpdateRoleRequest;
 
 use App\Http\Requests\Auth\AddProductRequest;
 use App\Http\Requests\Auth\UpdateProductRequest;
+use App\Http\Resources\SizeResource;
+use App\Models\Talla;
+use Illuminate\Http\Request;
 
 
 class AdminController extends BaseController {
@@ -102,6 +105,24 @@ class AdminController extends BaseController {
 
     public function deleteProduct(Product $product) {
         $product->delete();
+    }
+
+    public function getSizes(Request $request) {
+
+        $category = $request->input("category");
+
+        $categoriaEnum = TallaCategoria::tryFrom($category);
+
+        if ($category && $categoriaEnum) {
+            $sizes = Talla::query()->where('categoria', $categoriaEnum->value)->get();
+
+            $sizes = SizeResource::collection($sizes);
+
+            return $this->sendResponse($sizes, "Se han obtenido las tallas disponibles", 200);
+        } else {
+            return $this->sendError('La categoria buscada no existe', [], 404);
+        }
+
     }
 
 

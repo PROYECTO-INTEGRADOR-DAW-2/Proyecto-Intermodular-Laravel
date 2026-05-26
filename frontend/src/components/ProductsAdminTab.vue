@@ -52,6 +52,9 @@
         },
         categoria: {
             isOpen: false
+        },
+        talla: {
+            isOpen: false
         }
     })
 
@@ -153,9 +156,7 @@
 
     const handleSelectVariationCategory = async (category) => {
 
-        const category = new String(category).toLowerCase();
-
-        const response = await getSizesAction(category);
+        const response = await authStore.getSizesAction(category);
 
         if (response.success) tallasDisponibles.value = response.data;
 
@@ -759,6 +760,27 @@
                                 </div>
                             </div>
                             <ErrorMessage name="categoria" class="error-msg" />
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div>
+                            <label>Tallas disponibles</label>
+                                
+                            <div class="custom-select">
+                                <div class="selected-option" @click="formDesplegables.talla.isOpen = !formDesplegables.talla.isOpen">
+                                    <p> {{ values.talla  || 'Selecciona la talla' }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.talla.isOpen}]"></i> 
+                                </div>
+                                            
+                                <div :class="['options-container', {'active': formDesplegables.categoria.isOpen}]">
+                                    <ul class="options-list">
+                                        <li v-for="talla in tallasDisponibles" @click="setFieldValue('talla', talla)" :class="{'option-active': values.talla === talla}">
+                                            {{ talla.nombre }}
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <ErrorMessage name="talla" class="error-msg" />
                         </div>
                     </div>
                 </Form>

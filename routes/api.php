@@ -67,6 +67,8 @@ Route::name('api.')->group(function () {
                 Route::post('/roles', [AdminController::class, 'addRole'])->name('admin.add-role');
                 Route::delete('/roles/{role}', [AdminController::class, 'deleteRole'])->name('admin.delete-role');
                 Route::put('/roles/{role}', [AdminController::class, 'updateRole'])->name('admin.update-role');
+
+                Route::get('/sizes', [AdminController::class, 'getSizes'])->name('admin.get-sizes');
             });
             
             

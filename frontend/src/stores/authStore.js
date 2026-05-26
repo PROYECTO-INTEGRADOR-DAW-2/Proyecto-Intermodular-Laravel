@@ -2,7 +2,8 @@ import { defineStore } from 'pinia';
 import { 
         login, register, updateProfile, updatePassword, fetchUser, fetchUsers, updateUser, deleteUser, addUser, importUsers, getImportsLogs, 
         getAllRoles, deleteRole, addRole, updateRole, getReviews,
-        fetchProducts, updateProduct, deleteProduct, addProduct, importProducts, getImportsLogsProducts
+        fetchProducts, updateProduct, deleteProduct, addProduct, importProducts, getImportsLogsProducts,    
+        fetchSizes
 } from '../services/api.js'
 
 import { useMessageStore } from '../stores/messageStore.js';
@@ -500,7 +501,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        async geSizesAction(category) {
+        async getSizesAction(category) {
             if (!this.isAuthenticated) {
                 this.addMessageAction('error', 'No estas logueado en el sistema');
                 return;
@@ -509,7 +510,7 @@ export const useAuthStore = defineStore('auth', {
                 return;
             }
 
-            const response = await fetchSizes(page);
+            const response = await fetchSizes(category);
 
             if (response.success) {
                 this.addMessageAction('success', response.message || 'Se han obtenido los tamaños de la categoria');

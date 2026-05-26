@@ -933,7 +933,11 @@ const addRole = async (data) => {
 
 const fetchSizes = async(data) => {
     try {
-        const response = await privateApi.get('/sizes', data);
+        const response = await privateApi.get('/sizes', {
+            params: {
+                category: data
+            }
+        });
 
         return {
             success: true,
@@ -989,4 +993,5 @@ export {
     deleteProduct,
     importProducts,
     getImportsLogsProducts,
+    fetchSizes
 }
