@@ -501,7 +501,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        async getSizesAction(category) {
+        async getSizesAction(category, gender) {
             if (!this.isAuthenticated) {
                 this.addMessageAction('error', 'No estas logueado en el sistema');
                 return;
@@ -510,11 +510,15 @@ export const useAuthStore = defineStore('auth', {
                 return;
             }
 
-            const response = await fetchSizes(category);
+            const response = await fetchSizes(category, gender);
 
             if (response.success) {
                 this.addMessageAction('success', response.message || 'Se han obtenido los tamaños de la categoria');
-                return response;
+                return {
+                    success: true,
+                    data: response.data.data,
+                    message: response.message
+                };
             } else {
                 this.addMessageAction('error', response.message || 'No se han podido obtener los tamaños del sistema');
                 return response;

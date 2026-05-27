@@ -1,7 +1,7 @@
 <script setup>
-    import { onMounted, defineEmits, ref } from 'vue'
+    import { onMounted, defineEmits, ref, watch } from 'vue'
     import { useAuthStore } from '../stores/authStore';
-    import { Form, Field, ErrorMessage } from 'vee-validate'
+    import { Form, Field, ErrorMessage, useForm } from 'vee-validate'
     import * as yup from 'yup';
 
     const authStore = useAuthStore();
@@ -11,7 +11,7 @@
         metaData: Object,
     })
 
-    const categorias = ref(["Zapatillas infantil", "Prendas Infantil", "Zapatillas adultos", "Prendas adultos"]);
+    const categorias = ref(["Zapatillas Infantil", "Prendas Infantil", "Zapatillas Adulto", "Prendas Adulto"]);
     const tallasDisponibles = ref([]);
     
     
@@ -62,7 +62,6 @@
     const productFormData = ref({});
     const productSelectedToDelete = ref({});
     const productVariations = ref([]);
-
     const logsData = ref(null);
     
 
@@ -116,8 +115,8 @@
     })
 
     const schemaAddVariation = yup.object().shape({
-        color: yup.string().required("Debes de seleccionar el color de la variacion"),
-        talla: yup.string().required("Debes de seleccionar la talla de la variacion")
+        color: yup.mixed().required("Debes de seleccionar el color de la variacion"),
+        talla: yup.mixed().required("Debes de seleccionar la talla de la variacion")
     })
 
     const schemaImportProducts = yup.object().shape({
@@ -134,6 +133,23 @@
         })
     })
 
+    // Inicialización del formulario de añadir producto con useForm para sincronización total
+    const { 
+        values: addProductValues, 
+        setFieldValue: setAddProductFieldValue,
+        setFieldError: setAddProductFieldError,
+        handleSubmit: handleAddProductSubmit,
+        resetForm: resetAddProductForm 
+    } = useForm({
+        validationSchema: schemaAddProduct,
+        initialValues: {
+            oferta: false,
+            novedades: false,
+            nombre: '',
+            precio: 0
+        }
+    });
+
 
     //Metodos relacionados con los eventos de click a botones y demas (mostrar popups, rellenar formularios)
     const handleEditProduct = (product) => {
@@ -148,6 +164,7 @@
 
     const handleAddProduct = () => {
         addProductPopUpActive.value = true;
+        resetAddProductForm();
     }
 
     const handleImportProducts = () => {
@@ -156,7 +173,16 @@
 
     const handleSelectVariationCategory = async (category) => {
 
-        const response = await authStore.getSizesAction(category);
+        if (!addProductValues.sexo) {
+            setAddProductFieldError('sexo', "No has seleccionado el sexo del producto principal");
+            return;
+        }
+
+        tallasDisponibles.value = [];
+
+        const cleanedGenderValue = addProductValues.sexo.charAt(0).toUpperCase() + addProductValues.sexo.slice(1);
+
+        const response = await authStore.getSizesAction(category, cleanedGenderValue);
 
         if (response.success) tallasDisponibles.value = response.data;
 
@@ -209,13 +235,13 @@
 
     const onSubmitAddProduct = async (productData, { setFieldError }) => {
         const response = await authStore.addProductAction(productData);
-
+        
         if (!response.success && response.info) {
             Object.entries(response.info).forEach(([field, messages]) => {
                 setFieldError(field, messages[0]);
             })
         } else {
-            emit('fetchProducts')
+            emit('fetchProducts');
 
             addProductPopUpActive.value = false;
         }
@@ -248,7 +274,7 @@
             page = 1;
         }
 
-        const response = await authStore.getLogDataFromImports(page);
+        const response = await authStore.getLogDataFromImportsProducts(page);
         console.log(response.data);
         
 
@@ -261,7 +287,7 @@
 
     const handlePreviousLogsPage = async () => {
         if (logsData.value?.previous_page) {
-            const response = await authStore.getLogDataFromImports(logsData.value.previous_page);
+            const response = await authStore.getLogDataFromImportsProducts(logsData.value.previous_page);
 
             if (response.success) {
                 logsData.value = response.data;
@@ -271,7 +297,7 @@
 
     const handleNextLogsPage = async () => {
         if (logsData.value?.next_page) {
-            const response = await authStore.getLogDataFromImports(logsData.value.next_page);
+            const response = await authStore.getLogDataFromImportsProducts(logsData.value.next_page);
 
             if (response.success) {
                 logsData.value = response.data;
@@ -446,7 +472,7 @@
                     </button>
                 </div>
 
-                <Form :validation-schema="schemaAddProduct" @submit="onSubmitAddProduct" v-slot="{ values, setFieldValue }">
+                <form @submit="handleAddProductSubmit(onSubmitAddProduct)">
                 
                     <div class="form-group">
                         <label>Nombre</label>
@@ -498,27 +524,27 @@
 
                             <div class="custom-select">
                                 <div class="selected-option" @click="formDesplegables.categoria.isOpen = !formDesplegables.categoria.isOpen">
-                                    <p> {{ cleanFormValue(values.categoria  || 'Selecciona la categoria') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.categoria.isOpen}]"></i> 
+                                    <p> {{ cleanFormValue(addProductValues.categoria  || 'Selecciona la categoria') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.categoria.isOpen}]"></i> 
                                 </div>
                                 
                                 <div :class="['options-container', {'active': formDesplegables.categoria.isOpen}]">
                                     <ul class="options-list">
-                                        <li @click="setFieldValue('categoria', 'zapatillas')" :class="{'option-active': values.categoria === 'zapatillas'}">
+                                        <li @click="setAddProductFieldValue('categoria', 'zapatillas')" :class="{'option-active': addProductValues.categoria === 'zapatillas'}">
                                             Zapatillas
                                         </li>
 
-                                        <li @click="setFieldValue('categoria', 'camisetas')" :class="{'option-active': values.categoria === 'camisetas'}">
+                                        <li @click="setAddProductFieldValue('categoria', 'camisetas')" :class="{'option-active': addProductValues.categoria === 'camisetas'}">
                                             Camisetas
                                         </li>
 
-                                        <li @click="setFieldValue('categoria', 'pantalones')" :class="{'option-active': values.categoria === 'pantalones'}">
+                                        <li @click="setAddProductFieldValue('categoria', 'pantalones')" :class="{'option-active': addProductValues.categoria === 'pantalones'}">
                                             Pantalones
                                         </li>
                                     </ul>
                                 </div>
                             </div>
 
-                            
+
                             <ErrorMessage name="categoria" class="error-msg" />
                         </div>
 
@@ -527,20 +553,20 @@
                         
                             <div class="custom-select">
                                 <div class="selected-option" @click="formDesplegables.marca.isOpen = !formDesplegables.marca.isOpen">
-                                    <p> {{ cleanFormValue(values.marca  || 'Selecciona la marca') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.marca.isOpen}]"></i> 
+                                    <p> {{ cleanFormValue(addProductValues.marca  || 'Selecciona la marca') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.marca.isOpen}]"></i> 
                                 </div>
                                 
                                 <div :class="['options-container', {'active': formDesplegables.marca.isOpen}]">
                                     <ul class="options-list">
-                                        <li @click="setFieldValue('marca', 'nike')" :class="{'option-active': values.marca === 'nike'}">
+                                        <li @click="setAddProductFieldValue('marca', 'nike')" :class="{'option-active': addProductValues.marca === 'nike'}">
                                             Nike
                                         </li>
 
-                                        <li @click="setFieldValue('marca', 'adidas')" :class="{'option-active': values.marca === 'adidas'}">
+                                        <li @click="setAddProductFieldValue('marca', 'adidas')" :class="{'option-active': addProductValues.marca === 'adidas'}">
                                             Adidas
                                         </li>
 
-                                        <li @click="setFieldValue('marca', 'asics')" :class="{'option-active': values.marca === 'asics'}">
+                                        <li @click="setAddProductFieldValue('marca', 'asics')" :class="{'option-active': addProductValues.marca === 'asics'}">
                                             Asics
                                         </li>
                                     </ul>
@@ -557,20 +583,20 @@
                         
                             <div class="custom-select">
                                 <div class="selected-option" @click="formDesplegables.ajuste.isOpen = !formDesplegables.ajuste.isOpen">
-                                    <p> {{ cleanFormValue(values.ajuste  || 'Selecciona el ajuste') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.ajuste.isOpen}]"></i> 
+                                    <p> {{ cleanFormValue(addProductValues.ajuste  || 'Selecciona el ajuste') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.ajuste.isOpen}]"></i> 
                                 </div>
                                 
                                 <div :class="['options-container', {'active': formDesplegables.ajuste.isOpen}]">
                                     <ul class="options-list">
-                                        <li @click="setFieldValue('ajuste', 'ajustado')" :class="{'option-active': values.ajuste === 'ajustado'}">
+                                        <li @click="setAddProductFieldValue('ajuste', 'ajustado')" :class="{'option-active': addProductValues.ajuste === 'ajustado'}">
                                             Ajustado
                                         </li>
 
-                                        <li @click="setFieldValue('ajuste', 'holgado')" :class="{'option-active': values.ajuste === 'holgado'}">
+                                        <li @click="setAddProductFieldValue('ajuste', 'holgado')" :class="{'option-active': addProductValues.ajuste === 'holgado'}">
                                             Holgado
                                         </li>
 
-                                        <li @click="setFieldValue('ajuste', 'normal')" :class="{'option-active': values.ajuste === 'normal'}">
+                                        <li @click="setAddProductFieldValue('ajuste', 'normal')" :class="{'option-active': addProductValues.ajuste === 'normal'}">
                                             Normal
                                         </li>
                                     </ul>
@@ -584,20 +610,20 @@
                         
                             <div class="custom-select">
                                 <div class="selected-option" @click="formDesplegables.altura.isOpen = !formDesplegables.altura.isOpen">
-                                    <p> {{ cleanFormValue(values.altura  || 'Selecciona la altura') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.altura.isOpen}]"></i> 
+                                    <p> {{ cleanFormValue(addProductValues.altura  || 'Selecciona la altura') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.altura.isOpen}]"></i> 
                                 </div>
                                 
                                 <div :class="['options-container', {'active': formDesplegables.altura.isOpen}]">
                                     <ul class="options-list">
-                                        <li @click="setFieldValue('altura', 'alto')" :class="{'option-active': values.altura === 'alto'}">
+                                        <li @click="setAddProductFieldValue('altura', 'alto')" :class="{'option-active': addProductValues.altura === 'alto'}">
                                             Alto
                                         </li>
 
-                                        <li @click="setFieldValue('altura', 'bajo')" :class="{'option-active': values.altura === 'bajo'}">
+                                        <li @click="setAddProductFieldValue('altura', 'bajo')" :class="{'option-active': addProductValues.altura === 'bajo'}">
                                             Bajo
                                         </li>
 
-                                        <li @click="setFieldValue('altura', 'normal')" :class="{'option-active': values.altura === 'normal'}">  
+                                        <li @click="setAddProductFieldValue('altura', 'normal')" :class="{'option-active': addProductValues.altura === 'normal'}">  
                                             Normal
                                         </li>
                                     </ul>
@@ -619,24 +645,24 @@
                         
                             <div class="custom-select">
                                 <div class="selected-option" @click="formDesplegables.sexo.isOpen = !formDesplegables.sexo.isOpen">
-                                    <p> {{ cleanFormValue(values.sexo  || 'Selecciona el sexo') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.sexo.isOpen}]"></i> 
+                                    <p> {{ cleanFormValue(addProductValues.sexo  || 'Selecciona el sexo') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.sexo.isOpen}]"></i> 
                                 </div>
                                 
                                 <div :class="['options-container', {'active': formDesplegables.sexo.isOpen}]">
                                     <ul class="options-list">
-                                        <li @click="setFieldValue('sexo', 'hombre')" :class="{'option-active': values.sexo === 'hombre'}">
+                                        <li @click="setAddProductFieldValue('sexo', 'hombre')" :class="{'option-active': addProductValues.sexo === 'hombre'}">
                                             Hombre
                                         </li>
 
-                                        <li @click="setFieldValue('sexo', 'mujer')" :class="{'option-active': values.sexo === 'mujer'}">
+                                        <li @click="setAddProductFieldValue('sexo', 'mujer')" :class="{'option-active': addProductValues.sexo === 'mujer'}">
                                             Mujer
                                         </li>
 
-                                        <li @click="setFieldValue('sexo', 'niño')" :class="{'option-active': values.sexo === 'niño'}">
+                                        <li @click="setAddProductFieldValue('sexo', 'niño')" :class="{'option-active': addProductValues.sexo === 'niño'}">
                                             Niño
                                         </li>
 
-                                        <li @click="setFieldValue('sexo', 'niña')" :class="{'option-active': values.sexo === 'niña'}">
+                                        <li @click="setAddProductFieldValue('sexo', 'niña')" :class="{'option-active': addProductValues.sexo === 'niña'}">
                                             Niña
                                         </li>
                                     </ul>
@@ -650,33 +676,33 @@
                         
                             <div class="custom-select">
                                 <div class="selected-option" @click="formDesplegables.deporte.isOpen = !formDesplegables.deporte.isOpen">
-                                    <p> {{ cleanFormValue(values.deporte  || 'Selecciona el deporte') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.deporte.isOpen}]"></i> 
+                                    <p> {{ cleanFormValue(addProductValues.deporte  || 'Selecciona el deporte') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.deporte.isOpen}]"></i> 
                                 </div>
                                 
                                 <div :class="['options-container', {'active': formDesplegables.deporte.isOpen}]">
                                     <ul class="options-list">
 
-                                        <li @click="setFieldValue('deporte', 'general')" :class="{'option-active': values.deporte === 'general'}">
+                                        <li @click="setAddProductFieldValue('deporte', 'general')" :class="{'option-active': addProductValues.deporte === 'general'}">
                                             General
                                         </li>
                                         
-                                        <li @click="setFieldValue('deporte', 'trail')" :class="{'option-active': values.deporte === 'trail'}">
+                                        <li @click="setAddProductFieldValue('deporte', 'trail')" :class="{'option-active': addProductValues.deporte === 'trail'}">
                                             Trail
                                         </li>
 
-                                        <li @click="setFieldValue('deporte', 'futbol')" :class="{'option-active': values.deporte === 'futbol'}">
+                                        <li @click="setAddProductFieldValue('deporte', 'futbol')" :class="{'option-active': addProductValues.deporte === 'futbol'}">
                                             Futbol
                                         </li>
 
-                                        <li @click="setFieldValue('deporte', 'tenis')" :class="{'option-active': values.deporte === 'tenis'}">
+                                        <li @click="setAddProductFieldValue('deporte', 'tenis')" :class="{'option-active': addProductValues.deporte === 'tenis'}">
                                             Tenis
                                         </li>
 
-                                        <li @click="setFieldValue('deporte', 'padel')" :class="{'option-active': values.deporte === 'padel'}">
+                                        <li @click="setAddProductFieldValue('deporte', 'padel')" :class="{'option-active': addProductValues.deporte === 'padel'}">
                                             Padel
                                         </li>
 
-                                        <li @click="setFieldValue('deporte', 'baloncesto')" :class="{'option-active': values.deporte === 'baloncesto'}">
+                                        <li @click="setAddProductFieldValue('deporte', 'baloncesto')" :class="{'option-active': addProductValues.deporte === 'baloncesto'}">
                                             Baloncesto
                                         </li>
                                         
@@ -697,11 +723,10 @@
                     <div class="variations-section">
                         <h3>Variaciones</h3>
 
-                        <button class="add-variation-btn" @click="addVariationFormActive = !addVariationFormActive">
+                        <button type="button" class="add-variation-btn" @click="addVariationFormActive = !addVariationFormActive">
                             <i class="bi bi-plus"></i>
                         </button>
 
-                        
                     </div>
                     
 
@@ -710,7 +735,7 @@
                         <button type="submit" class="add-btn">Añadir producto</button>
                     </div>
 
-                </Form>
+                </form>
             </div>
             <div v-if="addVariationFormActive" class="pop-up-add-variation-container" >
                 <div class="popup-header">
@@ -727,12 +752,12 @@
                                 
                             <div class="custom-select">
                                 <div class="selected-option" @click="formDesplegables.color.isOpen = !formDesplegables.color.isOpen">
-                                    <p> {{ cleanFormValue(values.color  || 'Selecciona el color') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.color.isOpen}]"></i> 
+                                    <p> {{ cleanFormValue(values.color?.nombre  || 'Selecciona el color') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.color.isOpen}]"></i> 
                                 </div>
                                             
                                 <div :class="['options-container', {'active': formDesplegables.color.isOpen}]">
                                     <ul class="options-list">
-                                        <li v-for="color in metaData.variations.colors" @click="setFieldValue('color', color.nombre)" :class="{'option-active': values.color === color.nombre}">
+                                        <li v-for="color in metaData.variations.colors" @click="setFieldValue('color', color)" :class="{'option-active': values.color?.nombre === color.nombre}">
                                             {{ color.nombre }}
                                         </li>
                                     </ul>
@@ -769,10 +794,10 @@
                                 
                             <div class="custom-select">
                                 <div class="selected-option" @click="formDesplegables.talla.isOpen = !formDesplegables.talla.isOpen">
-                                    <p> {{ values.talla  || 'Selecciona la talla' }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.talla.isOpen}]"></i> 
+                                    <p> {{ values.talla?.nombre  || 'Selecciona la talla' }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.talla.isOpen}]"></i> 
                                 </div>
                                             
-                                <div :class="['options-container', {'active': formDesplegables.categoria.isOpen}]">
+                                <div :class="['options-container', {'active': formDesplegables.talla.isOpen}]">
                                     <ul class="options-list">
                                         <li v-for="talla in tallasDisponibles" @click="setFieldValue('talla', talla)" :class="{'option-active': values.talla === talla}">
                                             {{ talla.nombre }}

@@ -110,11 +110,29 @@ class AdminController extends BaseController {
     public function getSizes(Request $request) {
 
         $category = $request->input("category");
+        $gender = $request->input("gender");
 
         $categoriaEnum = TallaCategoria::tryFrom($category);
 
-        if ($category && $categoriaEnum) {
-            $sizes = Talla::query()->where('categoria', $categoriaEnum->value)->get();
+        $correctValidation = ['adulto' => ['mujer', 'hombre'], 'infantil' => ['niño', 'niña']];
+
+
+        if ($category && $gender && $categoriaEnum) {
+
+            
+            // Determinamos si es adulto o infantil buscando la palabra en la categoría
+            $lowerCategory = strtolower($category);
+            $type = str_contains($lowerCategory, 'adulto') ? 'adulto' : 'infantil';
+
+            // Validamos si el género es compatible con el tipo de talla (Adulto/Infantil)
+            if (!in_array(strtolower($gender), $correctValidation[$type])) {
+                return $this->sendError('La categoria de talla no coincide con el sexo del producto', [], 400);
+            }
+        
+            $sizes = Talla::query()->where([
+                ['categoria', '=', $categoriaEnum->value], 
+                ['genero', '=', $gender]]
+            )->get();
 
             $sizes = SizeResource::collection($sizes);
 
