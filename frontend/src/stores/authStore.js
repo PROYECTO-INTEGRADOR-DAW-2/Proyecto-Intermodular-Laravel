@@ -501,7 +501,7 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        async getSizesAction(category, gender) {
+        async getSizesAction(categorySize, gender, categoryProduct) {
             if (!this.isAuthenticated) {
                 this.addMessageAction('error', 'No estas logueado en el sistema');
                 return;
@@ -510,7 +510,7 @@ export const useAuthStore = defineStore('auth', {
                 return;
             }
 
-            const response = await fetchSizes(category, gender);
+            const response = await fetchSizes(categorySize, gender, categoryProduct);
 
             if (response.success) {
                 this.addMessageAction('success', response.message || 'Se han obtenido los tamaños de la categoria');

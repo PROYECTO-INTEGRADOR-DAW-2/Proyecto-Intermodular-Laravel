@@ -931,11 +931,12 @@ const addRole = async (data) => {
     }
 }
 
-const fetchSizes = async(category, gender) => {
+const fetchSizes = async(categorySize, gender, categoryProduct) => {
     try {
         const response = await privateApi.get('/sizes', {
             params: {
-                category: category,
+                category_size: categorySize,
+                category_product: categoryProduct,
                 gender: gender
             }
         });

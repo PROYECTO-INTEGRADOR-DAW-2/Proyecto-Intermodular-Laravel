@@ -55,6 +55,9 @@
         },
         talla: {
             isOpen: false
+        },
+        categoria_talla: {
+            isOpen: false
         }
     })
 
@@ -116,7 +119,8 @@
 
     const schemaAddVariation = yup.object().shape({
         color: yup.mixed().required("Debes de seleccionar el color de la variacion"),
-        talla: yup.mixed().required("Debes de seleccionar la talla de la variacion")
+        talla: yup.mixed().required("Debes de seleccionar la talla de la variacion"),
+        categoria_talla: yup.string().required("Debes de seleccionar la categoría de talla")
     })
 
     const schemaImportProducts = yup.object().shape({
@@ -149,6 +153,42 @@
             precio: 0
         }
     });
+    // Inicialización del formulario de añadir producto con useForm para sincronización total
+
+    const determineSizeCategory = async (sexo, categoriaProducto) => {
+        if (sexo && categoriaProducto) {
+            const genderLower = sexo.toLowerCase();
+            const productCategoryLower = categoriaProducto.toLowerCase();
+
+            const sizeCategory = undefined;
+
+            switch (genderLower) {
+                case 'mujer':
+                case 'hombre':
+                    if (productCategoryLower === 'zapatillas') sizeCategory = 'Zapatillas Adulto'
+                    if (productCategoryLower === 'camisetas' || productCategoryLower === 'pantalones') sizeCategory = 'Prendas Adulto'
+
+                    break;
+            
+                case 'niño':
+                case 'niña':
+                    if (productCategoryLower === 'zapatillas') sizeCategory = 'Zapatillas Infantil'
+                    if (productCategoryLower === 'camisetas' || productCategoryLower === 'pantalones') sizeCategory = 'Prendas Infantil'
+            
+                default:
+                    break;
+            }
+
+            await handleSelectVariationCategory(sizeCategory);
+
+            
+        }
+    }
+
+    const addVariationInitialValues = async () => {
+        categoria_talla: await determineSizeCategory(addProductValues.sexo, addProductValues.categoria)
+    }
+
 
 
     //Metodos relacionados con los eventos de click a botones y demas (mostrar popups, rellenar formularios)
@@ -171,21 +211,44 @@
         importProductsPopUpActive.value = true;
     }
 
-    const handleSelectVariationCategory = async (category) => {
+    const handleSelectVariationCategory = async (category, { setFieldError, setFieldValue }) => {
 
         if (!addProductValues.sexo) {
-            setAddProductFieldError('sexo', "No has seleccionado el sexo del producto principal");
+            setFieldError('categoria_talla', "No has seleccionado el sexo del producto principal");
+            return;
+        } else if (!addProductValues.categoria) {
+            setFieldError('categoria_talla', "No has seleccionado la categoría del producto principal");
             return;
         }
+
+        setFieldValue('categoria_talla', category);
 
         tallasDisponibles.value = [];
 
         const cleanedGenderValue = addProductValues.sexo.charAt(0).toUpperCase() + addProductValues.sexo.slice(1);
+        const cleanedCategoryProductValue = addProductValues.categoria.charAt(0).toUpperCase() + addProductValues.categoria.slice(1);
 
-        const response = await authStore.getSizesAction(category, cleanedGenderValue);
+        const response = await authStore.getSizesAction(category, cleanedGenderValue, cleanedCategoryProductValue);
 
         if (response.success) tallasDisponibles.value = response.data;
+        else setFieldValue('categoria_talla', undefined);
 
+    }
+
+    const handleToggleVariationForm = () => {
+
+        if (addVariationFormActive.value) {
+            addVariationFormActive.value = false;
+            return;
+        }
+
+        if (!addProductValues.sexo) {
+            setAddProductFieldError('sexo', "Debes de seleccionar un sexo");
+        } else if (!addProductValues.categoria) {
+            setAddProductFieldError('categoria', "Debes de seleccionar una categoria");
+        }
+
+        addVariationFormActive.value = true;
     }
 
 
@@ -723,7 +786,7 @@
                     <div class="variations-section">
                         <h3>Variaciones</h3>
 
-                        <button type="button" class="add-variation-btn" @click="addVariationFormActive = !addVariationFormActive">
+                        <button type="button" class="add-variation-btn" @click="handleToggleVariationForm()">
                             <i class="bi bi-plus"></i>
                         </button>
 
@@ -744,7 +807,7 @@
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
-                <Form :validation-schema="schemaAddVariation" @submit="onSubmitAddVariation" v-slot="{ values, setFieldValue }" >
+                <Form :validation-schema="schemaAddVariation" :initial-values = addVariationInitialValues @submit="onSubmitAddVariation" v-slot="{ values, setFieldValue, setFieldError }" >
                             
                     <div class="form-grid">
                         <div>
@@ -772,19 +835,20 @@
                             <label>Categoria</label>
                                 
                             <div class="custom-select">
-                                <div class="selected-option" @click="formDesplegables.categoria.isOpen = !formDesplegables.categoria.isOpen">
-                                    <p> {{ cleanFormValue(values.categoria  || 'Selecciona la categoria') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.color.isOpen}]"></i> 
+                                <div class="selected-option" @click="formDesplegables.categoria_talla.isOpen = !formDesplegables.categoria_talla.isOpen">
+                                    <p> {{ cleanFormValue(values.categoria_talla  || 'Selecciona la categoria de talla') }}</p> <i :class="['bi bi-arrow-down', {'bi-arrow-active': formDesplegables.categoria_talla.isOpen}]"></i> 
                                 </div>
                                             
-                                <div :class="['options-container', {'active': formDesplegables.categoria.isOpen}]">
+                                <div :class="['options-container', {'active': formDesplegables.categoria_talla.isOpen}]">
                                     <ul class="options-list">
-                                        <li v-for="categoria in categorias" @click="setFieldValue('categoria', categoria); handleSelectVariationCategory(categoria)" :class="{'option-active': values.categoria === categoria}">
+                                        <!-- @click="handleSelectVariationCategory(categoria, { setFieldError, setFieldValue })" -->
+                                        <li v-for="categoria in categorias" :class="{'option-active': values.categoria_talla === categoria}">
                                             {{ categoria }}
                                         </li>
-                                    </ul>
+                                    </ul>                                  
                                 </div>
                             </div>
-                            <ErrorMessage name="categoria" class="error-msg" />
+                            <ErrorMessage name="categoria_talla" class="error-msg" />
                         </div>
                     </div>
 
@@ -799,7 +863,7 @@
                                             
                                 <div :class="['options-container', {'active': formDesplegables.talla.isOpen}]">
                                     <ul class="options-list">
-                                        <li v-for="talla in tallasDisponibles" @click="setFieldValue('talla', talla)" :class="{'option-active': values.talla === talla}">
+                                        <li v-for="talla in tallasDisponibles" @click="setFieldValue('talla', talla)" :class="{'option-active': values.talla?.nombre === talla.nombre}">
                                             {{ talla.nombre }}
                                         </li>
                                     </ul>
@@ -810,7 +874,6 @@
                     </div>
                 </Form>
             </div>
-            
         </div>
 
         <div class="popup-backdrop" v-if="importProductsPopUpActive" @click.self="importProductsPopUpActive = false">
@@ -1106,7 +1169,8 @@
         height: 200px;
         resize: none; /* Bloquea el redimensionado */
         box-sizing: border-box; /* Evita que el padding sume tamaño extra al ancho */
-        border-radius: 8px
+        border-radius: 8px;
+        padding: 10px;
     }
 
     .error-msg {
@@ -1198,7 +1262,7 @@
     .options-container {
         display: grid;
         grid-template-rows: 0fr;
-        transition: grid-template-rows 0.3s ease-in-out, visibility 0.3s; /* Añadimos visibility a la transición */
+        transition: grid-template-rows 0.3s ease-in-out, visibility 0.3s, margin-top 0.3s; /* Añadimos visibility a la transición */
         overflow: hidden;
         visibility: hidden; /* Oculto por defecto */
     }
@@ -1215,8 +1279,9 @@
         list-style-type: none;
         display: grid;
         grid-auto-flow: row;
-        row-gap: 10px;
+        row-gap: 5px; /* Reducimos un poco el gap para mayor consistencia */
         margin: 0;
+        padding-right: 5px;
     }
 
     .options-list li {
@@ -1224,12 +1289,6 @@
         cursor: pointer;
         min-height: 0;
         transition: all 0.3s ease-in-out;
-    }
-
-    .options-list li:not(:nth-last-child){
-        padding: 20px;
-        cursor: pointer;
-        border: 1px solid grey;
     }
 
     .option-active {

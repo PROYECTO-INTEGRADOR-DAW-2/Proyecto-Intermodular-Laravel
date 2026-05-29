@@ -109,23 +109,37 @@ class AdminController extends BaseController {
 
     public function getSizes(Request $request) {
 
-        $category = $request->input("category");
+        $categorySize = $request->input("category_size");
         $gender = $request->input("gender");
+        $categoryProduct = $request->input("category_product");
 
-        $categoriaEnum = TallaCategoria::tryFrom($category);
+        $categoriaEnum = TallaCategoria::tryFrom($categorySize);
 
-        $correctValidation = ['adulto' => ['mujer', 'hombre'], 'infantil' => ['niño', 'niña']];
+        $correctValidationGenders = ['adulto' => ['mujer', 'hombre'], 'infantil' => ['niño', 'niña']];
 
+        $correctValidationProducts = ['prendas' => ['pantalones', 'camisetas'], 'zapatillas' => ['zapatillas']];
 
-        if ($category && $gender && $categoriaEnum) {
+        
+        
+        
+        
 
+        if ($categorySize && $gender && $categoriaEnum) {
+
+            $categorySizeProduct = strtolower(substr($categorySize, 0, stripos($categorySize, ' ')));
+            $lowerProductCategory = strtolower($categoryProduct);
+
+            //Comparamos si la categoria del producto es igual a la categoria de tipo de talla para la variacion
+            if (!in_array(strtolower($lowerProductCategory), $correctValidationProducts[$categorySizeProduct])) {
+                return $this->sendError('La categoria de producto no coincide con la categoria de talla', [], 400);
+            }
             
             // Determinamos si es adulto o infantil buscando la palabra en la categoría
-            $lowerCategory = strtolower($category);
-            $type = str_contains($lowerCategory, 'adulto') ? 'adulto' : 'infantil';
+            $lowerGender = strtolower($categorySize);
+            $typeGender = str_contains($lowerGender, 'adulto') ? 'adulto' : 'infantil';
 
             // Validamos si el género es compatible con el tipo de talla (Adulto/Infantil)
-            if (!in_array(strtolower($gender), $correctValidation[$type])) {
+            if (!in_array(strtolower($gender), $correctValidationGenders[$typeGender])) {
                 return $this->sendError('La categoria de talla no coincide con el sexo del producto', [], 400);
             }
         
