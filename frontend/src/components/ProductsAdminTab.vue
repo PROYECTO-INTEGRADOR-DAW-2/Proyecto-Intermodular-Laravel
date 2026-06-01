@@ -1,5 +1,5 @@
 <script setup>
-    import { onMounted, defineEmits, ref, watch } from 'vue'
+    import { onMounted, defineEmits, ref, watch, computed } from 'vue'
     import { useAuthStore } from '../stores/authStore';
     import { Form, Field, ErrorMessage, useForm } from 'vee-validate'
     import * as yup from 'yup';
@@ -13,6 +13,16 @@
 
     const categorias = ref(["Zapatillas Infantil", "Prendas Infantil", "Zapatillas Adulto", "Prendas Adulto"]);
     const tallasDisponibles = ref([]);
+    const variations = ref([]);
+
+    const uniqueVariations = computed(() => {[
+        ...new Map(
+            variations.value.map(variation => [
+                JSON.stringify([variation.color, variation.talla]), 
+                variation
+            ])
+        ).values()
+    ]});
     
     
     //Emit evento para obtencion de usuarios despues de realizar acciones CRUD 
@@ -66,6 +76,7 @@
     const productSelectedToDelete = ref({});
     const productVariations = ref([]);
     const logsData = ref(null);
+    const variationInitialValues = ref({});
     
 
     //Schemas de validacion para los diferentes tipos de formularios
@@ -118,9 +129,9 @@
     })
 
     const schemaAddVariation = yup.object().shape({
+        nombre: yup.string().required("Debes de añadir un nombre a la variacion"),
         color: yup.mixed().required("Debes de seleccionar el color de la variacion"),
         talla: yup.mixed().required("Debes de seleccionar la talla de la variacion"),
-        categoria_talla: yup.string().required("Debes de seleccionar la categoría de talla")
     })
 
     const schemaImportProducts = yup.object().shape({
@@ -153,14 +164,26 @@
             precio: 0
         }
     });
-    // Inicialización del formulario de añadir producto con useForm para sincronización total
+
+    const addVariationInitialValues = async () => {
+
+        const initialData = {
+            categoria_talla: undefined
+        };
+
+        const response = await determineSizeCategory(addProductValues.sexo, addProductValues.categoria);
+
+        if (response) initialData.categoria_talla = response;
+
+        return initialData;
+    }
 
     const determineSizeCategory = async (sexo, categoriaProducto) => {
         if (sexo && categoriaProducto) {
             const genderLower = sexo.toLowerCase();
             const productCategoryLower = categoriaProducto.toLowerCase();
 
-            const sizeCategory = undefined;
+            let sizeCategory = undefined;
 
             switch (genderLower) {
                 case 'mujer':
@@ -179,16 +202,15 @@
                     break;
             }
 
-            await handleSelectVariationCategory(sizeCategory);
+            const response = await handleSelectVariationCategory(sizeCategory);
 
-            
+            if (response) return sizeCategory;
+            else return false;
+
         }
     }
 
-    const addVariationInitialValues = async () => {
-        categoria_talla: await determineSizeCategory(addProductValues.sexo, addProductValues.categoria)
-    }
-
+    //Valores automaticos de la variacion segun el sexo y categoria del producto inicia
 
 
     //Metodos relacionados con los eventos de click a botones y demas (mostrar popups, rellenar formularios)
@@ -211,9 +233,9 @@
         importProductsPopUpActive.value = true;
     }
 
-    const handleSelectVariationCategory = async (category, { setFieldError, setFieldValue }) => {
+    const handleSelectVariationCategory = async (category) => {
 
-        if (!addProductValues.sexo) {
+        /* if (!addProductValues.sexo) {
             setFieldError('categoria_talla', "No has seleccionado el sexo del producto principal");
             return;
         } else if (!addProductValues.categoria) {
@@ -221,7 +243,7 @@
             return;
         }
 
-        setFieldValue('categoria_talla', category);
+        setFieldValue('categoria_talla', category); */
 
         tallasDisponibles.value = [];
 
@@ -230,12 +252,20 @@
 
         const response = await authStore.getSizesAction(category, cleanedGenderValue, cleanedCategoryProductValue);
 
-        if (response.success) tallasDisponibles.value = response.data;
-        else setFieldValue('categoria_talla', undefined);
+        if (response.success) {
+            tallasDisponibles.value = response.data;
+            return true;
+        }
+        else return false;
+
+
+
+
+
 
     }
 
-    const handleToggleVariationForm = () => {
+    const handleToggleVariationForm = async () => {
 
         if (addVariationFormActive.value) {
             addVariationFormActive.value = false;
@@ -244,11 +274,17 @@
 
         if (!addProductValues.sexo) {
             setAddProductFieldError('sexo', "Debes de seleccionar un sexo");
+            return;
         } else if (!addProductValues.categoria) {
             setAddProductFieldError('categoria', "Debes de seleccionar una categoria");
+            return;
         }
 
+        // Cargamos los valores iniciales de forma asíncrona antes de mostrar el formulario
+        variationInitialValues.value = await addVariationInitialValues();
+
         addVariationFormActive.value = true;
+
     }
 
 
@@ -327,7 +363,7 @@
     }
 
     const onSubmitAddVariation = (variation) => {
-        
+        variations.value.push(variation);
     } 
 
 
@@ -701,7 +737,6 @@
                         
                     </div>
 
-                    
                     <div class="form-grid ">
                         <div>
                             <label>Sexo</label>
@@ -790,6 +825,23 @@
                             <i class="bi bi-plus"></i>
                         </button>
 
+                        <div class="variations-container">
+                            <div v-if="variations.length" v-for="variation in uniqueVariations" class="variation-container">
+                                <div class="variation-header">
+                                    <img src="/img/Adidas/zapatillas/AdidasMasComprado.png" alt="img-variacion">
+                                </div>
+                                <div class="variation-body">
+                                    <h3>{{ variation.nombre }}</h3>
+                                    <p>Color: {{ variation.color.nombre }}</p>
+                                    <p>Talla: {{ variation.talla.nombre }}</p>
+                                </div>
+                            </div>
+
+                            <div v-else>
+                                <p>Este producto aun no tiene variaciones</p>
+                            </div>
+                        </div>
+
                     </div>
                     
 
@@ -807,8 +859,14 @@
                         <i class="bi bi-x-lg"></i>
                     </button>
                 </div>
-                <Form :validation-schema="schemaAddVariation" :initial-values = addVariationInitialValues @submit="onSubmitAddVariation" v-slot="{ values, setFieldValue, setFieldError }" >
-                            
+                <Form :validation-schema="schemaAddVariation" :initial-values="variationInitialValues" @submit="onSubmitAddVariation" v-slot="{ values, setFieldValue, setFieldError }" >
+                    
+                    <div class="form-group">
+                        <label>Nombre</label>
+                        <Field type="text" name="nombre" placeholder="Nombre de variacion"></Field>
+                        <ErrorMessage name="nombre" class="error-msg" />
+                    </div>
+
                     <div class="form-grid">
                         <div>
                             <label>Color</label>
@@ -820,7 +878,7 @@
                                             
                                 <div :class="['options-container', {'active': formDesplegables.color.isOpen}]">
                                     <ul class="options-list">
-                                        <li v-for="color in metaData.variations.colors" @click="setFieldValue('color', color)" :class="{'option-active': values.color?.nombre === color.nombre}">
+                                        <li v-for="color in metaData.variations.colors" @click="setFieldValue('color', color); formDesplegables.color.isOpen = false" :class="{'option-active': values.color?.nombre === color.nombre}">
                                             {{ color.nombre }}
                                         </li>
                                     </ul>
@@ -841,8 +899,9 @@
                                             
                                 <div :class="['options-container', {'active': formDesplegables.categoria_talla.isOpen}]">
                                     <ul class="options-list">
-                                        <!-- @click="handleSelectVariationCategory(categoria, { setFieldError, setFieldValue })" -->
-                                        <li v-for="categoria in categorias" :class="{'option-active': values.categoria_talla === categoria}">
+                                        <li v-for="categoria in categorias" 
+                                            @click="handleSelectVariationCategory(categoria); setFieldValue('categoria_talla', categoria); formDesplegables.categoria_talla.isOpen = false" 
+                                            :class="{'option-active': values.categoria_talla === categoria, 'option-disabled': values.categoria_talla && values.categoria_talla !== categoria}">
                                             {{ categoria }}
                                         </li>
                                     </ul>                                  
@@ -863,7 +922,7 @@
                                             
                                 <div :class="['options-container', {'active': formDesplegables.talla.isOpen}]">
                                     <ul class="options-list">
-                                        <li v-for="talla in tallasDisponibles" @click="setFieldValue('talla', talla)" :class="{'option-active': values.talla?.nombre === talla.nombre}">
+                                        <li v-for="talla in tallasDisponibles" @click="setFieldValue('talla', talla); formDesplegables.talla.isOpen = false" :class="{'option-active': values.talla?.nombre === talla.nombre}">
                                             {{ talla.nombre }}
                                         </li>
                                     </ul>
@@ -872,6 +931,12 @@
                             <ErrorMessage name="talla" class="error-msg" />
                         </div>
                     </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" @click="addVariationFormActive = false">Cancelar</button>
+                        <button type="submit" class="add-btn">Añadir variacion</button>
+                    </div>
+
                 </Form>
             </div>
         </div>
@@ -1296,6 +1361,11 @@
         color: white;
     }
 
+    .option-disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
     .bi-arrow-down {
         transition: all 0.2s ease-in-out;
         display: inline-block;
@@ -1483,4 +1553,49 @@
         height: auto;
     }
 
+
+    /* Sections */
+    .variations-section {
+        display: grid;
+    }
+
+    .variations-container {
+        margin-top: 30px;
+        display: grid;
+        grid-auto-flow: column;
+        overflow: auto;
+        gap: 20px;
+        padding: 20px;
+
+    }
+
+    .variations-container .variation-container {
+        display: grid;
+        grid-template-rows: auto auto;
+        border-radius: 10px;
+        box-shadow: 0px 0px 200px #bebebe;
+        z-index: 10;
+        width: 200px;
+        padding: 20px;
+    }
+
+    .variations-container .variation-container .variation-header{
+        text-align: center;
+    }
+
+    .variations-container .variation-container .variation-header img{
+        width: 100px; 
+    }
+
+    .variations-container .variation-container .variation-body{
+        font-size: 15px;
+    }
+    .variations-container .variation-container .variation-body h3{
+        font-size: 20px;
+    }
+
+
+    
+    
+    
 </style>
