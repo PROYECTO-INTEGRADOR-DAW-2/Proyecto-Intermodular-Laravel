@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\WishlistController;
 
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\UserImportController;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\File;
 
 Route::get('/user', function (Request $request) {
     return $request->user()->load('role');
@@ -70,6 +72,8 @@ Route::name('api.')->group(function () {
 
                 Route::get('/sizes', [AdminController::class, 'getSizes'])->name('admin.get-sizes');
             });
+
+            
             
             
             
@@ -85,6 +89,24 @@ Route::name('api.')->group(function () {
             ]);
         }
         )->name('health');
+
+        Route::get('/productos/imagen/{marca}/{categoria}/{nombre}', function ($marca, $categoria, $nombre) {
+                // Reconstruimos la ruta física del archivo dentro de la carpeta public
+                $path = public_path("img/img{$marca}/{$categoria}/{$nombre}");
+
+                // Si el archivo no existe, escupimos un 404
+                if (!File::exists($path)) {
+                    abort(404);
+                }
+
+                // Leemos el archivo
+                $file = File::get($path);
+                $type = File::mimeType($path);
+
+                // 🎯 LA CLAVE: Devolvemos el archivo a través de una respuesta de Laravel.
+                // Esto hace que pase por los Middlewares de la API y le meta las cabeceras de CORS automáticamente.
+                return response($file, 200)->header("Content-Type", $type);
+            });
 
         // Endpoints públics (lectura)
         Route::apiResource('products', ApiProductController::class)

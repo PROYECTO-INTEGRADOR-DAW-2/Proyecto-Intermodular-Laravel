@@ -26,22 +26,35 @@ class UpdateProductRequest extends FormRequest {
      */
     public function rules() 
     {
-        $product = $this->route('product')->id;
+        $productId = $this->route('product')->id;
 
         return [
-            'marca' => ['required', 'string', Rule::in($this->configValidation['marcas'])],
+            'marca'     => ['required', 'string', Rule::in($this->configValidation['marcas'])],
             'categoria' => ['required', 'string', Rule::in($this->configValidation['categorias'])],
-            'nombre' => ['required', 'string', Rule::unique('products')->ignore($product)],
-            'precio' => ['required', 'decimal:1,2'], 
-            'ajuste' => ['required', 'string', Rule::in($this->configValidation['ajustes'])], 
-            'sexo' => ['required', 'string', Rule::in($this->configValidation['sexos'])], 
+            'nombre'    => ['required', 'string', Rule::unique('products', 'nombre')->ignore($productId)],
+            'precio'    => ['required', 'decimal:1,2'], 
+            'ajuste'    => ['required', 'string', Rule::in($this->configValidation['ajustes'])], 
+            'sexo'      => ['required', 'string', Rule::in($this->configValidation['sexos'])], 
             'descripcion' => ['required', 'string', 'max:255'], 
-            'altura' => ['required', 'string', Rule::in($this->configValidation['alturas'])], 
-            'deporte' => ['required', 'string', Rule::in($this->configValidation['deportes'])], 
-            'oferta' => ['required', 'boolean'], 
-            'novedad' => ['required', 'boolean'], 
-            'img' => ['required', 'string'],
-            "variaciones" => ['required', 'array'],
+            'altura'    => ['required', 'string', Rule::in($this->configValidation['alturas'])], 
+            'deporte'   => ['required', 'string', Rule::in($this->configValidation['deportes'])], 
+            'oferta'    => ['required', 'boolean'], 
+            'novedad'   => ['required', 'boolean'],
+            'isSimple'  => ['required', 'boolean'],
+            'stock'     => ['integer', 'max:500'],
+
+            'imagenes_secundarias'   => ['required', 'array', 'min:1'],
+            'imagenes_secundarias.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Opcional pero recomendado para mayor seguridad
+            'imagen_main'            => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+
+            "variaciones"           => ['nullable', 'array', 'min:1'],
+            "variaciones.*.nombre"  => ['required', 'string'],
+            "variaciones.*.talla"   => ['required', 'integer'],
+            "variaciones.*.color"   => ['required', 'integer'],
+            "variaciones.*.stock"   => ['required', 'integer'],
+            "variaciones.*.imagen-main-variacion"          => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            "variaciones.*.imagenes-secundarias-variacion" => ['required', 'array'],
+            "variaciones.*.imagenes-secundarias-variacion.*" => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048']
         ];
 
         

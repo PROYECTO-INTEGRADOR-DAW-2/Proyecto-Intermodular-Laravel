@@ -22,7 +22,11 @@ class Product extends Model
     }
 
     public function variations() {
-        return $this->hasMany(Variation::class)->with(['color', 'size']);
+        return $this->hasMany(Variation::class)->with(['color', 'size', 'imgGallery']);
+    }
+
+    public function imgGallery() {
+        return $this->hasMany(ImageGallery::class);
     }
 
 }

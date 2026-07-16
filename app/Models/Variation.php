@@ -11,7 +11,7 @@ class Variation extends Model
 
     protected $table = 'product_variations';
 
-    protected $fillable = ['product_id', 'color_id', 'size_id', 'stock', 'precio_especifico'];
+    protected $fillable = ['sku', 'product_id', 'color_id', 'size_id', 'stock', 'precio_especifico', 'oferta', 'precio_oferta', 'img'];
 
     public function color() {
         return $this->belongsTo(Color::class, 'color_id');
@@ -19,6 +19,10 @@ class Variation extends Model
 
     public function size() {
         return $this->belongsTo(Talla::class, 'size_id');
+    }
+
+    public function imgGallery() {
+        return $this->hasMany(ImageGalleryVariation::class);
     }
 
 }

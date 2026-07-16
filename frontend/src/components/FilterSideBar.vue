@@ -158,7 +158,11 @@
                 </div>
 
                 <div class="filter-field">
-                    <label for="ofertas" class="checkbox-item-toggler"><strong style="font-size: 20px;">Ofertas </strong><input type="checkbox" name="ofertas" id="ofertas" v-model="query.ofertas"><span class="custom-toggler"></span></label >
+                    <label for="ofertas" class="checkbox-item-toggler">
+                        <strong style="font-size: 20px;">Ofertas </strong>
+                        <input type="checkbox" name="ofertas" id="ofertas" v-model="query.ofertas">
+                        <span class="custom-toggler"></span>
+                    </label >
                 </div>
 
                 <button @click="resetFilters" class="button-secondary" style="margin:10px 0 10px 0">Restablecer filtros</button>

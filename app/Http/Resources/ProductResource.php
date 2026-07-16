@@ -33,6 +33,8 @@ class ProductResource extends JsonResource
             'oferta' => $this->oferta,
             'novedad' => $this->novedad,
             'img' => $this->img,
+            'imgGallery' => $this->imgGallery,
+            'variaciones' => $this->variations
         ];
     }
 

@@ -19,6 +19,8 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+
+        
         return [
             'sku' => (string)fake()->unique()->randomNumber(8, true),
             'marca' => fake()->randomElement(["Adidas", "Nike", "Asics", "Puma"]),

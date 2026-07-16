@@ -5,7 +5,7 @@
     
     import UsersAdminTab from '../components/UsersAdminTab.vue';
     import RolesAdminTab from '../components/RolesAdminTab.vue';
-import ProductsAdminTab from '../components/ProductsAdminTab.vue';
+    import ProductsAdminTab from '../components/ProductsAdminTab.vue';
 
     const currentTab = ref("");
     const authStore = useAuthStore();

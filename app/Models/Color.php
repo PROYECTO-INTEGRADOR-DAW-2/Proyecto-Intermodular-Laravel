@@ -9,7 +9,7 @@ class Color extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nombre', 'código_hex'];
+    protected $fillable = ['nombre', 'código_hex', 'prefijo'];
 
     
 

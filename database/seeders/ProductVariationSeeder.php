@@ -19,11 +19,11 @@ class ProductVariationSeeder extends Seeder
 
         $productos = Product::all(['id', 'categoria', 'sexo']);
         $colores = Color::all();
+        $modelCounter = 0;
 
         foreach ($productos as $producto) {
 
-            //Segun la categoria y sexo del producto seleccionamos las tallas que pertenezcan a la categoria 
-
+            //Segun la categoria y sexo del producto seleccionamos las tallas que pertenezcan a la categoria
             $tallasDisponibles = Talla::where([
                 ['categoria', '=', $this->getTallaCategory($producto->sexo, $producto->categoria)],
                 ['genero', '=', $producto->sexo]
@@ -33,14 +33,27 @@ class ProductVariationSeeder extends Seeder
                 continue;
             }
 
+            //Cantidad random de tallas para cada producto
             $tallasACrear = rand(1, count($tallasDisponibles));
 
+            //Creamos unas cuantas tallas para cada producto
             for ($i = 0; $i < $tallasACrear; $i++) {
                 $tallaSeleccionada = $tallasDisponibles[$i];
 
+                //Para cada talla creamos todos los colores disponibles en la BBDD
                 foreach($colores as $color) {
+
+                    //Generacion de SKU
+                    $numeroModelo = str_pad($modelCounter, 4, '0', STR_PAD_LEFT);
+                    $prefijoCategoria = strtoupper(substr($producto->categoria, 0, 3));
+                    $colorCodigo = $color->prefijo;
+                    $nombreTalla = $tallaSeleccionada->nombre;
+        
+                    $sku = "{$prefijoCategoria}-{$numeroModelo}-{$colorCodigo}-{$nombreTalla}";
+
                     Variation::create([
                         'product_id' => $producto->id,
+                        'sku' => $sku,
                         'color_id' => $color->id,
                         'size_id' => $tallaSeleccionada->id,
                         'stock' => rand(1, 50)
@@ -48,6 +61,8 @@ class ProductVariationSeeder extends Seeder
                 };
 
             }
+
+            $modelCounter++;
 
         }
 

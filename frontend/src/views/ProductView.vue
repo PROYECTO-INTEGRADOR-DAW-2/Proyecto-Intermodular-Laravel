@@ -21,8 +21,13 @@
     const wishlist = useWishlistStore();
 
     const product = ref(null);
+    const productImgGallery = ref([]);
+    const selectedImg = ref(true);
+
     const meta = ref(null);
     const loading = ref(true);
+
+    const selectedVariationImgs = ref([]);
 
     onMounted(async () => {
         loading.value = true;
@@ -35,6 +40,8 @@
                 } else {
                     product.value = response.data || response;
                     meta.value = response.meta || response;
+                    productImgGallery.value = response.data.imgGallery || response;
+                    selectedImg.value = response.data.img || response;
                     addToCartColor.value = meta.value.variaciones_disponibles[0].color;
                 }
 
@@ -52,6 +59,13 @@
     const addToCartFormSize = ref(null)
     const addToCartColor = ref(null);
 
+    const selectedVariation = computed(() => {
+        if (addToCartColor.value && addToCartFormSize.value) {
+            const response = meta.value.variaciones_disponibles.find(v => v.color.nombre === addToCartColor.value.nombre && v.size.nombre === addToCartFormSize.value.nombre);
+            return response;
+        } else return false
+    })
+    
     const availableSizesFromColor = computed(() => {
         if (!meta.value?.variaciones_disponibles || !addToCartColor.value) return [];
         return toRaw(meta.value.variaciones_disponibles)
@@ -81,6 +95,79 @@
         }
     }
 
+
+    //Metodos para procesado de imagenes
+    const getProductImg = () => {
+        if (product.value) {
+            let productBrand = product.value.marca || "";
+            let productCategory = product.value.categoria || "";
+            let productImgName = product.value.img || "";
+
+            if (!productBrand || !productCategory || !productImgName) return;
+
+            productBrand = productBrand.charAt(0).toLocaleUpperCase() + productBrand.substring(1);
+            productCategory = productCategory.toLocaleLowerCase();
+
+            const finalUrl = `${import.meta.env.VITE_IMG_URL}/img/img${productBrand}/${productCategory}/${productImgName}`;
+
+            return finalUrl;
+        }
+    }
+
+    const getProductSecondaryImg = (secondaryImg) => {
+        if (product.value && secondaryImg) {
+            let productBrand = product.value.marca || "";
+            let productCategory = product.value.categoria || "";
+            let productImgName = secondaryImg.nombre || "";
+
+            if (!productBrand || !productCategory || !productImgName) return;
+
+            productBrand = productBrand.charAt(0).toLocaleUpperCase() + productBrand.substring(1);
+            productCategory = productCategory.toLocaleLowerCase();
+
+            const finalUrl = `${import.meta.env.VITE_IMG_URL}/img/img${productBrand}/${productCategory}/${productImgName}`;
+
+            return finalUrl;
+        }
+    }
+
+    const getSelectedImg = () => {
+        if (selectedImg.value) {
+            let productBrand = product.value.marca || "";
+            let productCategory = product.value.categoria || "";
+            let productImgName = selectedImg.value.nombre || selectedImg.value || "";
+
+            if (!productBrand || !productCategory || !productImgName) return;
+
+            productBrand = productBrand.charAt(0).toLocaleUpperCase() + productBrand.substring(1);
+            productCategory = productCategory.toLocaleLowerCase();
+
+            const finalUrl = `${import.meta.env.VITE_IMG_URL}/img/img${productBrand}/${productCategory}/${productImgName}`;
+
+            return finalUrl;
+        }
+    }
+
+    const getVariationImg = () => {
+        if (product.value && selectedVariation.value) {
+            let productBrand = product.value.marca || "";
+            let productCategory = product.value.categoria || "";
+            let variationImgName = selectedVariation.value.img || "";
+
+            if (!productBrand || !productCategory || !variationImgName) return;
+
+            productBrand = productBrand.charAt(0).toLocaleUpperCase() + productBrand.substring(1);
+            productCategory = productCategory.toLocaleLowerCase();
+
+            const finalUrl = `${import.meta.env.VITE_IMG_URL}/img/img${productBrand}/${productCategory}/${variationImgName}`;
+
+            return finalUrl;
+        }
+    }
+
+    
+
+
 </script>
 
 <template>
@@ -91,8 +178,36 @@
 
     <div v-else-if="product">
         <div class="product-container">
-            <div class="product-image-section">
-                <img :src="product.img || 'https://via.placeholder.com/600'" :alt="product.nombre" class="main-image">
+            <div v-if="!selectedVariation" class="product-image-section">
+                <img :key="selectedImg" :src="getSelectedImg() || 'https://via.placeholder.com/600'" :alt="product.nombre" class="main-image">
+                <div class="img-gallery">
+                    <div class="secondary-img">
+                        <img :src="getProductImg() || 'https://via.placeholder.com/600'" :alt="product.nombre" @click="selectedImg = product.img">
+                    </div>
+                    <div v-if="productImgGallery" v-for="img in productImgGallery" class="secondary-img">
+                        <img :src="getProductSecondaryImg(img)" :alt="img.nombre" @click="selectedImg = img">
+                    </div>
+
+                    <div v-else style="padding: 50px;">
+                        <p>Este producto no contiene imagenes</p>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div v-else class="product-image-section">
+                <img :key="selectedImg" :src="getSelectedImg() || 'https://via.placeholder.com/600'" :alt="product.nombre" class="main-image">
+                <div class="img-gallery">
+                    <div class="secondary-img">
+                        <img :src="getVariationImg() || 'https://via.placeholder.com/600'" :alt="product.nombre" @click="selectedImg = product.img">
+                    </div>
+                    <div v-if="selectedVariation?.img_gallery" v-for="img in selectedVariation.img_gallery" class="secondary-img">
+                        <img :src="getProductSecondaryImg(img)" :alt="img.nombre" @click="selectedImg = img">
+                    </div>
+                    <div v-else style="padding: 50px;">
+                        <p>Esta variacion no contiene imagenes</p>
+                    </div>
+                </div>
             </div>
             
             <div class="product-info-section">
@@ -173,16 +288,31 @@
     }
 
     .product-image-section {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
+        display: grid;
+        row-gap: 5em;
+        grid-template-columns: 1fr;
+        grid-template-rows: 2fr;
     }
 
     .main-image {
         width: 100%;
-        max-width: 500px;
         border-radius: 8px;
         object-fit: cover;
+        height: 100%;
+        animation: fade-in 0.5s ease-in-out 0s forwards;
+    }
+
+    .img-gallery {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-rows: auto;
+        gap: 20px;
+    }
+
+    
+
+    .img-gallery .secondary-img img{
+        width: 100%;
     }
 
     .product-info-section {
@@ -412,5 +542,10 @@
         .product-title {
             font-size: 1.8em;
         }
+    }
+
+    @keyframes fade-in {
+        from {opacity: 0;}
+        to {opacity: 1;}
     }
 </style>

@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('categoria');
             $table->string('nombre')->unique();
             $table->float('precio');
-            $table->string('talla');
-            $table->string('color');
-            $table->integer('stock');
+            $table->string('talla')->nullable();
+            $table->string('color')->nullable();
+            $table->integer('stock')->nullable();
             $table->string('ajuste');
             $table->string('sexo');
             $table->string('descripcion');

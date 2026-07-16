@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class BaseController extends Controller
 {
-    protected function sendResponse(mixed $result, $message, $code = 200)
+    protected function sendResponse(mixed $result, string $message, $code = 200)
     {
         if ($result instanceof JsonResource) {
             return response()->json([

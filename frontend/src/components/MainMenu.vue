@@ -73,6 +73,8 @@
                                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark" aria-labelledby="userDropdown">
                                         <li><router-link to="/profile" class="dropdown-item">Perfil</router-link></li>
                                         <li><hr class="dropdown-divider"></li>
+                                        <li v-if="authStore.user.role === 'admin'"><router-link to="/admin" class="dropdown-item">Admin</router-link></li>
+                                        <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form method="POST" @submit.prevent="logout()">
                                                 <button type="submit" class="dropdown-item">

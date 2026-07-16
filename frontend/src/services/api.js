@@ -671,7 +671,9 @@ const getImportsLogs = async (page) => {
 
 const updateProduct = async (product, data) => {
     try {
-        const response = await privateApi.put(`/products/${product}`, data);
+        const response = await privateApi.post(`/products/${product}`, data, { headers: {
+                'Content-Type': 'multipart/form-data'
+            }});
         console.log("Axios: Response received:", response.data)
 
         return {
@@ -700,7 +702,11 @@ const updateProduct = async (product, data) => {
 
 const addProduct = async (data) => {
     try {
-        const response = await privateApi.post(`/products`, data);
+        const response = await privateApi.post(`/products`, data, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         console.log("Axios: Response received:", response.data)
 
         return {

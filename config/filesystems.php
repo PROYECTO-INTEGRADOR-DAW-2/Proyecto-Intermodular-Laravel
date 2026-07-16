@@ -46,6 +46,14 @@ return [
             'throw' => false,
             'report' => false,
         ],
+        
+
+        'raiz_publica' => [
+            'driver' => 'local',
+            'root' => public_path(), // Apunta directo a la carpeta public/ de la raíz
+            'url' => env('APP_URL'),
+            'visibility' => 'public',
+        ],
 
         's3' => [
             'driver' => 's3',

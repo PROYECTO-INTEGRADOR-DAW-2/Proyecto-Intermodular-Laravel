@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('product_variations', function(Blueprint $table) {
             $table->id();
+            $table->string('sku');
             $table->foreignId('product_id')->constrained('products');
             $table->foreignId('color_id')->constrained('colors');
             $table->foreignId('size_id')->constrained('tallas');
             $table->integer('stock');
             $table->float('precio_especifico')->nullable();
+            $table->boolean('oferta')->default(false);
+            $table->float('precio_oferta')->nullable();
+            $table->string('img')->nullable();
             $table->timestamps();
         });
     }
