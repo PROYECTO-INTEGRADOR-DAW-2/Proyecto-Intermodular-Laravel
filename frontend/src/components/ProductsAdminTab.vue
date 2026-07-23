@@ -621,16 +621,15 @@
             variations.value.forEach((variacion, index) => {
 
                 const rawKeys = ['nombre', 'stock', 'precio_especifico', 'id', 'sku', 'product_id', 'oferta', 'precio_oferta']
+                const unnecesaryKeys = ['size', 'color', 'img_gallery'];
 
                 //Recorremos los valores de la variacion sin tener en cuenta la estructura compleja de imagenes secundarias
                 Object.entries(variacion).forEach(([key, value]) => {
 
-                    if (rawKeys.includes(key.toLocaleLowerCase())) { 
-                        formData.append(`variaciones[${index}][${key}]`, value)
-                    }
-
-                    else if (key !== 'imagenes-secundarias-variacion' && key !== 'imagen-main-variacion') { console.log(key, ":", value); formData.append(`variaciones[${index}][${key}]`, value.id)};
-                })
+                    if (unnecesaryKeys.includes(key.toLocaleLowerCase())) return;
+                    else if (key !== 'imagenes-secundarias-variacion' && key !== 'imagen-main-variacion') { console.log(key, ":", value); formData.append(`variaciones[${index}][${key}]`, value)};
+                
+                });
 
                 if (variacion['imagen-main-variacion']) {
                     formData.append(`variaciones[${index}][imagen-main-variacion]`, variacion['imagen-main-variacion'][0])
