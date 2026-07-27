@@ -298,27 +298,30 @@
         const productCategory = product.categoria.toLowerCase();
         const productImgName = product.img;
 
-        if (!productBrand || !productCategory || !productImgName) return;
-
-        const finalUrl = `/api/productos/imagen/${productBrand}/${productCategory}/${productImgName}`;
-
-        //Hacemos un fetch de la imagen
-        const respuesta = await fetch(finalUrl);
-        const blob = await respuesta.blob();
-
-        //Creamos un objeto File con la imagen del producto a editar
-        const file = new File([blob], productImgName, { type: blob.type });
+        if (!productBrand || !productCategory) return;
         
-        //Con datatransfer creamos una lista de ficheros y lo asignamos al input de imagen main
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        const fileList = dataTransfer.files;
+        if (productImgName) {
+            const finalUrl = `/api/productos/imagen/${productBrand}/${productCategory}/${productImgName}`;
 
-        if (imagenMainRef.value) {
-            imagenMainRef.value.files = fileList;
-            setUpdateProductFieldValue('imagen_main', fileList);
-            imagenMainRef.value.dispatchEvent(new Event('change', { bubbles: true }));
-        }
+            //Hacemos un fetch de la imagen
+            const respuesta = await fetch(finalUrl);
+            const blob = await respuesta.blob();
+
+            //Creamos un objeto File con la imagen del producto a editar
+            const file = new File([blob], productImgName, { type: blob.type });
+            
+            //Con datatransfer creamos una lista de ficheros y lo asignamos al input de imagen main
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            const fileList = dataTransfer.files;
+
+            if (imagenMainRef.value) {
+                imagenMainRef.value.files = fileList;
+                setUpdateProductFieldValue('imagen_main', fileList);
+                imagenMainRef.value.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        } 
+        
 
         // Procesamiento y carga de imagenes de la galeria de imagenes del producto
         if (product.imgGallery && product.imgGallery.length > 0) {

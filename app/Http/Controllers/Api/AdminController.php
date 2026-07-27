@@ -128,17 +128,24 @@ class AdminController extends BaseController {
         $validated['img'] = $oldProductImg;
 
         //PROCESAMIENTO DE IMAGEN PRINCIPAL
-        if (isset($productMainImg) && ($productMainImg->getClientOriginalName() !== $oldProductImg || $this->urlChanges($validated, $product->toArray()))) {
+        if (isset($productMainImg)) {
             $mainImgName    = $productMainImg->getClientOriginalName();
             $mainImgError   = $productMainImg->getError();
-            $mainImgTmpName = $productMainImg->getClientOriginalPath();
+            $mainImgTmpName = $productMainImg->getRealPath();
 
             if ($mainImgError !== UPLOAD_ERR_OK) {
-                $errors[] = "La imagen principal" . $mainImgName . "del producto contiene errores";
+                $errors[] = "La imagen principal " . $mainImgName . " del producto contiene errores";
             } else {
                 $cleanedMainImgName = str_replace(' ', '-', $mainImgName);
 
-                $fullUrl = public_path('img/img' . $productBrand . '/' . $productCategory . '/' . $cleanedMainImgName);
+                $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$cleanedMainImgName}");
+
+                if (File::exists($fullUrl)) {
+                    $tempNameToExistingFile = "{$cleanedMainImgName}TempProd{$product->id}";
+                    $tempFullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
+
+                    File::move($fullUrl, $tempFullUrl);
+                }
 
                 if (move_uploaded_file($mainImgTmpName, $fullUrl)) {
                     $savedMainImage = $cleanedMainImgName;
@@ -148,7 +155,7 @@ class AdminController extends BaseController {
             }
 
             if (strlen($savedMainImage) !== 0) $validated['img'] = $savedMainImage;
-            else $validated['img'] = "";
+            // Si falla la subida, se mantiene la imagen antigua
         }
 
         //GENERACION DE SKU DE PRODUCTO
@@ -165,17 +172,37 @@ class AdminController extends BaseController {
         $productUpdated = $product->update($validated);
 
 
+        // DISTINTOS ESCENARIOS DE SUBIDA DE IMAGEN MAIN
+        // - La ubicacion de guardado es nuevo y el nombre de la imagen main es nueva
+        // - La ubicacion de guardado es nuevo y el nombre de la imagen main es el mismo
+        // - La ubicacion de guardado es el mismo y el nombre de la imagen main es nueva
+        // - La ubicacion de guardado es el mismo y el nombre de la imagen main es el mismo
+
         //EN CASO DE PROBLEMAS AL HACER UPDATE O SI HAY UN UPDATE SATISFACTORIO
         //  - SI EL PRODUCTO FALLA NO PASAMOS DE LA EJECUCION DE ESTE IF
         if (!$productUpdated) {
             
-
             //- RESTAURACION DE IMAGEN PRINCIPAL (Eliminacion de imagen nueva subida)
 
-            if (strlen($savedMainImage) !== 0 && $savedMainImage !== $oldProductImg) {
+            if (strlen($savedMainImage) !== 0) {
                 $newImg = $savedMainImage;
                 
-                $fullUrl = public_path("img/img{$productBrand}/{$productBrand}/{$newImg}");
+                $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$newImg}");
+
+                if ($newImg === $oldProductImg && !$this->urlChanges($product->toArray(), $validated)) {
+                    $cleanedMainImgName = str_replace(' ', '-', $oldProductImg);
+
+                    $tempNameToExistingFile = "{$cleanedMainImgName}TempProd{$product->id}";
+
+                    $fullOldUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$tempNameToExistingFile}");
+                    $fullNewUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$newImg}");
+                    File::delete($fullUrl);
+
+                    File::move($fullOldUrl, $fullNewUrl);
+
+                    return $this->sendError('No se ha podido actualizar el producto');
+    
+                }
 
                 if (File::exists($fullUrl)) File::delete($fullUrl); //o file_exists($path)) unlink($path);
             }
@@ -184,11 +211,18 @@ class AdminController extends BaseController {
         } else {
 
             //- ELIMINACION DE IMAGEN ANTIGUA (Eliminacion de imagen antigua)
+            $newImg = $savedMainImage;
 
-            if ($oldProductImg !== $validated['img']) {
+            // Si la imagen nueva tiene el mismo nombre y misma ubicacion, se creo un temp → borrarlo
+            if (strlen($newImg) !== 0 && $newImg === $oldProductImg && !$this->urlChanges($product->toArray(), $validated)) {
+                $tempNameToExistingFile = "{$newImg}TempProd{$product->id}";
+                $tempUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$tempNameToExistingFile}");
+                if (File::exists($tempUrl)) File::delete($tempUrl);
+            }
 
+            // Si la imagen antigua es distinta a la nueva → borrar la antigua
+            if (strlen($newImg) !== 0 && $oldProductImg !== $newImg) {
                 $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$oldProductImg}");
-
                 if (File::exists($fullUrl)) File::delete($fullUrl);
             }
 
@@ -215,7 +249,12 @@ class AdminController extends BaseController {
 
                 $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$cleanedImgName}");
 
-                if (File::exists($fullUrl)) continue;
+                if (File::exists($fullUrl)) {
+                    $tempNameToExistingFile = "{$cleanedImgName}TempProd{$product->id}";
+                    $tempFullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
+
+                    move_uploaded_file($fullUrl, $tempFullUrl);
+                }
 
                 else if (move_uploaded_file($imgTmpName, $fullUrl)) $savedImages[] = $cleanedImgName;
                 else $errors[] = "La imagen {$imgName} de la galeria no se ha podido subir";
@@ -241,9 +280,7 @@ class AdminController extends BaseController {
                 if (!$imageGalleryItem) $error = true;
                 return;
             });
-
-
-            
+        
             if ($error) {
                 // SI A NIVEL DE BASE DE DATOS FALLA TENIENDO LAS NUEVAS IMAGENES DE LA GALERIA SUBIDAS
                 // - RESTAURAMOS A NIVEL DE BASE DE DATOS LOS ANTIGUOS NOMBRES DE ARCHIVOS CON LA GALERIA ANTIGUA
