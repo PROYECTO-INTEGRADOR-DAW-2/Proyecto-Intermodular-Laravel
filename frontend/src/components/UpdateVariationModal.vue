@@ -11,15 +11,16 @@
     <form @submit.prevent="onSubmit">
         <div class="form-group">
             <label>Nombre</label>
-            <Field type="text" name="nombre_variacion" placeholder="Nombre de variación" />
-            <ErrorMessage name="nombre_variacion" class="error-msg" />
+            <Field type="text" name="nombre" placeholder="Nombre de variación" />
+            <ErrorMessage name="nombre" class="error-msg" />
         </div>
 
         <div class="form-group">
             <label>Stock</label>
-            <Field type="number" min="0" name="stock_variacion" placeholder="Stock del producto" />
-            <ErrorMessage name="stock_variacion" class="error-msg" />
+            <Field type="number" min="0" name="stock" placeholder="Stock del producto" />
+            <ErrorMessage name="stock" class="error-msg" />
         </div>
+
         <div class="form-grid">
             <div>
                 <label>Color</label>
@@ -105,8 +106,10 @@
             <div v-if="fakeVariationImgPreview" class="images-preview">
                 <div class="img-container">
                     <img :src="fakeVariationImgPreview" @click="handleOpenImage">
-                    </div>
+                </div>
             </div>
+            <button class="add-btn" type="button" @click="handleDeleteVariationImg()">Eliminar imagen</button>
+
         </div>
 
         <div class="form-group">
@@ -123,12 +126,14 @@
                     @blur="handleBlur"
                 />
             </Field>
-            <ErrorMessage name="imagenes-secundarias" class="error-msg"></ErrorMessage>
+            <ErrorMessage name="imagenes-secundarias-variacion" class="error-msg"></ErrorMessage>
             <div v-if="variationImageGallery" class="images-preview">          
                 <div v-for="img in variationImageGallery" class="img-container">
                     <img :src="generateFakeImgUrl(img)" @click="handleOpenImage">
                 </div>         
             </div>
+            <button class="add-btn" type="button" @click="handleDeleteVariationGallery()">Eliminar imagen</button>
+
         </div>        
 
         <!-- Aquí metes el resto de tus campos (Color, Tallas, etc.) usando los <Field> normales -->
@@ -196,12 +201,12 @@
 
     // 2. Definimos el esquema de Yup exclusivo para la variación
     const schema = yup.object().shape({
-        nombre_variacion: yup.string().required("Debes de añadir un nombre a la variacion"),
+        nombre: yup.string().required("Debes de añadir un nombre a la variacion"),
         color: yup.mixed().required("Debes de seleccionar el color de la variacion"),
         size: yup.mixed().required("Debes de seleccionar la talla de la variacion"),
-        stock_variacion: yup.number().required("Debes de introduci rel stock de la variacion"),
-        'imagenes-secundarias-variacion': yup.mixed().required(),
-        'imagen-main-variacion': yup.mixed().required()
+        stock: yup.number().required("Debes de introduci rel stock de la variacion"),
+        'imagenes-secundarias-variscion': yup.mixed().nullable().notRequired(),
+        'imagen-main-variacion': yup.mixed().nullable().notRequired()
     });
 
     // 3. Inicializamos Vee-Validate TOTALMENTE AISLADO
@@ -213,18 +218,47 @@
     // 4. Escuchamos cuándo cambia la variación seleccionada para cargar sus datos limpios
     watch(() => props.variationData, async (newVariation) => {
         if (newVariation) {
-            // Cuando el padre nos pasa la variación, reseteamos ESTE formulario con sus datos
-            newVariation = {
-                ...newVariation, 
-                nombre_variacion: newVariation.nombre,
-                stock_variacion: newVariation.stock
-            };
 
+            // 1. Reseteamos Vee-Validate
             resetForm({ values: { ...newVariation } });
+            setFieldValue('imagen-main-variacion', null);
+            setFieldValue('imagenes-secundarias-variacion', null);
 
+            // 2. Limpiamos el valor HTML nativo de los inputs file
+            if (imagenMainVariationRef.value) imagenMainVariationRef.value.value = '';
+            if (imagenesVariationRef.value) imagenesVariationRef.value.value = '';
+
+            // 3. Limpiamos las variables de previsualización local
+            variationImageFile.value = null;
+            variationImageGallery.value = null;
+
+            const mainImage = newVariation['imagen-main-variacion'];
+            if (mainImage instanceof FileList && mainImage.length > 0) {
+                const file = mainImage[0];
+
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                const fileList = dataTransfer.files;
+
+                setFieldValue('imagen-main-variacion', fileList);
+
+                // Corregido el tipo a HTMLInputElement y acceso a .value.files
+                if (imagenMainVariationRef.value instanceof HTMLInputElement) imagenMainVariationRef.value.files = fileList;
+                
+            }
+
+            const imageGallery = newVariation['imagenes-secundarias-variacion'];
+            if (imageGallery instanceof FileList && imageGallery.length > 0) {
+                //Tenemos el filelist tenemos que asignarselo a el ref si el ref es una instancia de HTMLInputElement
+                setFieldValue('imagenes-secundarias-variacion', imageGallery);
+                if (imagenesVariationRef.value instanceof HTMLInputElement) imagenesVariationRef.value.files = imageGallery;
+            } 
+
+            
+        
             const productBrand = props.productContext?.marca?.charAt(0).toUpperCase() + props.productContext?.marca?.slice(1);
             const productCategory = props.productContext?.categoria;
-            const variationImg = newVariation.img;
+            const variationImg = newVariation.img !== null && newVariation.img !== "null" ? newVariation.img : null;
 
             // 3. Procesamos las imágenes en segundo plano (esto no debería tocar los textos del padre)
             if (productBrand && productCategory && variationImg) {
@@ -241,7 +275,7 @@
                     if (imagenMainVariationRef.value) {
                         imagenMainVariationRef.value.files = fileList;
                         setFieldValue('imagen-main-variacion', fileList);
-                        imagenMainVariationRef.value.dispatchEvent(new Event('change', { bubbles: true }));
+                        //imagenMainVariationRef.value.dispatchEvent(new Event('change', { bubbles: true }));
                     }
                 } catch(e) {
                     console.log("No se pudo procesar la imagen principal de la variacion");
@@ -268,9 +302,16 @@
                 if (imagenesVariationRef.value) {
                     imagenesVariationRef.value.files = fileListGaleria;
                     setFieldValue('imagenes-secundarias-variacion', fileListGaleria);
-                    imagenesVariationRef.value.dispatchEvent(new Event('change', { bubbles: true }));
+                    //imagenesVariationRef.value.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             }
+
+            
+
+            if (imagenMainVariationRef.value instanceof HTMLInputElement) imagenMainVariationRef.value.dispatchEvent(new Event('change', { bubbles: true }));
+
+            if (imagenesVariationRef.value instanceof HTMLInputElement) imagenesVariationRef.value.dispatchEvent(new Event('change', {bubbles: true}));
+
 
             // 4. Cargamos la categoría de talla de forma totalmente aislada usando setUpdateVariationFieldValue
             if (props.productContext?.sexo && props.productContext?.categoria) {
@@ -283,7 +324,7 @@
             }
 
     }
-    }, { immediate: true, deep: true });
+    }, { immediate: true, deep: true, flush: 'post'});
 
     const closeModal = () => {
         emit('close');
@@ -385,6 +426,9 @@
             }
 
         } else {
+
+            if (gallery) variationImageGallery.value = null;
+            else variationImageFile.value = null;
             console.log("No se ha subido ninguna imagen");  
         }
     }
@@ -421,6 +465,26 @@
 
         imagePopUpActive.value = true;
 
+    }
+    
+    const handleDeleteVariationGallery = () => {
+        if (imagenesVariationRef.value.files) {
+            setFieldValue('imagenes-secundarias-variacion', null);
+            imagenesVariationRef.value.value = '';
+            variationImageGallery.value = null;
+        }
+
+        imagenesVariationRef.value.dispatchEvent(new Event('change', {bubbles: true}));
+    }
+
+    const handleDeleteVariationImg = () => {
+        if (imagenMainVariationRef.value.files) {
+            setFieldValue('imagen-main-variacion', null);
+            imagenMainVariationRef.value.value = '';
+            variationImageFile.value = null;
+        }
+
+        imagenMainVariationRef.value.dispatchEvent(new Event('change', {bubbles: true}));
     }
 </script>
 
@@ -540,6 +604,7 @@
         display: flex;
         flex-direction: column;
         margin-bottom: 18px;
+        row-gap: 10px;
     }
 
     .form-group label {

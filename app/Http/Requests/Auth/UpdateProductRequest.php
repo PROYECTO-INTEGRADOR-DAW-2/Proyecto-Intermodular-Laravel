@@ -43,18 +43,18 @@ class UpdateProductRequest extends FormRequest {
             'isSimple'  => ['required', 'boolean'],
             'stock'     => ['integer', 'max:500'],
 
-            'imagenes_secundarias'   => ['required', 'array', 'min:1'],
+            'imagenes_secundarias'   => ['array'],
             'imagenes_secundarias.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Opcional pero recomendado para mayor seguridad
-            'imagen_main'            => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'imagen_main'            => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
 
             "variaciones"           => ['nullable', 'array', 'min:1'],
             "variaciones.*.nombre"  => ['string'],
             "variaciones.*.size_id"   => ['required', 'integer'],
             "variaciones.*.color_id"   => ['required', 'integer'],
             "variaciones.*.stock"   => ['required', 'integer'],
-            "variaciones.*.imagen-main-variacion"          => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            "variaciones.*.imagen-main-variacion"          => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             "variaciones.*.imagenes-secundarias-variacion" => ['array'],
-            "variaciones.*.imagenes-secundarias-variacion.*" => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048']
+            "variaciones.*.imagenes-secundarias-variacion.*" => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048']
         ];
 
         

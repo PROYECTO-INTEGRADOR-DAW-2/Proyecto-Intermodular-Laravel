@@ -116,7 +116,7 @@ class AdminController extends BaseController {
         $productBrand = strtoupper($validated['marca'][0]) . substr($validated['marca'], 1);
 
         //Necesarias para saber cuales eran la antigua categoria y marca donde estaban almacenadas las imagenes antiguas
-        $oldProductCategory = strtolower($product->category);
+        $oldProductCategory = strtolower($product->categoria);
         $oldProductBrand = strtoupper($product->marca[0]) . substr($product->marca, 1);
 
         $oldProductImgGallery = $product->imgGallery;
@@ -126,6 +126,10 @@ class AdminController extends BaseController {
         // Inicializamos 'img' con la imagen actual para que siempre exista la clave,
         // aunque no se suba una nueva imagen distinta.
         $validated['img'] = $oldProductImg;
+
+
+
+
 
         //PROCESAMIENTO DE IMAGEN PRINCIPAL
         if (isset($productMainImg)) {
@@ -156,6 +160,16 @@ class AdminController extends BaseController {
 
             if (strlen($savedMainImage) !== 0) $validated['img'] = $savedMainImage;
             // Si falla la subida, se mantiene la imagen antigua
+        } else if (!empty($oldProductImg)) {
+            // Si existe antigua imagen la borramos a nivel fisico y asignamos un valor vacio a img
+            // Tener una opcion de recuperacion de esta imagen por si falla la actualizacion
+            $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$oldProductImg}");
+            $fullTmpUrl = public_path("img/img{$productBrand}/{$productCategory}/{$oldProductImg}TempProd{$product->id}");
+            
+            if (File::exists($fullUrl)) File::move($fullUrl, $fullTmpUrl);
+
+            $validated['img'] = '';
+            
         }
 
         //GENERACION DE SKU DE PRODUCTO
@@ -205,6 +219,12 @@ class AdminController extends BaseController {
                 }
 
                 if (File::exists($fullUrl)) File::delete($fullUrl); //o file_exists($path)) unlink($path);
+            } else if (strlen($savedMainImage === 0 && isset($oldProductImg))) {
+                //Recuperamos TMP de la imagen anterior
+
+                $fullTmpUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$oldProductImg}TempProd{$product->id}");
+                $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$oldProductImg}");
+                if (File::exists($fullTmpUrl)) File::move($fullTmpUrl, $fullUrl);
             }
         
             return $this->sendError('No se ha podido actualizar el producto');
@@ -213,28 +233,57 @@ class AdminController extends BaseController {
             //- ELIMINACION DE IMAGEN ANTIGUA (Eliminacion de imagen antigua)
             $newImg = $savedMainImage;
 
-            // Si la imagen nueva tiene el mismo nombre y misma ubicacion, se creo un temp → borrarlo
-            if (strlen($newImg) !== 0 && $newImg === $oldProductImg && !$this->urlChanges($product->toArray(), $validated)) {
-                $tempNameToExistingFile = "{$newImg}TempProd{$product->id}";
-                $tempUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$tempNameToExistingFile}");
-                if (File::exists($tempUrl)) File::delete($tempUrl);
-            }
+            if (strlen($newImg) !== 0) {
+                // Si la imagen nueva tiene el mismo nombre y misma ubicacion, se creo un temp → borrarlo
+                if ($newImg === $oldProductImg && !$this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand])) {
+                    $tempNameToExistingFile = "{$newImg}TempProd{$product->id}";
+                    $tempUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$tempNameToExistingFile}");
+                    if (File::exists($tempUrl)) File::delete($tempUrl);
+                }
 
-            // Si la imagen antigua es distinta a la nueva → borrar la antigua
-            if (strlen($newImg) !== 0 && $oldProductImg !== $newImg) {
-                $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$oldProductImg}");
-                if (File::exists($fullUrl)) File::delete($fullUrl);
-            }
+                // Si la imagen antigua es distinta a la nueva → borrar la antigua
+                else if ($oldProductImg !== $newImg) {
+                    $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$oldProductImg}");
+                    if (File::exists($fullUrl)) File::delete($fullUrl);
+                }
 
+                else if ($this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand])) {
+                    $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$newImg}");
+                    if (File::exists($fullUrl)) File::delete($fullUrl);
+                }
+            } else if (isset($oldProductImg)) {
+                // Se creo un temp por si acaso, eliminarlo
+                $fullTmpUrl = public_path("img/img{$productBrand}/{$productCategory}/{$oldProductImg}TempProd{$product->id}");
+
+                if (File::exists($fullTmpUrl)) File::delete($fullTmpUrl);
+                
+            }
 
         }
 
+
+
+
+
         //PROCESAMIENTO DE GALERIA
         
-        $newProductImgGallery = $_FILES['imagenes_secundarias'];
-        $newProductImgGalleryLength = count($newProductImgGallery['name']);
+        $newProductImgGallery = isset($_FILES['imagenes_secundarias']) ? $_FILES['imagenes_secundarias'] : null;
+        $newProductImgGalleryLength = isset($newProductImgGallery) ? count($newProductImgGallery['name']) : 0;
 
-        if (isset($newProductImgGallery)) {
+        if (!isset($newProductImgGallery) && $newProductImgGalleryLength === 0 && count($oldProductImgGallery)) {
+            // Significa que el usuario desea que no tenga ninguna imagen secundaria
+            // Simplemente borramos las antiguas imagenes de la galeria tanto a nivel fisico como BBDD
+
+            foreach($oldProductImgGallery as $img) {
+                $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$img->nombre}");
+
+                if (File::exists($fullUrl)) File::delete($fullUrl);
+            }
+
+            $oldProductImgGallery->each(fn($value) => $value->delete());
+
+
+        } else if (isset($newProductImgGallery) && $newProductImgGalleryLength > 0) {
             for ($i = 0; $i < $newProductImgGalleryLength; $i++) {
                 $imgName    = $newProductImgGallery['name'][$i];
                 $imgTmpName = $newProductImgGallery['tmp_name'][$i];
@@ -242,7 +291,7 @@ class AdminController extends BaseController {
 
                 $cleanedImgName = str_replace(' ', '-', $imgName);
 
-                if ($imgError !== UPLOAD_ERR_OK) {
+                if ($imgError !== UPLOAD_ERR_OK || empty($imgName)) {
                     $errors[] = "La imagen secundaria {$imgName} de la galeria presenta un error";
                     continue;
                 }
@@ -253,19 +302,21 @@ class AdminController extends BaseController {
                     $tempNameToExistingFile = "{$cleanedImgName}TempProd{$product->id}";
                     $tempFullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
 
-                    move_uploaded_file($fullUrl, $tempFullUrl);
+                    File::move($fullUrl, $tempFullUrl);
                 }
 
-                else if (move_uploaded_file($imgTmpName, $fullUrl)) $savedImages[] = $cleanedImgName;
+                if (move_uploaded_file($imgTmpName, $fullUrl)) $savedImages[] = $cleanedImgName;
                 else $errors[] = "La imagen {$imgName} de la galeria no se ha podido subir";
             }
         }
+
+        
 
         //- CREAMOS LA GALERIA DE IMAGENES EN LA BBDD
         if (count($savedImages) !== 0) {
 
             $error = false;
-            ImageGallery::where('product_id', $product->id)->each(fn($value, $key) => $value->delete());
+            $product->imgGallery->each(fn($value, $key) => $value->delete());
 
             array_walk($savedImages, function ($value, $key) use ($product) {
 
@@ -290,14 +341,45 @@ class AdminController extends BaseController {
 
                 // - RESTAURAMOS A NIVEL DE BASE DE DATOS LOS ANTIGUOS NOMBRES DE ARCHIVOS CON LA GALERIA ANTIGUA
                 foreach ($oldProductImgGallery as $value) ImageGallery::create($value->toArray());
+                
+                $oldProductImgGalleryArray = $oldProductImgGallery->toArray();
+                $urlChanges = $this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand]);
 
                 // - ELIMINAMOS LAS IMAGENES NUEVAS SUBIDAS
-                array_walk($savedImages, function ($value, $key) use ($productBrand, $productCategory) {
-                    $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$value}");
+                foreach($savedImages as $img) {
+
+                    //LA GALERIA PUEDE HABERSE SUBIDO EN UNA NUEVA UBICACION DISTINTA DE LA ANTERIOR 
+                    // - Esto quiere decir que si has subido las mismas imagenes pero en la nueva ubicacion
+                    // - Tan solo eliminas las imagenes de la nueva ubicacion y ya
+                    // - El problema aparece con las imagenes nuevas en la misma ubicacion de antes y hay imagenes con el mismo nombre
+                    // - Aqui entonces como tenemos un tmp tan solo eliminamos la nueva imagen y la antigua con el mismo nombre la recuperamos de la misma forma que con la imagen principal del producto
+
+                    if (!$urlChanges) {
+                        $inOldGallery = array_find($oldProductImgGalleryArray, function ($value) use ($img) {
+                            return $value['nombre'] === $img;
+                        });
+
+                        if ($inOldGallery) {
+                            $tempNameToExistingFile = "{$img}TempProd{$product->id}";
+
+                            $fullOldUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$tempNameToExistingFile}");
+                            $fullNewUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$img}");
+
+                            File::delete($fullNewUrl);
+
+                            File::move($fullOldUrl, $fullNewUrl);
+                        } else {
+                            $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$img}");
+
+                            File::delete($fullUrl);
+                        }
+                    }
+                    
+                    $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$img}");
                     if (File::exists($fullUrl)) File::delete($fullUrl);
-                });
+                }
 
-
+                
                 if ($this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], $product->toArray())) {
                     foreach ($oldProductImgGallery as $value) {
 
@@ -306,7 +388,7 @@ class AdminController extends BaseController {
                         $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$value->nombre}");
 
                         if (File::exists($fullOldUrl)) {
-                            if (!move_uploaded_file($fullOldUrl, $fullUrl)) $errors[] = "La imagen antigua {$value->nombre} de la galeria del producto no se ha podido mover a la ubicacion nueva";
+                            if (!File::move($fullOldUrl, $fullUrl)) $errors[] = "La imagen antigua {$value->nombre} de la galeria del producto no se ha podido mover a la ubicacion nueva";
                         };
 
                     }
@@ -318,21 +400,46 @@ class AdminController extends BaseController {
                 // Tenemos que eliminar las imagenes antiguas de la galeria antigua pero aqui hay que tener en cuenta algo
                 // Si alguna de las imagenes nuevas subidas resulta ser la misma que la anterior y no cambia la ubicacion de las imagenes
                 // Esa imagen no la podemos borrar o simplemente borramos la que habia antes con el mismo nombre antes
-                
+                // Aplicamos eliminacion de archivo temp mirando si la imagen actual en el for estaba en la antigua galeria y esta en la misma ubicacion
+                $urlChanges = $this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand]);
 
-                foreach ($oldProductImgGallery as $value) {
+                foreach ($oldProductImgGallery as $img) {
 
-                    $fullOldUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$value->nombre}");
+                    if (!$urlChanges) {
+                        $inNewGallery = array_find($savedImages, function ($value) use ($img) {
+                            return $value === $img->nombre;
+                        });
 
-                    if (File::exists($fullOldUrl)) File::delete($fullOldUrl);
+                        if ($inNewGallery) {
+                            $tempNameToExistingFile = "{$img->nombre}TempProd{$product->id}";
+
+                            $fullOldUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$tempNameToExistingFile}");
+
+                            File::delete($fullOldUrl);
+
+                        } else {
+                            $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$img->nombre}");
+
+                            File::delete($fullUrl);
+                        }
+
+                        continue;
+                    } else {
+                        $fullOldUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$img->nombre}");
+
+                        if (File::exists($fullOldUrl)) File::delete($fullOldUrl);
+                    }
+
+                    
 
                 }
-
 
             }
         }
 
-        return;
+        
+
+
 
 
         //PROCESAMIENTO DE VARIACIONES
@@ -342,85 +449,270 @@ class AdminController extends BaseController {
 
             foreach($variaciones as $index => &$variationData) {
 
-                // PROCESAR IMAGEN PRINCIPAL
                 $variationData['product_id'] = $product->id;
+                $badValues = ['', null, 'null'];
+
+                //3. Obtenemos datos actuales de variacion
+                $variation = Variation::where('id', $variationData['id'])->first();
+                $oldVariationImg = $variation?->img;
+                $oldVariationGalleryImg = $variation->imgGallery;
+
+                // 2. Aplicamos precio de producto o precio especifico de variacion y sanitizamos campos numericos
+                if (!isset($variationData['precio_especifico']) || array_find($badValues, fn($value) => $value === $variationData['precio_especifico'])) {
+                    $variationData['precio_especifico'] = $product->precio;
+                } else {
+                    $variationData['precio_especifico'] = (float) str_replace(',', '.', $variationData['precio_especifico']);
+                }
+
+                if (array_key_exists('precio_oferta', $variationData)) {
+                    if (array_find($badValues, fn($value) => $value === $variationData['precio_oferta'])) {
+                        $variationData['precio_oferta'] = null;
+                    } else {
+                        $variationData['precio_oferta'] = (float) str_replace(',', '.', $variationData['precio_oferta']);
+                    }
+                }
+
+                if (array_key_exists('oferta', $variationData)) {
+                    $variationData['oferta'] = filter_var($variationData['oferta'], FILTER_VALIDATE_BOOLEAN);
+                }
+
+                // 3. Procesamiento de imagen principal
                 $uploadDir = "img/img{$productBrand}/{$productCategory}";
 
                 if ($request->hasFile("variaciones.{$index}.imagen-main-variacion")) {
                     $fichero = $request->file("variaciones.{$index}.imagen-main-variacion");
                     $nombreFichero = $fichero->getClientOriginalName();
-                    $fichero->storeAs($uploadDir, $nombreFichero, 'raiz_publica');
+
+                    $cleanedVariationImgName = str_replace(' ', '-', $nombreFichero);
+
+                    $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/$cleanedVariationImgName");
+                    
+                    if (File::exists($fullUrl)) {
+                        $tempNameToExistingFile = "{$cleanedVariationImgName}TempProd{$product->id}";
+                        $tempFullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
+
+                        File::move($fullUrl, $tempFullUrl);
+                    }
+
+                    $fichero->storeAs($uploadDir, $cleanedVariationImgName, 'raiz_publica');
 
                     $variationData['img'] = $nombreFichero;
+                } else {
+                    if (!empty($oldVariationImg)) {
+                        // Hay antigua imagen principal eliminarla
+
+                        $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$oldVariationImg}");
+
+                        if (File::exists($fullUrl)) File::delete($fullUrl);
+
+                        $variationData['img'] = "";
+                    }
                 }
 
-                //GENERACION DE SKU
-                $variation = Variation::where('id', $variationData['id'])->first();
-                $oldVariationImg = $variation?->img; 
+                
                 $updated = false;
-
                 if ($variation) {
+                    
+                    //4. Generacion de SKU
                     $colorAbv = strtoupper(substr(Color::where('id', $variationData['color_id'])->value('nombre'), 0, 3));
                     $variationSKU = implode('-', [ $validated['sku'], $colorAbv, Talla::where('id', $variationData['size_id'])->value('nombre')]);
                     $variationData['sku'] = $variationSKU;
 
                     $updated = $variation->update($variationData);
 
+                    //5. Recuperacion o eliminacion de imagenes antiguas segun si se ha actualizado la variacion
                     if (!$updated) {
                     // RESTAURACION DE IMAGEN PRINCIPAL DE VARIACION
-                        if ($oldVariationImg !== $variationData['img'] || $this->urlChanges($product->toArray(), $validated)) {
+                        if ($oldVariationImg !== $variationData['img'] || $this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand])) {
                             $newVariationImg = $variationData['img'];
                             $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$newVariationImg}");
 
                             if (File::exists($fullUrl)) File::delete($fullUrl);
+                        } else if ($oldVariationImg === $variationData['img'] && !$this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand])) {
+
+                            // En este caso la imagen principal tiene el mismo nombre y estamos en la misma ubicacion con el producto actualizado
+                            // Esto significa que hay un temp en la misma ubicacion, tenemos que recuperarlo
+
+                            $tempNameToExistingFile = "{$variationData['img']}TempProd{$product->id}";
+
+                            $fullOldUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
+                            $fullNewUrl = public_path("img/img{$productBrand}/{$productCategory}/{$variationData['img']}");
+
+                            File::delete($fullNewUrl);
+
+                            File::move($fullOldUrl, $fullNewUrl);
+                            
                         }
 
                         continue;
                     } else {
 
-                        if ($oldVariationImg !== $variationData['img'] || $this->urlChanges(
-                            [
-                                'categoria' => $oldProductCategory,
-                                'marca' => $oldProductBrand
-                            ], $validated
-                        ))  {
+                        if ($oldVariationImg === $variationData['img'] && !$this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand])) {
+                            // En este caso la imagen principal tiene el mismo nombre y estamos en la misma ubicacion con el producto actualizado
+                            // Esto significa que hay un temp en la misma ubicacion, tenemos que recuperarlo
 
+                            $tempNameToExistingFile = "{$variationData['img']}TempProd{$product->id}";
+
+                            $fullOldUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
+
+                            File::delete($fullOldUrl);
+                            
+                        } else {
+                            $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$oldVariationImg}");
+
+                            if (File::exists($fullUrl)) File::delete($fullUrl);
                         }
 
-                        $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$oldVariationImg}");
-
-                        if (File::exists($fullUrl)) File::delete($fullUrl);
                     }
                 }
 
                 
-
+                //6. Procesamiento de galeria de variacion
                 if ($request->hasFile("variaciones.{$index}.imagenes-secundarias-variacion")) {
+
+                    $oldVariationGalleryImg = $variation->imgGallery;
+
+                    $oldVariationGalleryImg->each(fn($value) => $value->delete());
+
+                    $savedImagesVariationGallery = [];
+
+                    $error = false;
+
                     foreach($request->file("variaciones.{$index}.imagenes-secundarias-variacion") as $imagen) {
                         $nombreFichero = $imagen->getClientOriginalName();
-                        $saved = $imagen->storeAs($uploadDir, $nombreFichero, 'raiz_publica');
+                        $cleanedImgName = str_replace(' ', '-', $nombreFichero);
+
+
+                        $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$cleanedImgName}");
+
+                        if (File::exists($fullUrl)) {
+                            $tempNameToExistingFile = "{$cleanedImgName}TempProd{$product->id}";
+                            $fullNewUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
+
+                            File::move($fullUrl, $fullNewUrl);
+                        }
+
+                        $saved = $imagen->storeAs($uploadDir, $cleanedImgName, 'raiz_publica'); 
 
                         if ($saved) {
+
                             $galleryItem = [
                                 'variation_id' => $variation->id,
-                                'nombre' => $nombreFichero,
+                                'nombre' => $cleanedImgName,
                                 'orden' => 0
                             ];
 
                             $createdItemGallery = ImageGalleryVariation::create($galleryItem);
-                            // {{AQUI HAY QUE HACER RESTUAURACION DE GALERIA AL IGUAL QUE EN LA GALERIA DE PRODUCTO}} 
 
                             if ($createdItemGallery) {
+                                $savedImagesVariationGallery[] = $cleanedImgName;
                             } else {
-
+                                $errors[] = "La imagen {$nombreFichero} de la galeria de la variacion {$variation->id} del producto {$product->nombre} no se ha podido añadir a la BBDD rescatando la antigua galeria";
+                                $error = true;
+                                $savedImagesVariationGallery[] = $cleanedImgName;
+                                break;
                             }
+
+                        } else {
+                            $errors[] = "La imagen {$nombreFichero} de la galeria de la variacion {$variation->id} del producto {$product->nombre} no se ha podido almacenar rescatando la antigua galeria";
+                            $error = true;
+                            break;
                         }
 
+                    }
 
+                    if ($error) {
+                        //Esto significa que o a fallado la subida de algun archivo o no se ha podido actualizar a nivel de BBDD la galeria
+
+                        // Recoremos cada una de las antiguas imagenes y si la imagen actual esta en la nueva galeria en $savedImages
+                        // Entonces significa que estamos en la misma ubicacion y que debemos de rescatar el temp anterior
+                        // Si la URL cambia simplemente eliminamos todas las imagenes guardadas en la nueva ubicacion sin tener en cuenta Temp
+                        
+
+                        $oldVariationGalleryImg->each(fn($value) => ImageGalleryVariation::create($value->toArray()));
+
+                        $urlChanges = $this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand]);
+
+                        foreach ($savedImagesVariationGallery as $img) {
+
+                            if (!$urlChanges) {
+                                $inOldGallery = array_find($oldVariationGalleryImg, function ($value) use ($img){
+                                    return $value->nombre === $img;
+                                });
+                                
+                            
+                                if ($inOldGallery) {
+                                    $tempNameToExistingFile = "{$img}TempProd{$product->id}";
+
+                                    $fullOldUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
+                                    $fullNewUrl = public_path("img/img{$productBrand}/{$productCategory}/{$img}");
+
+                                    File::delete($fullNewUrl);
+
+                                    File::move($fullOldUrl, $fullNewUrl);
+                                    
+                                    continue;
+                                }
+
+                                $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$img}");
+
+                                if (File::exists($fullUrl)) File::delete($fullUrl);
+
+                            } else {
+                                $fullUrl = public_path("img/img{$productBrand}/{$productCategory}/{$img}");
+
+                                if (File::exists($fullUrl)) File::delete($fullUrl);
+                            }
+
+                            $imgBBDD = ImageGalleryVariation::where(['variation_id' => $variation->id, 'nombre' => $img]);
+
+                            if ($imgBBDD) $imgBBDD->delete();
+
+                        }
+                    } else {
+                        // Si no ha habido ningun error a nivel de almacenamiento de archivo y de BBDD en ningun fichero
+                        // Simplemente recorremos cada una de las imagenes de la antigua ubicacion y las eliminamos
+                        // Pero antes que nada debemos de tener en cuenta si la antigua imagen esta en la nueva galeria con el mismo nombre
+                        // Si la imagen esta en la nueva galeria entonces tenemos que eliminar el temp que se creo en su momento
+
+                        $urlChanges = $this->urlChanges(['categoria' => $oldProductCategory, 'marca' => $oldProductBrand], ['categoria' => $productCategory, 'marca' => $productBrand]);
+
+                        foreach($oldVariationGalleryImg as $oldImg) {
+                            if (!$urlChanges) {
+                                $inNewGallery = array_find($savedImagesVariationGallery, fn($value) => $value === $oldImg->nombre);
+
+                                if ($inNewGallery) {
+                                    $tempNameToExistingFile = "{$oldImg->nombre}TempProd{$product->id}";
+
+                                    $fullOldUrl = public_path("img/img{$productBrand}/{$productCategory}/{$tempNameToExistingFile}");
+
+                                    if (File::exists($fullOldUrl)) File::delete($fullOldUrl);
+                                } else {
+                                    $fullOldUrl = public_path("img/img{$productBrand}/{$productCategory}/{$oldImg->nombre}");
+
+                                    if (File::exists($fullOldUrl)) File::delete($fullOldUrl);
+                                }
+                            } else {
+                                $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/$oldImg");
+
+                                if (File::exists($fullUrl)) File::delete($fullUrl);
+                            }
+                        }
+                    }
+                } else {
+
+                    if (isset($oldVariationGalleryImg) && count($oldVariationGalleryImg) > 0) {
+                        // Existe antigua galeria para la variacion y debemos de eliminar fisicamente y a nivel de BBDD la imagen de la galeria
+                        foreach($oldVariationGalleryImg as $oldImg) {
+                            $fullUrl = public_path("img/img{$oldProductBrand}/{$oldProductCategory}/{$oldImg->nombre}");
+                            Log::channel('imports')->error($fullUrl);
+
+                            if (File::exists($fullUrl)) File::delete($fullUrl);
+
+                            $oldImg->delete();
+                        }
                     }
                 }
-
-
             }
         }
         
@@ -565,8 +857,26 @@ class AdminController extends BaseController {
             $variationSKU = implode('-', [ $validated['sku'], $colorAbv, Talla::where('id', $variationData['size_id'])->value('nombre')]);
             $variationData['sku'] = $variationSKU;
             
-            $variationData['color_id'] = $variationData['color'];
-            $variationData['size_id'] = $variationData['talla'];
+            $variationData['color_id'] = $variationData['color_id'] ?? $variationData['color'] ?? null;
+            $variationData['size_id'] = $variationData['size_id'] ?? $variationData['talla'] ?? null;
+
+            if (!isset($variationData['precio_especifico']) || $variationData['precio_especifico'] === '' || $variationData['precio_especifico'] === 'null' || $variationData['precio_especifico'] === null) {
+                $variationData['precio_especifico'] = $productCreated->precio;
+            } else {
+                $variationData['precio_especifico'] = (float) str_replace(',', '.', $variationData['precio_especifico']);
+            }
+
+            if (array_key_exists('precio_oferta', $variationData)) {
+                if ($variationData['precio_oferta'] === '' || $variationData['precio_oferta'] === 'null' || $variationData['precio_oferta'] === null) {
+                    $variationData['precio_oferta'] = null;
+                } else {
+                    $variationData['precio_oferta'] = (float) str_replace(',', '.', $variationData['precio_oferta']);
+                }
+            }
+
+            if (array_key_exists('oferta', $variationData)) {
+                $variationData['oferta'] = filter_var($variationData['oferta'], FILTER_VALIDATE_BOOLEAN);
+            }
 
             $createdVariation = Variation::create($variationData);
 

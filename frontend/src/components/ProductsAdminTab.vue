@@ -140,8 +140,8 @@
         }), */
         novedad: yup.boolean().default(false),
         isSimple: yup.boolean().default(false),
-        'imagenes_secundarias': yup.mixed().required(),
-        'imagen_main': yup.mixed().required()
+        'imagenes_secundarias': yup.mixed(),
+        'imagen_main': yup.mixed()
     })
 
     const schemaAddProduct = yup.object().shape({
@@ -390,7 +390,7 @@
         updateVariationFormActive.value = true;
         
         // 1. Guardamos la variación clonada inmediatamente
-        currentVariationToEdit.value = JSON.parse(JSON.stringify(variation));
+        currentVariationToEdit.value = variation;
 
     }
 
@@ -526,22 +526,18 @@
         return fakeUrl;
     }
 
-    const getImgUrl = (img) => {
-        if (!img) {
-            return;
-        }
+    const getImgUrl = (img, item) => {
+        if (!img && !item) return;
+        else if (item['imagen-main-variacion'] && item['imagen-main-variacion'] instanceof FileList) return URL.createObjectURL(item['imagen-main-variacion'][0]);
 
         const imgName = img;
         const productBrand = productFormData.value?.marca.charAt(0).toUpperCase() + productFormData.value?.marca.slice(1);
         const productCategory = productFormData.value?.categoria;
 
-        if (!imgName || !productBrand || !productCategory) {
-            console.log("He fallado en validacion")
-            return;
-        };
+        if (!imgName || !productBrand || !productCategory) return;
+        
 
         const finalUrl = `${import.meta.env.VITE_IMG_URL}/img/img${productBrand}/${productCategory}/${imgName}`;
-
         
         return finalUrl;
     }
@@ -576,6 +572,69 @@
 
         imagePopUpActive.value = true;
 
+    }
+
+    const handleDeleteProductGallery = () => {
+        if (imagenesMainRef.value.files) {
+            setUpdateProductFieldValue('imagenes_secundarias', null);
+            imagenesMainRef.value.value = '';
+            mainImageGallery.value = null;
+        }
+
+        imagenesMainRef.value.dispatchEvent(new Event('change', {bubbles: true}));
+    }
+
+    const handleDeleteProductImg = () => {
+        if (imagenMainRef.value.files) {
+            setUpdateProductFieldValue('imagen_main', null);
+            imagenMainRef.value.value = '';
+            mainImageFile.value = null;
+        }
+
+        imagenMainRef.value.dispatchEvent(new Event('change', {bubbles: true}));
+    }
+
+    const handleSyncImgs = async (color, editing) => {
+        // Tenemos el color de las variaciones
+        // Ahora tenemos que filtrar las variaciones por el color que llega
+        // Cuando los tenemos filtrados tenemos que aplicar la misma misma imagen en el parametro main-image-variation y gallery-variation
+        // NOTA: Tiene que ser la primera variacion encontrada de ese color
+
+        if (!color || typeof color !== 'number') return;
+
+        const filteredVariations = variations.value.filter(value => value.color_id === color);
+        console.log("Variaciones filtradas", filteredVariations);
+
+        const firstVariation = filteredVariations[0];
+        for (let variation in filteredVariations) {
+            if (variation === 0) continue;
+
+                console.log("Valor de imagen-main",filteredVariations[variation]['imagen-main-variacion'])
+
+            
+                if (filteredVariations[0]['imagen-main-variacion'] !== undefined) 
+                    filteredVariations[variation]['imagen-main-variacion'] = firstVariation['imagen-main-variacion'];
+                else {
+                    const img = firstVariation.img;
+                    if (img.length > 0) {
+                        let fullApiURL = null;
+
+                        if (editing) fullApiURL = `/productos/imagen/${updateProductValues.marca}/${updateProductValues.categoria}/${img}`;
+                        else fullApiURL = `/productos/imagen/${addProductValues.marca}/${addProductValues.categoria}/${img}`;
+                        
+                        const res = await fetch(fullApiURL);;
+                        const blob = await res.blob();
+
+                        const file = new File([blob], img, {type: blob.type});
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        const fileList = dataTransfer.files;
+
+                        filteredVariations[variation]['imagen-main-variacion'] = fileList;
+                }
+
+            } 
+        }
     }
 
 
@@ -613,7 +672,6 @@
             // 3. Procesamiento de imagen principal de producto
             if (imagenMainRef.value && imagenMainRef.value.files && imagenMainRef.value.files.length > 0) {
                 const imagenPrincipal = imagenMainRef.value.files[0];
-                console.log(imagenPrincipal);
                 formData.append('imagen_main', imagenPrincipal);
             } else {
                 console.warn('No se ha encontrado la imagen principal en el ref');
@@ -630,11 +688,11 @@
                 Object.entries(variacion).forEach(([key, value]) => {
 
                     if (unnecesaryKeys.includes(key.toLocaleLowerCase())) return;
-                    else if (key !== 'imagenes-secundarias-variacion' && key !== 'imagen-main-variacion') { console.log(key, ":", value); formData.append(`variaciones[${index}][${key}]`, value)};
+                    else if (key !== 'imagenes-secundarias-variacion' && key !== 'imagen-main-variacion') { formData.append(`variaciones[${index}][${key}]`, value)};
                 
                 });
 
-                if (variacion['imagen-main-variacion']) {
+                if (variacion['imagen-main-variacion'] !== undefined && variacion['imagen-main-variacion'][0] !== undefined) {
                     formData.append(`variaciones[${index}][imagen-main-variacion]`, variacion['imagen-main-variacion'][0])
                 }
                 
@@ -788,8 +846,10 @@
 
         if (index !== -1) {
             variations.value[index] = {...variation};
-            messageStore.addMessage({type: 'success', message: 'Variacion actualizada correctamente'})
+            console.log("Valor en unique variations", uniqueVariations);
+            console.log("Valor en variations", variations.value[index]);
 
+            messageStore.addMessage({type: 'success', message: 'Variacion actualizada correctamente'})
         } else {
             messageStore.addMessage({type: 'error', message: 'No se ha podido actualizar la variacion'})
         }
@@ -1194,6 +1254,7 @@
                                 <img :src="fakeMainImgPreview" @click="handleOpenImage">
                             </div>
                         </div>
+                        <button class="add-btn" type="button" @click="handleDeleteProductImg()">Eliminar imagen</button>
                     </div>
 
                     <div class="form-group">
@@ -1218,6 +1279,7 @@
                             </div>
                             
                         </div>
+                        <button class="add-btn" type="button" @click="handleDeleteProductGallery()">Eliminar galeria</button>
                     </div>
 
                     <div class="variations-section">
@@ -1229,14 +1291,14 @@
 
                         <div class="variations-container">
 
-                            <template v-if="uniqueVariations.length > 0">
+                            <template v-if="variations.length > 0">
                                 <div 
-                                    v-for="variation in uniqueVariations" 
+                                    v-for="variation in variations" 
                                     :key="variation.id || JSON.stringify([variation.color, variation.talla])" 
                                     class="variation-container"
                                 >
                                     <div class="variation-header">
-                                        <img :src="getImgUrl(variation.img)" alt="img-variacion">
+                                        <img :src="getImgUrl(variation.img, variation)" alt="img-variacion">
                                     </div>
                                     <div class="variation-body">
                                         <h3>{{ variation.nombre }}</h3>
@@ -1244,8 +1306,8 @@
                                         <p>Talla: {{ variation.size?.nombre }}</p>
                                     </div> 
                                     <div class="variation-buttons">
-                                        <button class="add-btn" @click="handleDeleteVariation(variation)">Eliminar</button>
-                                        <button class="add-btn" @click="handleEditVariation(variation)">Editar</button>
+                                        <button class="add-btn" type="button" @click="handleDeleteVariation(variation)">Eliminar</button>
+                                        <button class="add-btn" type="button" @click="handleEditVariation(variation)">Editar</button>
                                     </div>
                                 </div>
                             </template>
@@ -1255,6 +1317,10 @@
                                 <p>Este producto aun no tiene variaciones</p>
                             </div>
                         </div>
+
+                        <button type="button" class="add-btn" @click="handleSyncImgs(1, true)">
+                            Sincronizar imagenes
+                        </button>
 
                     </div>
                     
